@@ -1,5 +1,5 @@
 import { LlmDexie } from "storage/db";
-import { EmbeddingClient, OpenAIEmbeddingClient } from "./llm";
+import { EmbeddingClient } from "./llm";
 import { Node } from "./node";
 
 export interface NodeSimilarity {
@@ -23,7 +23,7 @@ export class VectorStoreIndex {
 		const index = new VectorStoreIndex(db);
 
 		// TODO: batched iteration
-		for (let node of nodes) {
+		for (const node of nodes) {
 			const embedding = await embeddingClient.embedNode(node);
 			await index.addNode(node, embedding, workspaceFilePath);
 		}

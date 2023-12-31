@@ -10,10 +10,7 @@ import { LlmDexie } from "storage/db";
 import { NodeParser } from "rag/node";
 import { OpenAIChatCompletionClient, OpenAIEmbeddingClient } from "rag/llm";
 import { VectorStoreIndex } from "rag/storage";
-import {
-	EmbeddingVectorRetriever as EmbeddingRetriever,
-	Retriever,
-} from "rag/retriever";
+import { EmbeddingVectorRetriever as EmbeddingRetriever } from "rag/retriever";
 import { RetrieverQueryEngine } from "rag/query-engine";
 import { DumbResponseSynthesizer } from "rag/synthesizer";
 
