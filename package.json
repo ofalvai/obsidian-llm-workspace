@@ -11,8 +11,17 @@
 	"keywords": [],
 	"author": "",
 	"license": "MIT",
+	"dependencies": {
+		"dexie": "^3.2.4",
+		"dexie-react-hooks": "^1.1.7",
+		"openai": "^4.24.0",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0"
+	},
 	"devDependencies": {
 		"@types/node": "^16.11.6",
+		"@types/react": "^18.2.45",
+		"@types/react-dom": "^18.2.18",
 		"@typescript-eslint/eslint-plugin": "5.29.0",
 		"@typescript-eslint/parser": "5.29.0",
 		"builtin-modules": "3.3.0",
