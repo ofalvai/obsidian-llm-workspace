@@ -37,7 +37,7 @@ export async function noteSummary(note: string, apiKey: string): Promise<string>
 	console.info(`Note summary token use: ${completion.usage?.total_tokens}`);
 
 	return completion.choices[0].message.content!;
-};
+}
 
 export async function extractKeyTopics(note: string, apiKey: string): Promise<string[]> {
 	const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
@@ -63,4 +63,4 @@ export async function extractKeyTopics(note: string, apiKey: string): Promise<st
 	} catch (error) {
 		throw new Error(`OpenAI response could not be parsed to schema: ${error}\nResponse: ${response}`);
 	}
-};
+}
