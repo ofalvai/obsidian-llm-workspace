@@ -6,8 +6,6 @@ import { extractKeyTopics, noteSummary } from "utils/openai";
 import { AppContext, PluginSettingsContext } from "utils/obsidian";
 
 const summaryMinChars = 500;
-const frontmatterKeyCategory = "category"
-const frontmatterValueWorkspace = "LLM workspace"
 
 export const NoteContext = (props: { db: LlmDexie }) => {
 	const app = useContext(AppContext);
@@ -15,10 +13,6 @@ export const NoteContext = (props: { db: LlmDexie }) => {
 	const [file, setFile] = useState(app?.workspace.getActiveFile() ?? null);
 
 	const [isLoading, setLoading] = useState(false);
-	const isWorkspace = useMemo(() => {
-		if (!file || !app) return false
-		return isLlmWorkspace(file, app)
-	}, [file]);
 
 	useEffect(() => {
 		const onOpen = (file: TFile | null) => {
@@ -106,7 +100,6 @@ export const NoteContext = (props: { db: LlmDexie }) => {
 
 	return <div>
 		<h4>{file?.basename}</h4>
-		{isWorkspace && <span className="llm-workspace-tag">Workspace</span>}
 		{file && <button onClick={onRecompute}>Recompute</button>}
 
 		{isLoading && <div>Loading...</div>}
@@ -123,28 +116,7 @@ export const NoteContext = (props: { db: LlmDexie }) => {
 				{derivedData.keyTopics.map(topic => <li key={topic}>{topic}</li>)}
 			</ul>
 		</>}
-
-		{file && <NoteLinks file={file}></NoteLinks>}
 	</div>;
 };
 
-const NoteLinks = (props: { file: TFile }) => {
-	const app = useContext(AppContext);
-	const links = app?.metadataCache.getFileCache(props.file)?.links ?? [];
-
-	return <div>
-		<h6>Linked notes</h6>
-		<ul>
-			{links.map(link => <li key={link.link}>{link.link}</li>)}
-		</ul>
-		{links.length === 0 && <p>No links</p>}
-	</div>;
-}
-
-function isLlmWorkspace(file: TFile, app: App): boolean {
-	const frontmatter = app?.metadataCache.getFileCache(file)?.frontmatter
-	if (!frontmatter) return false;
-
-	return frontmatter[frontmatterKeyCategory] === frontmatterValueWorkspace;
-}
 

@@ -1,4 +1,4 @@
-import "obsidian";
+import "obsidian"
 
 declare module "obsidian" {
     interface App {

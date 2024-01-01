@@ -1,6 +1,6 @@
-import { LlmDexie } from "storage/db";
-import { EmbeddingClient } from "./llm";
-import { Node } from "./node";
+import { LlmDexie } from "storage/db"
+import { EmbeddingClient } from "./llm"
+import { Node } from "./node"
 
 export interface NodeSimilarity {
 	similarity: number;
@@ -8,10 +8,10 @@ export interface NodeSimilarity {
 }
 
 export class VectorStoreIndex {
-	private db: LlmDexie;
+	private db: LlmDexie
 
 	constructor(db: LlmDexie) {
-		this.db = db;
+		this.db = db
 	}
 
 	static async buildWithNodes(
@@ -20,15 +20,15 @@ export class VectorStoreIndex {
 		embeddingClient: EmbeddingClient,
 		db: LlmDexie
 	): Promise<VectorStoreIndex> {
-		const index = new VectorStoreIndex(db);
+		const index = new VectorStoreIndex(db)
 
 		// TODO: batched iteration
 		for (const node of nodes) {
-			const embedding = await embeddingClient.embedNode(node);
-			await index.addNode(node, embedding, workspaceFilePath);
+			const embedding = await embeddingClient.embedNode(node)
+			await index.addNode(node, embedding, workspaceFilePath)
 		}
 
-		return index;
+		return index
 	}
 
 	async addNode(
@@ -40,7 +40,7 @@ export class VectorStoreIndex {
 			node: node,
 			includedInWorkspace: [workspaceFilePath],
 			embedding: embedding,
-		});
+		})
 	}
 
 	async query(
@@ -51,14 +51,14 @@ export class VectorStoreIndex {
 		const vectorStoreEntries = await this.db.vectorStore
 			.where("includedInWorkspace")
 			.equals(workspaceFilePath)
-			.toArray();
+			.toArray()
 
 		const topNodes = vectorStoreEntries
 			.sort((a, b) => {
 				return (
 					cosineSimilarity(b.embedding, queryEmbedding) -
 					cosineSimilarity(a.embedding, queryEmbedding)
-				);
+				)
 			})
 			.slice(0, limit)
 			.map((indexEntry) => {
@@ -68,17 +68,17 @@ export class VectorStoreIndex {
 						queryEmbedding
 					),
 					node: indexEntry.node,
-				};
-			});
-		return topNodes;
+				}
+			})
+		return topNodes
 	}
 }
 
 function cosineSimilarity(a: number[], b: number[]): number {
 	// Assuming both vectors are normalized to [0..1]
-	let dotProduct = 0;
+	let dotProduct = 0
 	for (let i = 0; i < a.length; i++) {
-		dotProduct += a[i] * b[i];
+		dotProduct += a[i] * b[i]
 	}
-	return dotProduct;
+	return dotProduct
 }

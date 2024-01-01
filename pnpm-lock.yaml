@@ -25,6 +25,9 @@ dependencies:
     version: /@preact/compat@17.1.2(preact@10.19.3)
 
 devDependencies:
+  '@stylistic/eslint-plugin-js':
+    specifier: ^1.5.1
+    version: 1.5.1(eslint@8.56.0)
   '@types/node':
     specifier: ^16.11.6
     version: 16.18.68
@@ -361,6 +364,19 @@ packages:
     dependencies:
       preact: 10.19.3
     dev: false
+
+  /@stylistic/eslint-plugin-js@1.5.1(eslint@8.56.0):
+    resolution: {integrity: sha512-iZF0rF+uOhAmOJYOJx1Yvmm3CZ1uz9n0SRd9dpBYHA3QAvfABUORh9LADWwZCigjHJkp2QbCZelGFJGwGz7Siw==}
+    engines: {node: ^16.0.0 || >=18.0.0}
+    peerDependencies:
+      eslint: '>=8.40.0'
+    dependencies:
+      acorn: 8.11.2
+      escape-string-regexp: 4.0.0
+      eslint: 8.56.0
+      eslint-visitor-keys: 3.4.3
+      espree: 9.6.1
+    dev: true
 
   /@types/codemirror@5.60.8:
     resolution: {integrity: sha512-VjFgDF/eB+Aklcy15TtOTLQeMjTo07k7KAjql8OK5Dirr7a6sJY4T1uVBDuTVG9VEmn1uUsohOpYnVfgC6/jyw==}
