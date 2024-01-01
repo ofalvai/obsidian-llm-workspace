@@ -1,17 +1,17 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { App, TFile } from "obsidian";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useState, useMemo, useCallback } from "preact/hooks"
 import { LlmDexie } from "storage/db";
-import { useApp, usePluginSettings } from "utils/obsidian";
 import { extractKeyTopics, noteSummary } from "utils/openai";
+import { AppContext, PluginSettingsContext } from "utils/obsidian";
 
 const summaryMinChars = 500;
 const frontmatterKeyCategory = "category"
 const frontmatterValueWorkspace = "LLM workspace"
 
 export const NoteContext = (props: { db: LlmDexie }) => {
-	const app = useApp();
-	const settings = usePluginSettings();
+	const app = useContext(AppContext);
+	const settings = useContext(PluginSettingsContext);
 	const [file, setFile] = useState(app?.workspace.getActiveFile() ?? null);
 
 	const [isLoading, setLoading] = useState(false);
@@ -129,7 +129,7 @@ export const NoteContext = (props: { db: LlmDexie }) => {
 };
 
 const NoteLinks = (props: { file: TFile }) => {
-	const app = useApp();
+	const app = useContext(AppContext);
 	const links = app?.metadataCache.getFileCache(props.file)?.links ?? [];
 
 	return <div>

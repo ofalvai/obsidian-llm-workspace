@@ -1,16 +1,13 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
-import { Root, createRoot } from "react-dom/client";
-import { StrictMode } from "react";
 import { NoteContext } from "component/NoteContext";
 import { AppContext, PluginSettingsContext } from "utils/obsidian";
 import { LlmPluginSettings } from "main";
 import { LlmDexie } from "storage/db";
+import { render } from "preact";
 
 export const VIEW_TYPE_NOTE_CONTEXT = "llm-note-context-view";
 
 export class NoteContextView extends ItemView {
-	root: Root | null = null;
-
 	settings: LlmPluginSettings;
 
 	db: LlmDexie;
@@ -34,21 +31,19 @@ export class NoteContextView extends ItemView {
 	}
 
 	async onOpen() {
-		this.root = createRoot(this.containerEl.children[1]);
-
-		this.root.render(
-			<StrictMode>
-				<AppContext.Provider value={this.app}>
-					<PluginSettingsContext.Provider value={this.settings}>
-						<NoteContext db={this.db} />
-					</PluginSettingsContext.Provider>
-				</AppContext.Provider>
-			</StrictMode>
-		);
+		render(
+			<AppContext.Provider value={this.app}>
+				<PluginSettingsContext.Provider value={this.settings}>
+					<NoteContext db={this.db} />
+				</PluginSettingsContext.Provider>
+			</AppContext.Provider>,
+			this.contentEl
+		)
 	}
 
 	async onClose() {
-		this.root?.unmount();
+		// https://stackoverflow.com/questions/50946950/how-to-destroy-root-preact-node
+		render(null, this.contentEl)
 	}
 
 }
