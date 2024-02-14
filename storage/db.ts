@@ -1,27 +1,36 @@
 import Dexie, { Table } from "dexie"
 import { Node } from "rag/node"
+import { NotePath } from "utils/obsidian"
 
 export interface NoteDerivedData {
-	path: string;
-	summary?: string;
-	keyTopics?: string[];
+	path: NotePath
+	summary?: string
+	keyTopics?: string[]
 }
 
 export interface VectorStoreEntry {
-	node: Node;
-	includedInWorkspace: string[];
-	embedding: number[];
+	node: Node
+	includedInWorkspace: NotePath[]
+	embedding: number[]
+}
+
+export interface WorkspaceStoreEntry {
+	workspaceFile: NotePath
+	links: NotePath[]
+	lastIndexed: number
 }
 
 export class LlmDexie extends Dexie {
 	noteDerivedData!: Table<NoteDerivedData>
 	vectorStore!: Table<VectorStoreEntry>
+	workspace!: Table<WorkspaceStoreEntry>
 
 	constructor(vaultId: string) {
 		super(`llm-plugin/cache/${vaultId}`)
 		this.version(1).stores({
 			noteDerivedData: "path", // indexed props
-			vectorStore: "++, *includedInWorkspace", // indexed props
+			vectorStore: "++, *includedInWorkspace, node.parent", // indexed props
+			workspace: "workspaceFile, *links", // indexed props
 
 			llamaIndexIndexStore: "indexId", // indexed props
 			llamaIndexVectorStore: "baseNode.id_, refDocId", // indexed props

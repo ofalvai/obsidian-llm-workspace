@@ -1,5 +1,4 @@
-import { ItemView, Notice, WorkspaceLeaf } from "obsidian";
-import { NoteContext } from "component/NoteContext";
+import { ItemView, Notice, TFile, WorkspaceLeaf } from "obsidian";
 import { AppContext, PluginSettingsContext } from "utils/obsidian";
 import { LlmPluginSettings } from "main";
 import { LlmDexie } from "storage/db";
@@ -36,6 +35,9 @@ export class WorkspaceView extends ItemView {
 			return
 		}
 		// TODO: filter for non-Markdown files
+
+		await this.updateWorkspaceStore(file);
+
 		render(
 			<AppContext.Provider value={this.app}>
 				<PluginSettingsContext.Provider value={this.settings}>
@@ -49,6 +51,34 @@ export class WorkspaceView extends ItemView {
 	async onClose() {
 		// https://stackoverflow.com/questions/50946950/how-to-destroy-root-preact-node
 		render(null, this.contentEl)
+	}
+
+	async updateWorkspaceStore(file: TFile) {
+		// TODO: add field to frontmatter if it's missing
+		// TODO: this could accidentally create a new workspace if the windows are restored after startup and the active tab is not the workspace note
+
+		const exists = await this.db.workspace
+			.where("workspaceFile")
+			.equals(file.path)
+			.count() == 1
+
+		if (exists) {
+			return
+		}
+
+		const links = this.app.metadataCache
+			.getFileCache(file)?.links
+			?.map(link => {
+				return this.app.metadataCache.getFirstLinkpathDest(link.link, file.path)
+			})
+			?.filter((l): l is Exclude<typeof l, null> => l !== null)
+			?.map((l) => l.path) ?? [];
+
+		await this.db.workspace.put({
+			workspaceFile: file.path,
+			links: links,
+			lastIndexed: new Date().valueOf(),
+		})
 	}
 
 }

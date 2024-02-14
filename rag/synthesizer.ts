@@ -35,7 +35,7 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 	): Promise<QueryResponse> {
 		const context = nodes
 			.reverse() // knowledge is better recalled towards the end of window
-			.map((n) => `${n.node.parentFilePath}\n${n.node.content}`)
+			.map((n) => `${n.node.parent}\n${n.node.content}`)
 			.join("\n\n")
 		const userPrompt = defaultSynthesisUserPrompt(context, query)
 		const systemPrompt = defaultSynthesisSystemPrompt

@@ -5,7 +5,9 @@ import {
 	Setting,
 	WorkspaceLeaf,
 } from "obsidian"
+import { VectorStoreIndex } from "rag/storage"
 import { LlmDexie } from "storage/db"
+import { ObsidianNoteReconciler } from "utils/reconciler"
 import { NoteContextView, VIEW_TYPE_NOTE_CONTEXT } from "view/NoteContextView"
 import { VIEW_TYPE_WORKSPACE, WorkspaceView } from "view/WorkspaceView"
 
@@ -19,13 +21,17 @@ const DEFAULT_SETTINGS: LlmPluginSettings = {
 
 export default class LlmPlugin extends Plugin {
 	settings: LlmPluginSettings
-
 	db: LlmDexie
+	reconciler: ObsidianNoteReconciler
 
 	async onload() {
 		await this.loadSettings()
 
 		this.db = new LlmDexie(this.app.appId ?? this.app.vault.getName())
+
+		const index = new VectorStoreIndex(this.db)
+		this.reconciler = new ObsidianNoteReconciler(this.app, this.db, index)
+		this.reconciler.subscribeToChanges()
 
 		this.registerView(
 			VIEW_TYPE_NOTE_CONTEXT,
@@ -105,7 +111,9 @@ export default class LlmPlugin extends Plugin {
 	// 	console.log("Nodes with scores:", nodesWithScores);
 	// }
 
-	onunload() {}
+	onunload() {
+		this.reconciler.unsubscribeFromChanges()
+	}
 
 	async activateContextView() {
 		const { workspace } = this.app
@@ -142,7 +150,7 @@ export default class LlmPlugin extends Plugin {
 			leaf = leaves[0]
 		} else {
 			// Our view could not be found in the root split,
-			// 
+			//
 			leaf = workspace.getLeaf("split", "vertical")
 			await leaf.setViewState({
 				type: VIEW_TYPE_WORKSPACE,
