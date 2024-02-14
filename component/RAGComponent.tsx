@@ -1,16 +1,14 @@
-import { App, Notice, TFile } from "obsidian";
-import { useCallback, useContext, useMemo, useState } from "preact/hooks";
+import { useLiveQuery } from "dexie-react-hooks";
+import { Notice, TFile } from "obsidian";
+import { useContext, useMemo, useState } from "preact/hooks";
 import { OpenAIChatCompletionClient, OpenAIEmbeddingClient } from "rag/llm";
-import { NodeParser, Node } from "rag/node";
+import { Node, NodeParser } from "rag/node";
 import { RetrieverQueryEngine } from "rag/query-engine";
 import { EmbeddingVectorRetriever } from "rag/retriever";
 import { VectorStoreIndex } from "rag/storage";
 import { DumbResponseSynthesizer, QueryResponse } from "rag/synthesizer";
 import { LlmDexie } from "storage/db";
-import { AppContext, PluginSettingsContext } from "utils/obsidian";
-
-const frontmatterKeyCategory = "category"
-const frontmatterValueWorkspace = "LLM workspace"
+import { AppContext, PluginSettingsContext, isLlmWorkspace } from "utils/obsidian";
 
 export const WorkspaceRAG = (props: { db: LlmDexie, file: TFile }) => {
 	const app = useContext(AppContext);
@@ -21,9 +19,12 @@ export const WorkspaceRAG = (props: { db: LlmDexie, file: TFile }) => {
 
 	const isWorkspace = useMemo(() => {
 		if (!props.file || !app) return false
-		return isLlmWorkspace(props.file, app)
+		const metadata = app.metadataCache.getFileCache(props.file)
+		if (!metadata) return false
+		return isLlmWorkspace(metadata)
 	}, [props.file]);
 
+	// TODO: memoize all of this
 	const embeddingClient = new OpenAIEmbeddingClient(
 		settings.openAIApiKey
 	);
@@ -75,6 +76,8 @@ export const WorkspaceRAG = (props: { db: LlmDexie, file: TFile }) => {
 		let nodes: Node[] = [];
 		for (const path of linkedFilePaths) {
 			// TODO: test for non-markdown files
+			// TODO: this is a relative path and works only accidentally
+			// https://docs.obsidian.md/Reference/TypeScript+API/MetadataCache/resolvedLinks
 			const file = await app.vault.getAbstractFileByPath(path) as TFile
 			const text = await app.vault.cachedRead(file)
 			nodes.push(...nodeParser.parse(text, file.path))
@@ -88,9 +91,18 @@ export const WorkspaceRAG = (props: { db: LlmDexie, file: TFile }) => {
 		);
 	}
 
+	// TODO: cross-reference with the vector store
+	// - check if the note is fully embedded
+	// - how many nodes it's split into
+	// - last update time
+	const links = useLiveQuery(async () => {
+		const workspace = await props.db.workspace.where("workspaceFile").equals(props.file.path).first()
+		return workspace?.links ?? []
+	}, [props.file.path], []);
+
 	return <div>
 		{!isWorkspace && <NonWorkspaceView file={props.file} />}
-		{isWorkspace && <WorkspaceDetails file={props.file} onRebuild={onRebuild} />}
+		{isWorkspace && <WorkspaceDetails file={props.file} links={links} onRebuild={onRebuild} />}
 		{isWorkspace && <QuestionAndAnswer
 			file={props.file}
 			isLoading={isLoading}
@@ -100,13 +112,6 @@ export const WorkspaceRAG = (props: { db: LlmDexie, file: TFile }) => {
 	</div>
 }
 
-function isLlmWorkspace(file: TFile, app: App): boolean {
-	const frontmatter = app?.metadataCache.getFileCache(file)?.frontmatter
-	if (!frontmatter) return false;
-
-	return frontmatter[frontmatterKeyCategory] === frontmatterValueWorkspace;
-}
-
 const NonWorkspaceView = (props: { file: TFile }) => {
 	return <div>
 		<h4>Not a workspace yet</h4>
@@ -114,25 +119,21 @@ const NonWorkspaceView = (props: { file: TFile }) => {
 	</div>
 }
 
-const WorkspaceDetails = (props: { file: TFile, onRebuild: () => void }) => {
-
+const WorkspaceDetails = (props: { file: TFile, links: string[], onRebuild: () => void }) => {
 	return <div>
 		<p>File: {props.file.basename}</p>
-		<NoteLinks file={props.file} />
+		<NoteLinks file={props.file} links={props.links} />
 		<button onClick={props.onRebuild}>Rebuild embedding DB</button>
 	</div>
 }
 
-const NoteLinks = (props: { file: TFile }) => {
-	const app = useContext(AppContext);
-	const links = app?.metadataCache.getFileCache(props.file)?.links ?? [];
-
+const NoteLinks = (props: { file: TFile, links: string[] }) => {
 	return <div>
 		<h6>Linked notes</h6>
 		<ul>
-			{links.map(link => <li key={link.link}>{link.link}</li>)}
+			{props.links.map(link => <li key={link}>{link}</li>)}
 		</ul>
-		{links.length === 0 && <p>No links</p>}
+		{props.links.length === 0 && <p>No links</p>}
 	</div>;
 }
 
@@ -173,7 +174,7 @@ const QuestionAndAnswer = (props: QuestionAndAnswerProps) => {
 		{props.queryResponse && <div>
 			<p>{props.queryResponse.text}</p>
 			<ol>
-				{props.queryResponse.sources.map(node => <li>{node.parentFilePath}</li>)}
+				{props.queryResponse.sources.map(node => <li>{node.parent}</li>)}
 			</ol>
 		</div>}
 	</div>

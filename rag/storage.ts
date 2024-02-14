@@ -1,10 +1,11 @@
-import { LlmDexie } from "storage/db"
+import { LlmDexie, VectorStoreEntry } from "storage/db"
 import { EmbeddingClient } from "./llm"
 import { Node } from "./node"
+import { NotePath } from "utils/obsidian"
 
 export interface NodeSimilarity {
-	similarity: number;
-	node: Node;
+	similarity: number
+	node: Node
 }
 
 export class VectorStoreIndex {
@@ -31,6 +32,7 @@ export class VectorStoreIndex {
 		return index
 	}
 
+	// TODO: put instead of add? or check before computing embedding?
 	async addNode(
 		node: Node,
 		embedding: number[],
@@ -71,6 +73,28 @@ export class VectorStoreIndex {
 				}
 			})
 		return topNodes
+	}
+
+	async removeNodesOfParent(parent: NotePath): Promise<void> {
+		await this.db.vectorStore.where("node.parent").equals(parent).delete()
+	}
+
+	async updateParentPath(old: NotePath, new_: NotePath): Promise<void> {
+		await this.db.vectorStore
+			.where("node.parent")
+			.equals(old)
+			.modify({ "node.parent": new_ })
+	}
+
+	async updateWorkspacePath(old: NotePath, new_: NotePath): Promise<void> {
+		await this.db.vectorStore
+			.where("includedInWorkspace")
+			.equals(old)
+			.modify((entry: VectorStoreEntry) => {
+				entry.includedInWorkspace = entry.includedInWorkspace.map(
+					(path) => (path === old ? new_ : path)
+				)
+			})
 	}
 }
 

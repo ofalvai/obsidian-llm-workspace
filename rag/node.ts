@@ -1,6 +1,8 @@
+import { NotePath } from "utils/obsidian"
+
 export interface Node {
 	content: string;
-	parentFilePath: string;
+	parent: NotePath;
 }
 
 export interface NodeParserConfig {
@@ -45,7 +47,7 @@ export class NodeParser {
 		return paragraphSplits.map((paragraph) => {
 			return {
 				content: paragraph,
-				parentFilePath: path,
+				parent: path,
 			}
 		})
 	}

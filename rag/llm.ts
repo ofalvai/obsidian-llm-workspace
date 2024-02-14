@@ -2,10 +2,10 @@ import OpenAI from "openai"
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions"
 import { Node } from "./node"
 
-const selfQueryPrompt = `
+const SELF_QUERY_PROMPT = `
 Your goal is to rewrite the user's question into search keywords.
 `
-const examples = [
+const EXAMPLES = [
 	{
 		input: "How do I make a pie?",
 		output: "make a pie",
@@ -23,6 +23,8 @@ const examples = [
 		output: "slot machine odds",
 	},
 ]
+
+const EMBEDDING_MODEL = "text-embedding-3-small"
 
 export interface EmbeddingClient {
 	embedNode(node: Node): Promise<number[]>;
@@ -90,7 +92,7 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 	async embedNode(node: Node): Promise<number[]> {
 		const response = await this.client.embeddings.create({
 			input: node.content,
-			model: "text-embedding-ada-002"
+			model: EMBEDDING_MODEL
 		})
 
 		return response.data[0].embedding
@@ -102,7 +104,7 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 		console.log("Improved query:", improvedQuery)
 		const response = await this.client.embeddings.create({
 			input: improvedQuery,
-			model: "text-embedding-ada-002"
+			model: EMBEDDING_MODEL,
 		})
 		return response.data[0].embedding
 	}
@@ -111,9 +113,9 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 		const messages = [
 			{
 				role: 'system',
-				content: selfQueryPrompt,
+				content: SELF_QUERY_PROMPT,
 			},
-			...examples.flatMap((example) => {
+			...EXAMPLES.flatMap((example) => {
 				return [
 					{ role: 'user', content: example.input },
 					{ role: 'assistant', content: example.output },
