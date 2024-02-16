@@ -12,6 +12,8 @@ export class WorkspaceView extends ItemView {
 
 	db: LlmDexie;
 
+	viewTitle = "LLM Workspace";
+
 	constructor(leaf: WorkspaceLeaf, settings: LlmPluginSettings, db: LlmDexie) {
 		super(leaf);
 		this.settings = settings;
@@ -25,7 +27,11 @@ export class WorkspaceView extends ItemView {
 	}
 
 	getDisplayText() {
-		return "LLM Workspace";
+		return this.viewTitle;
+	}
+
+	getIcon(): string {
+		return "sparkles"
 	}
 
 	async onOpen() {
@@ -37,6 +43,8 @@ export class WorkspaceView extends ItemView {
 		// TODO: filter for non-Markdown files
 
 		await this.updateWorkspaceStore(file);
+		this.viewTitle = `${file.basename} (LLM Workspace)`
+
 
 		render(
 			<AppContext.Provider value={this.app}>
