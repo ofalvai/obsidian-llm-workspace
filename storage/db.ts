@@ -30,9 +30,6 @@ export class LlmDexie extends Dexie {
 			noteDerivedData: "path", // indexed props
 			vectorStore: "++, *includedInWorkspace, node.parent", // indexed props
 			workspace: "workspaceFile, *links", // indexed props
-
-			llamaIndexIndexStore: "indexId", // indexed props
-			llamaIndexVectorStore: "baseNode.id_, refDocId", // indexed props
 		})
 	}
 
