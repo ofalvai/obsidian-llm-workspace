@@ -1,5 +1,6 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { Notice, TFile } from "obsidian";
+import { moment } from "obsidian";
 import { useContext, useMemo, useState } from "preact/hooks";
 import { OpenAIChatCompletionClient, OpenAIEmbeddingClient } from "rag/llm";
 import { Node, NodeParser } from "rag/node";
@@ -114,7 +115,7 @@ export const WorkspaceRAG = (props: { db: LlmDexie, file: TFile }) => {
 					map.set(filePath, {
 						path: filePath,
 						nodeCount: 1,
-						lastProcessed: undefined
+						lastProcessed: vectorStoreEntry.node.createdAt
 					})
 				}
 				return map
@@ -126,7 +127,7 @@ export const WorkspaceRAG = (props: { db: LlmDexie, file: TFile }) => {
 			const embeddingInfo = embeddedFileMap.get(link)
 			if (embeddingInfo) {
 				if (embeddingInfo.path != link) {
-					console.warn(`Mismatched between path of vector store entry and workspace link:\nPath from vector store entry: ${embeddingInfo.path}\nPath from workspace: ${link}`)
+					console.warn(`Mismatch between path of vector store entry and workspace link:\nPath from vector store entry: ${embeddingInfo.path}\nPath from workspace: ${link}`)
 				}
 				return embeddingInfo
 			} else {
@@ -184,13 +185,25 @@ const NoteLinks = (props: { file: TFile, links: EmbeddedFileInfo[] }) => {
 }
 
 const NoteLink = (props: { link: EmbeddedFileInfo }) => {
+	let label = ""
+	switch (props.link.nodeCount) {
+		case 0:
+			label = "Not indexed yet"
+			break
+		case 1:
+			label = "Indexed as 1 node "
+			label += window.moment(props.link.lastProcessed).fromNow()
+			break
+		default:
+			label = `Indexed as ${props.link.nodeCount} nodes `
+			label += window.moment(props.link.lastProcessed).fromNow()
+	}
 	return <div key={props.link.path}>
-		{props.link.nodeCount > 0 && <span aria-label={"Indexed as " + props.link.nodeCount + " nodes"} data-tooltip-position="top" data-tooltip-delay="300">
-			<FileCheck2 size={24} color="green" />
-		</span>}
-		{props.link.nodeCount == 0 && <span aria-label="Not indexed yet" data-tooltip-position="top" data-tooltip-delay="300">
-			<FileX2 size={24} color="red" />
-		</span>}
+		<span aria-label={label} data-tooltip-position="top" data-tooltip-delay="300">
+			{props.link.nodeCount == 0 && <FileX2 size={24} color="red" />}
+			{props.link.nodeCount > 0 && <FileCheck2 size={24} color="green" />}
+		</span>
+		{props.link.path}
 	</div>
 }
 

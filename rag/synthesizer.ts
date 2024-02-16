@@ -2,6 +2,8 @@ import { ChatCompletionClient } from "./llm"
 import { Node } from "./node"
 import { NodeSimilarity } from "./storage"
 
+// TODO: group by files
+// TODO: add similarity score
 export interface QueryResponse {
 	text: string;
 	sources: Node[];
