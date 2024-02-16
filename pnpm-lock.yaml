@@ -11,6 +11,9 @@ dependencies:
   dexie-react-hooks:
     specifier: ^1.1.7
     version: 1.1.7(@preact/compat@17.1.2)(@types/react@18.2.45)(dexie@3.2.4)
+  lucide-preact:
+    specifier: ^0.330.0
+    version: 0.330.0(preact@10.19.3)
   openai:
     specifier: ^4.24.0
     version: 4.24.0
@@ -1171,6 +1174,14 @@ packages:
     dependencies:
       yallist: 4.0.0
     dev: true
+
+  /lucide-preact@0.330.0(preact@10.19.3):
+    resolution: {integrity: sha512-RlBprBXXeeNxF0UsIBamfZ9Gn87134okGskRVC1QlCV8L0iJH1+xnsx0sf737F6btLzd+EkUg4QkS7XgPQ38eA==}
+    peerDependencies:
+      preact: ^10.5.13
+    dependencies:
+      preact: 10.19.3
+    dev: false
 
   /md5@2.3.0:
     resolution: {integrity: sha512-T1GITYmFaKuO91vxyoQMFETst+O71VUPEU3ze5GNzDm0OWdP8v1ziTaAEPUr/3kLsY3Sftgz242A1SetQiDL7g==}

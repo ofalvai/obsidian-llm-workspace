@@ -7,8 +7,9 @@ import { RetrieverQueryEngine } from "rag/query-engine";
 import { EmbeddingVectorRetriever } from "rag/retriever";
 import { VectorStoreIndex } from "rag/storage";
 import { DumbResponseSynthesizer, QueryResponse } from "rag/synthesizer";
-import { LlmDexie } from "storage/db";
+import { LlmDexie, VectorStoreEntry } from "storage/db";
 import { AppContext, PluginSettingsContext, isLlmWorkspace } from "utils/obsidian";
+import { FileCheck2, FileX2 } from "lucide-preact"
 
 export const WorkspaceRAG = (props: { db: LlmDexie, file: TFile }) => {
 	const app = useContext(AppContext);
@@ -91,13 +92,51 @@ export const WorkspaceRAG = (props: { db: LlmDexie, file: TFile }) => {
 		);
 	}
 
-	// TODO: cross-reference with the vector store
-	// - check if the note is fully embedded
-	// - how many nodes it's split into
-	// - last update time
 	const links = useLiveQuery(async () => {
 		const workspace = await props.db.workspace.where("workspaceFile").equals(props.file.path).first()
-		return workspace?.links ?? []
+
+		if (!workspace) {
+			console.error("Workspace not found", props.file.path)
+			return []
+		}
+
+		const vectorStoreResults: VectorStoreEntry[][] = await Promise.all(workspace.links.map(async link => {
+			// TODO: return a lighter object without the full string content and embedding vector
+			return await props.db.vectorStore.where("node.parent").equals(link).toArray()
+		}))
+
+		const embeddedFileMap = vectorStoreResults.flat().reduce(
+			(map, vectorStoreEntry) => {
+				const filePath = vectorStoreEntry.node.parent
+				if (map.has(filePath)) {
+					map.get(filePath)!.nodeCount += 1
+				} else {
+					map.set(filePath, {
+						path: filePath,
+						nodeCount: 1,
+						lastProcessed: undefined
+					})
+				}
+				return map
+			},
+			new Map<String, EmbeddedFileInfo>()
+		)
+
+		return workspace.links.map(link => {
+			const embeddingInfo = embeddedFileMap.get(link)
+			if (embeddingInfo) {
+				if (embeddingInfo.path != link) {
+					console.warn(`Mismatched between path of vector store entry and workspace link:\nPath from vector store entry: ${embeddingInfo.path}\nPath from workspace: ${link}`)
+				}
+				return embeddingInfo
+			} else {
+				return {
+					path: link,
+					nodeCount: 0,
+					lastProcessed: undefined
+				}
+			}
+		})
 	}, [props.file.path], []);
 
 	return <div>
@@ -112,6 +151,13 @@ export const WorkspaceRAG = (props: { db: LlmDexie, file: TFile }) => {
 	</div>
 }
 
+// TODO: display the pretty name of the file without folder segments
+interface EmbeddedFileInfo {
+	path: string,
+	nodeCount: number,
+	lastProcessed: number | undefined
+}
+
 const NonWorkspaceView = (props: { file: TFile }) => {
 	return <div>
 		<h4>Not a workspace yet</h4>
@@ -119,7 +165,7 @@ const NonWorkspaceView = (props: { file: TFile }) => {
 	</div>
 }
 
-const WorkspaceDetails = (props: { file: TFile, links: string[], onRebuild: () => void }) => {
+const WorkspaceDetails = (props: { file: TFile, links: EmbeddedFileInfo[], onRebuild: () => void }) => {
 	return <div>
 		<p>File: {props.file.basename}</p>
 		<NoteLinks file={props.file} links={props.links} />
@@ -127,14 +173,25 @@ const WorkspaceDetails = (props: { file: TFile, links: string[], onRebuild: () =
 	</div>
 }
 
-const NoteLinks = (props: { file: TFile, links: string[] }) => {
+const NoteLinks = (props: { file: TFile, links: EmbeddedFileInfo[] }) => {
 	return <div>
 		<h6>Linked notes</h6>
 		<ul>
-			{props.links.map(link => <li key={link}>{link}</li>)}
+			{props.links.map(link => <NoteLink link={link} />)}
 		</ul>
 		{props.links.length === 0 && <p>No links</p>}
 	</div>;
+}
+
+const NoteLink = (props: { link: EmbeddedFileInfo }) => {
+	return <div key={props.link.path}>
+		{props.link.nodeCount > 0 && <span aria-label={"Indexed as " + props.link.nodeCount + " nodes"} data-tooltip-position="top" data-tooltip-delay="300">
+			<FileCheck2 size={24} color="green" />
+		</span>}
+		{props.link.nodeCount == 0 && <span aria-label="Not indexed yet" data-tooltip-position="top" data-tooltip-delay="300">
+			<FileX2 size={24} color="red" />
+		</span>}
+	</div>
 }
 
 interface QuestionAndAnswerProps {
