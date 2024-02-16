@@ -61,56 +61,6 @@ export default class LlmPlugin extends Plugin {
 		})
 	}
 
-	// async llamaindexTest() {
-	// 	const file = this.app.workspace.getActiveFile();
-	// 	if (!file) {
-	// 		return;
-	// 	}
-	// 	const text = await this.app.vault.cachedRead(file);
-	// 	const document = new Document({ text });
-
-	// 	const llm = new OpenAI({
-	// 		model: "gpt-3.5-turbo",
-	// 		temperature: 0,
-	// 		apiKey: this.settings.openAIApiKey,
-	// 		additionalSessionOptions: { dangerouslyAllowBrowser: true },
-	// 	});
-	// 	const embedModel = new OpenAIEmbedding({
-	// 		apiKey: this.settings.openAIApiKey,
-	// 		additionalSessionOptions: { dangerouslyAllowBrowser: true },
-	// 	});
-	// 	const nodeParser = new SimpleNodeParser({
-	// 		textSplitter: new SentenceSplitter({
-	// 			tokenizer: null,
-	// 		}),
-	// 		includeMetadata: true,
-	// 		includePrevNextRel: false,
-	// 		chunkSize: 1024,
-	// 		chunkOverlap: 20,
-	// 	});
-	// 	const serviceContext = serviceContextFromDefaults({
-	// 		llm,
-	// 		embedModel,
-	// 	});
-	// 	const storageContext = await storageContextFromDefaults({
-	// 		// docStore: new SimpleDocumentStore(), // TODO: replace with impl BaseDocumentStore
-	// 		indexStore: new DexieIndexStore(this.db), // VectorStoreIndex depends on this
-	// 		vectorStore: new DexieVectorStore(this.db),
-	// 	});
-	// 	const index = await VectorStoreIndex.fromDocuments([document], {
-	// 		serviceContext,
-	// 		storageContext,
-	// 	});
-	// 	// const index = await VectorStoreIndex.fromVectorStore(storageContext.vectorStore, serviceContext);
-	// 	const nodesWithScores = await index
-	// 		.asRetriever()
-	// 		.retrieve("Summarize this text");
-	// 	// const queryEngine = index.asQueryEngine();
-	// 	// const response = await queryEngine.query("Summarize this text");
-	// 	// console.log(response.toString());
-	// 	console.log("Nodes with scores:", nodesWithScores);
-	// }
-
 	onunload() {
 		this.reconciler.unsubscribeFromChanges()
 	}
