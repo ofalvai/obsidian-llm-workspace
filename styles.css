@@ -18,3 +18,9 @@ If your plugin does not need CSS, delete this file.
     text-transform: uppercase;
     align-self: center;
 }
+
+.llm-workspace-completion {
+	white-space: pre-wrap;
+    margin: 16px;
+	user-select: text;
+}

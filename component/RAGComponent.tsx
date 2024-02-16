@@ -1,6 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { Notice, TFile } from "obsidian";
-import { moment } from "obsidian";
 import { useContext, useMemo, useState } from "preact/hooks";
 import { OpenAIChatCompletionClient, OpenAIEmbeddingClient } from "rag/llm";
 import { Node, NodeParser } from "rag/node";
@@ -242,7 +241,7 @@ const QuestionAndAnswer = (props: QuestionAndAnswerProps) => {
 			</button>
 		</form>
 		{props.queryResponse && <div>
-			<p>{props.queryResponse.text}</p>
+			<div class="llm-workspace-completion">{props.queryResponse.text}</div>
 			<ol>
 				{props.queryResponse.sources.map(node => <li>{node.parent}</li>)}
 			</ol>
