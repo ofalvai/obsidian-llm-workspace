@@ -17,7 +17,6 @@ export interface VectorStoreEntry {
 export interface WorkspaceStoreEntry {
 	workspaceFile: NotePath
 	links: NotePath[]
-	lastIndexed: number
 }
 
 export class LlmDexie extends Dexie {

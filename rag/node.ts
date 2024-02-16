@@ -3,6 +3,7 @@ import { NotePath } from "utils/obsidian"
 export interface Node {
 	content: string;
 	parent: NotePath;
+	createdAt: number;
 }
 
 export interface NodeParserConfig {
@@ -48,6 +49,7 @@ export class NodeParser {
 			return {
 				content: paragraph,
 				parent: path,
+				createdAt: new Date().valueOf(),
 			}
 		})
 	}
