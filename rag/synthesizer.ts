@@ -2,11 +2,9 @@ import { ChatCompletionClient } from "./llm"
 import { Node } from "./node"
 import { NodeSimilarity } from "./storage"
 
-// TODO: group by files
-// TODO: add similarity score
 export interface QueryResponse {
 	text: string;
-	sources: Node[];
+	sources: NodeSimilarity[];
 }
 
 export interface ResponseSynthesizer {
@@ -48,7 +46,7 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 
 		return {
 			text: response.content,
-			sources: nodes.map((n) => n.node),
+			sources: nodes,
 		}
 	}
 }

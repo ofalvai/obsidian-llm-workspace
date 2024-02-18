@@ -13,7 +13,7 @@ export interface EmbeddedFileInfo {
 type NoteLinksProps = {
 	file: TFile
 	links: EmbeddedFileInfo[]
-	onLinkClick: (link: EmbeddedFileInfo) => void
+	onLinkClick: (path: string) => void
 	onLinkRebuild: (link: EmbeddedFileInfo) => void
 }
 export const NoteLinks = ({ file, links, onLinkClick, onLinkRebuild }: NoteLinksProps) => {
@@ -32,7 +32,7 @@ export const NoteLinks = ({ file, links, onLinkClick, onLinkRebuild }: NoteLinks
 
 type NoteLinkProps = {
 	link: EmbeddedFileInfo
-	onLinkClick: (link: EmbeddedFileInfo) => void
+	onLinkClick: (path: string) => void
 	onRebuild: (link: EmbeddedFileInfo) => void
 }
 const NoteLink = ({ link, onLinkClick, onRebuild }: NoteLinkProps) => {
@@ -67,7 +67,7 @@ const NoteLink = ({ link, onLinkClick, onRebuild }: NoteLinkProps) => {
 						<FileCheck2 size={18} color="var(--background-modifier-success)" />
 					)}
 				</span>
-				<a class="llm-workspace-link-name" onClick={() => onLinkClick(link)}>{link.name}</a>
+				<a class="llm-workspace-link-name" onClick={() => onLinkClick(link.path)}>{link.name}</a>
 				<div
 					class="clickable-icon llm-workspace-link-expand"
 					onClick={() => setCollapsed(!isCollapsed)}

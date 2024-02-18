@@ -5,7 +5,7 @@ export type WorkspaceDetailsProps = {
 	file: TFile
 	links: EmbeddedFileInfo[]
 	onRebuildAll: () => void
-	onLinkClick: (link: EmbeddedFileInfo) => void
+	onLinkClick: (path: string) => void
 	onLinkRebuild: (link: EmbeddedFileInfo) => void
 }
 export const WorkspaceDetails = ({

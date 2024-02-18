@@ -1,4 +1,5 @@
 import { TFile } from "obsidian"
+import path from "path"
 import { useState } from "preact/hooks"
 import { QueryResponse } from "rag/synthesizer"
 
@@ -7,14 +8,20 @@ interface QuestionAndAnswerProps {
 	isLoading: boolean
 	queryResponse?: QueryResponse
 	onQuestionSubmit: (q: string) => void
+	onSourceClick: (path: string) => void
 }
 
-
-export const QuestionAndAnswer = (props: QuestionAndAnswerProps) => {
+export const QuestionAndAnswer = ({
+	file,
+	isLoading,
+	queryResponse,
+	onQuestionSubmit,
+	onSourceClick,
+}: QuestionAndAnswerProps) => {
 	const [question, setQuestion] = useState("")
 	const onSubmit = (e: SubmitEvent) => {
 		if (question) {
-			props.onQuestionSubmit(question)
+			onQuestionSubmit(question)
 		}
 		e.preventDefault()
 	}
@@ -27,26 +34,70 @@ export const QuestionAndAnswer = (props: QuestionAndAnswerProps) => {
 			<form onSubmit={onSubmit}>
 				<input
 					type="text"
-					disabled={props.isLoading}
+					disabled={isLoading}
 					placeholder="Ask a question"
 					value={question}
 					onInput={onInput}
 				/>
-				<button type="submit" disabled={props.isLoading}>
+				<button type="submit" disabled={isLoading}>
 					Send
-					{props.isLoading && "..."}
+					{isLoading && "..."}
 				</button>
 			</form>
-			{props.queryResponse && (
+			{queryResponse && (
 				<div>
-					<div class="llm-workspace-completion">{props.queryResponse.text}</div>
-					<ol>
-						{props.queryResponse.sources.map((node) => (
-							<li>{node.parent}</li>
-						))}
-					</ol>
+					<div class="llm-workspace-completion">{queryResponse.text}</div>
+					<SourceList queryResponse={queryResponse} onSourceClick={onSourceClick} />
 				</div>
 			)}
 		</div>
+	)
+}
+
+type SourceListProps = {
+	queryResponse: QueryResponse
+	onSourceClick: (path: string) => void
+}
+type SourceFile = {
+	base: string
+	path: string
+	similarity: number
+}
+const SourceList = ({ queryResponse, onSourceClick }: SourceListProps) => {
+	const fileList: SourceFile[] = []
+
+	for (const source of queryResponse.sources) {
+		const existing = fileList.find((f) => f.path === source.node.parent)
+		if (existing) {
+			existing.similarity = Math.max(existing.similarity, source.similarity)
+		} else {
+			fileList.push({
+				base: path.basename(source.node.parent, path.extname(source.node.parent)),
+				path: source.node.parent,
+				similarity: source.similarity,
+			})
+		}
+	}
+
+	return (
+		<ol>
+			{fileList.map((f) => (
+				<Source sourceFile={f} onClick={onSourceClick} />
+			))}
+		</ol>
+	)
+}
+
+type SourceProps = {
+	sourceFile: SourceFile
+	onClick: (path: string) => void
+}
+const Source = ({ sourceFile, onClick }: SourceProps) => {
+	const percentage = Math.round(sourceFile.similarity * 100)
+
+	return (
+		<li onClick={() => onClick(sourceFile.path)}>
+			<a>{sourceFile.base}</a> ({percentage}%)
+		</li>
 	)
 }

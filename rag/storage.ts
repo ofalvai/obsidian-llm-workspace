@@ -1,11 +1,12 @@
 import { LlmDexie, VectorStoreEntry } from "storage/db"
-import { EmbeddingClient } from "./llm"
 import { Node } from "./node"
 import { FilePath } from "utils/obsidian"
 
 export interface NodeSimilarity {
-	similarity: number
 	node: Node
+	
+	// cosine similarity between the query and the node, in the [0..1] range
+	similarity: number
 }
 
 export class VectorStoreIndex {
