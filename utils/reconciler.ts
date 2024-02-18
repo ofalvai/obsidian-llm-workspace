@@ -1,7 +1,7 @@
 import { Subscription, liveQuery } from "dexie"
 import { App, CachedMetadata, EventRef, TAbstractFile, TFile, TFolder } from "obsidian"
 import { LlmDexie, WorkspaceStoreEntry } from "storage/db"
-import { NotePath, isLlmWorkspace } from "./obsidian"
+import { FilePath, isLlmWorkspace } from "./obsidian"
 import { VectorStoreIndex } from "rag/storage"
 
 // ObsidianNoteReconciler is responsible for keeping the database in sync with changes in the Obsidian vault.
@@ -119,15 +119,15 @@ export class ObsidianNoteReconciler {
 		}
 	}
 
-	private processFileDelete = async (path: NotePath) => {
+	private processFileDelete = async (path: FilePath) => {
 		if (this.isWorkspaceFile(path)) {
 			await this.processWorkspaceDelete(path)
 		} else {
-			await this.vectorStore.removeNodesOfParent(path)
+			await this.vectorStore.deleteFiles(path)
 		}
 	}
 
-	private processFileMove = async (old: NotePath, new_: NotePath) => {
+	private processFileMove = async (old: FilePath, new_: FilePath) => {
 		if (this.isWorkspaceFile(old)) {
 			console.log(`Processing workspace move: ${old} -> ${new_}`)
 			this.db.transaction("rw", this.db.vectorStore, this.db.workspace, async () => {
@@ -143,19 +143,19 @@ export class ObsidianNoteReconciler {
 			console.log(`Processing note move: ${old} -> ${new_}`)
 			this.db.transaction("rw", this.db.vectorStore, this.db.workspace, async () => {
 				this.db.transaction("rw", this.db.vectorStore, this.db.workspace, async () => {
-					await this.vectorStore.updateParentPath(old, new_)
+					await this.vectorStore.updateFilePath(old, new_)
 					await this.processLinkUpdateInAllWorkspaces(old, new_)
 				})
 			})
 		}
 	}
 
-	private async processWorkspaceDelete(path: NotePath) {
+	private async processWorkspaceDelete(path: FilePath) {
 		console.log(`Processing workspace delete: ${path}`)
 		await this.db.workspace.where("workspaceFile").equals(path).delete()
 	}
 
-	private async processWorkspaceLinkAdd(workspacePath: NotePath, linkedNotePath: NotePath) {
+	private async processWorkspaceLinkAdd(workspacePath: FilePath, linkedNotePath: FilePath) {
 		console.log(`Processing workspace link add: ${workspacePath} -> ${linkedNotePath}`)
 		await this.db.workspace
 			.where("workspaceFile")
@@ -168,7 +168,7 @@ export class ObsidianNoteReconciler {
 			})
 	}
 
-	private async processWorkspaceLinkRemove(workspacePath: NotePath, linkedNotePath: NotePath) {
+	private async processWorkspaceLinkRemove(workspacePath: FilePath, linkedNotePath: FilePath) {
 		console.log(`Processing workspace link remove: ${workspacePath} -> ${linkedNotePath}`)
 		await this.db.workspace
 			.where("workspaceFile")
@@ -178,7 +178,7 @@ export class ObsidianNoteReconciler {
 			})
 	}
 
-	private async processLinkUpdateInAllWorkspaces(old: NotePath, new_: NotePath) {
+	private async processLinkUpdateInAllWorkspaces(old: FilePath, new_: FilePath) {
 		console.log(`Processing link update in all workspaces: ${old} -> ${new_}`)
 		await this.db.workspace
 			.where("links")
@@ -188,7 +188,7 @@ export class ObsidianNoteReconciler {
 			})
 	}
 
-	private isWorkspaceFile(path: NotePath): boolean {
+	private isWorkspaceFile(path: FilePath): boolean {
 		return this.workspaces.some((w) => w.workspaceFile === path)
 	}
 }

@@ -1,14 +1,14 @@
-import { NotePath } from "utils/obsidian"
+import { FilePath } from "utils/obsidian"
 
 export interface Node {
-	content: string;
-	parent: NotePath;
-	createdAt: number;
+	content: string
+	parent: FilePath
+	createdAt: number
 }
 
 export interface NodeParserConfig {
-	chunkSize: number;
-	paragraphSeparator: string;
+	chunkSize: number
+	paragraphSeparator: string
 }
 
 export class NodeParser {
@@ -35,10 +35,9 @@ export class NodeParser {
 				idx < paragraphSplits.length - 1 &&
 				paragraphSplits[idx].length < this.config.chunkSize
 			) {
-				paragraphSplits[idx] = [
-					paragraphSplits[idx],
-					paragraphSplits[idx + 1],
-				].join(this.config.paragraphSeparator)
+				paragraphSplits[idx] = [paragraphSplits[idx], paragraphSplits[idx + 1]].join(
+					this.config.paragraphSeparator
+				)
 				paragraphSplits.splice(idx + 1, 1)
 			} else {
 				idx += 1
