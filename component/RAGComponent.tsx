@@ -87,8 +87,8 @@ export const Workspace = ({ db, workspaceFile }: WorkspaceProps) => {
 		}
 	}
 
-	const onLinkClick = (link: EmbeddedFileInfo) => {
-		app.workspace.openLinkText(link.path, "", "tab")
+	const onLinkClick = (path: string) => {
+		app.workspace.openLinkText(path, "", "tab")
 	}
 
 	const onLinkRebuild = async (link: EmbeddedFileInfo) => {
@@ -179,6 +179,7 @@ export const Workspace = ({ db, workspaceFile }: WorkspaceProps) => {
 					file={workspaceFile}
 					isLoading={isLoading}
 					onQuestionSubmit={onQuestionSubmit}
+					onSourceClick={onLinkClick}
 					queryResponse={queryResponse}
 				/>
 			)}

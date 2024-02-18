@@ -37,13 +37,7 @@ If your plugin does not need CSS, delete this file.
 }
 
 .llm-workspace-link-name {
-	color: var(--link-color);
-	cursor: pointer;
 	flex-grow: 1;
-}
-
-.llm-workspace-link-name:hover {
-	color: var(--link-color-hover);
 }
 
 .llm-workspace-link-status-icon {
