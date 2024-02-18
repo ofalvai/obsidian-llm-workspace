@@ -13,7 +13,11 @@ import { EmbeddedFileInfo, NoteLinks } from "./NoteLinks"
 import { NonWorkspaceView, WorkspaceDetails } from "./WorkspaceDetails"
 import { QuestionAndAnswer } from "./QuestionAndAnswer"
 
-export const WorkspaceRAG = (props: { db: LlmDexie; file: TFile }) => {
+export type WorkspaceProps = {
+	workspaceFile: TFile
+	db: LlmDexie
+}
+export const Workspace = ({ db, workspaceFile }: WorkspaceProps) => {
 	const app = useContext(AppContext)
 	const settings = useContext(PluginSettingsContext)
 	if (!app || !settings) {
@@ -21,16 +25,17 @@ export const WorkspaceRAG = (props: { db: LlmDexie; file: TFile }) => {
 	}
 
 	const isWorkspace = useMemo(() => {
-		if (!props.file || !app) return false
-		const metadata = app.metadataCache.getFileCache(props.file)
+		if (!workspaceFile || !app) return false
+		const metadata = app.metadataCache.getFileCache(workspaceFile)
 		if (!metadata) return false
 		return isLlmWorkspace(metadata)
-	}, [props.file])
+	}, [workspaceFile])
 
 	// TODO: memoize all of this
+	const nodeParser = new NodeParser(NodeParser.defaultConfig())
 	const embeddingClient = new OpenAIEmbeddingClient(settings.openAIApiKey)
-	const index = new VectorStoreIndex(props.db)
-	const retriever = new EmbeddingVectorRetriever(index, embeddingClient)
+	const vectorStore = new VectorStoreIndex(db)
+	const retriever = new EmbeddingVectorRetriever(vectorStore, embeddingClient)
 	const completionClient = new OpenAIChatCompletionClient(settings.openAIApiKey, {
 		model: "gpt-3.5-turbo-1106",
 		temperature: 0.1,
@@ -43,7 +48,7 @@ export const WorkspaceRAG = (props: { db: LlmDexie; file: TFile }) => {
 	const onQuestionSubmit = async (q: string) => {
 		setLoading(true)
 		try {
-			const response = await queryEngine.query(q, props.file.path)
+			const response = await queryEngine.query(q, workspaceFile.path)
 			setQueryResponse(response)
 		} catch (e) {
 			console.error(e)
@@ -52,14 +57,12 @@ export const WorkspaceRAG = (props: { db: LlmDexie; file: TFile }) => {
 		}
 	}
 	const onRebuildAll = async () => {
-		// TODO: delete existing index
-
-		const nodeParser = new NodeParser(NodeParser.defaultConfig())
-		const links = app.metadataCache.getFileCache(props.file)?.links ?? []
-
+		// Collect all linked files
+		// Note: we can't use `app.metadataCache.getFileCache(workspaceFile).links` because
+		// it doesn't contain the full path of the linked file
 		let linkedFilePaths: string[] = []
-		if (props.file.path in app.metadataCache.resolvedLinks) {
-			const linksOfFile = app.metadataCache.resolvedLinks[props.file.path]
+		if (workspaceFile.path in app.metadataCache.resolvedLinks) {
+			const linksOfFile = app.metadataCache.resolvedLinks[workspaceFile.path]
 			linkedFilePaths = Object.keys(linksOfFile)
 		} else {
 			linkedFilePaths = []
@@ -70,43 +73,50 @@ export const WorkspaceRAG = (props: { db: LlmDexie; file: TFile }) => {
 			return
 		}
 
-		let nodes: Node[] = []
+		await vectorStore.deleteFiles(...linkedFilePaths)
+
 		for (const path of linkedFilePaths) {
 			// TODO: test for non-markdown files
-			// TODO: this is a relative path and works only accidentally
-			// https://docs.obsidian.md/Reference/TypeScript+API/MetadataCache/resolvedLinks
-			const file = (await app.vault.getAbstractFileByPath(path)) as TFile
+			// TODO: batched iteration
+			const file = app.vault.getAbstractFileByPath(path) as TFile
 			const text = await app.vault.cachedRead(file)
-			nodes.push(...nodeParser.parse(text, file.path))
+			for (const node of nodeParser.parse(text, file.path)) {
+				const embedding = await embeddingClient.embedNode(node)
+				await vectorStore.addNode(node, embedding, workspaceFile.path)
+			}
 		}
-
-		await VectorStoreIndex.buildWithNodes(nodes, props.file.path, embeddingClient, props.db)
 	}
 
 	const onLinkClick = (link: EmbeddedFileInfo) => {
 		app.workspace.openLinkText(link.path, "", "tab")
 	}
 
-	const onLinkRebuild = (link: EmbeddedFileInfo) => {
-		// TODO
+	const onLinkRebuild = async (link: EmbeddedFileInfo) => {
+		await vectorStore.deleteFiles(link.path)
+		const file = app.vault.getAbstractFileByPath(link.path) as TFile
+		const text = await app.vault.cachedRead(file)
+		for (const node of nodeParser.parse(text, file.path)) {
+			const embedding = await embeddingClient.embedNode(node)
+			await vectorStore.addNode(node, embedding, workspaceFile.path)
+		}
 	}
 
 	const links = useLiveQuery(
 		async () => {
-			const workspace = await props.db.workspace
+			const workspace = await db.workspace
 				.where("workspaceFile")
-				.equals(props.file.path)
+				.equals(workspaceFile.path)
 				.first()
 
 			if (!workspace) {
-				console.error("Workspace not found", props.file.path)
+				console.error("Workspace not found", workspaceFile.path)
 				return []
 			}
 
 			const vectorStoreResults: VectorStoreEntry[][] = await Promise.all(
 				workspace.links.map(async (link) => {
 					// TODO: return a lighter object without the full string content and embedding vector
-					return await props.db.vectorStore.where("node.parent").equals(link).toArray()
+					return await db.vectorStore.where("node.parent").equals(link).toArray()
 				})
 			)
 
@@ -148,16 +158,16 @@ export const WorkspaceRAG = (props: { db: LlmDexie; file: TFile }) => {
 				}
 			})
 		},
-		[props.file.path],
+		[workspaceFile.path],
 		[]
 	)
 
 	return (
 		<div>
-			{!isWorkspace && <NonWorkspaceView file={props.file} />}
+			{!isWorkspace && <NonWorkspaceView file={workspaceFile} />}
 			{isWorkspace && (
 				<WorkspaceDetails
-					file={props.file}
+					file={workspaceFile}
 					links={links}
 					onRebuildAll={onRebuildAll}
 					onLinkClick={onLinkClick}
@@ -166,7 +176,7 @@ export const WorkspaceRAG = (props: { db: LlmDexie; file: TFile }) => {
 			)}
 			{isWorkspace && (
 				<QuestionAndAnswer
-					file={props.file}
+					file={workspaceFile}
 					isLoading={isLoading}
 					onQuestionSubmit={onQuestionSubmit}
 					queryResponse={queryResponse}

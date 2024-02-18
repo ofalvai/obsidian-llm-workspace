@@ -6,7 +6,7 @@ export const AppContext = createContext<App | undefined>(undefined)
 
 export const PluginSettingsContext = createContext<LlmPluginSettings | undefined>(undefined)
 
-export type NotePath = string
+export type FilePath = string
 
 const frontmatterKeyCategory = "category"
 const frontmatterValueWorkspace = "LLM workspace"

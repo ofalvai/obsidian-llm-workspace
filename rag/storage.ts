@@ -1,7 +1,7 @@
 import { LlmDexie, VectorStoreEntry } from "storage/db"
 import { EmbeddingClient } from "./llm"
 import { Node } from "./node"
-import { NotePath } from "utils/obsidian"
+import { FilePath } from "utils/obsidian"
 
 export interface NodeSimilarity {
 	similarity: number
@@ -15,29 +15,7 @@ export class VectorStoreIndex {
 		this.db = db
 	}
 
-	static async buildWithNodes(
-		nodes: Node[],
-		workspaceFilePath: string,
-		embeddingClient: EmbeddingClient,
-		db: LlmDexie
-	): Promise<VectorStoreIndex> {
-		const index = new VectorStoreIndex(db)
-
-		// TODO: batched iteration
-		for (const node of nodes) {
-			const embedding = await embeddingClient.embedNode(node)
-			await index.addNode(node, embedding, workspaceFilePath)
-		}
-
-		return index
-	}
-
-	// TODO: put instead of add? or check before computing embedding?
-	async addNode(
-		node: Node,
-		embedding: number[],
-		workspaceFilePath: string
-	): Promise<void> {
+	async addNode(node: Node, embedding: number[], workspaceFilePath: string): Promise<void> {
 		await this.db.vectorStore.add({
 			node: node,
 			includedInWorkspace: [workspaceFilePath],
@@ -65,34 +43,28 @@ export class VectorStoreIndex {
 			.slice(0, limit)
 			.map((indexEntry) => {
 				return {
-					similarity: cosineSimilarity(
-						indexEntry.embedding,
-						queryEmbedding
-					),
+					similarity: cosineSimilarity(indexEntry.embedding, queryEmbedding),
 					node: indexEntry.node,
 				}
 			})
 		return topNodes
 	}
 
-	async removeNodesOfParent(parent: NotePath): Promise<void> {
-		await this.db.vectorStore.where("node.parent").equals(parent).delete()
+	async updateFilePath(old: FilePath, new_: FilePath): Promise<void> {
+		await this.db.vectorStore.where("node.parent").equals(old).modify({ "node.parent": new_ })
 	}
 
-	async updateParentPath(old: NotePath, new_: NotePath): Promise<void> {
-		await this.db.vectorStore
-			.where("node.parent")
-			.equals(old)
-			.modify({ "node.parent": new_ })
+	async deleteFiles(...path: FilePath[]): Promise<number> {
+		return await this.db.vectorStore.where("node.parent").anyOf(path).delete()
 	}
 
-	async updateWorkspacePath(old: NotePath, new_: NotePath): Promise<void> {
+	async updateWorkspacePath(old: FilePath, new_: FilePath): Promise<void> {
 		await this.db.vectorStore
 			.where("includedInWorkspace")
 			.equals(old)
 			.modify((entry: VectorStoreEntry) => {
-				entry.includedInWorkspace = entry.includedInWorkspace.map(
-					(path) => (path === old ? new_ : path)
+				entry.includedInWorkspace = entry.includedInWorkspace.map((path) =>
+					path === old ? new_ : path
 				)
 			})
 	}

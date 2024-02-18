@@ -1,22 +1,22 @@
 import Dexie, { Table } from "dexie"
 import { Node } from "rag/node"
-import { NotePath } from "utils/obsidian"
+import { FilePath } from "utils/obsidian"
 
 export interface NoteDerivedData {
-	path: NotePath
+	path: FilePath
 	summary?: string
 	keyTopics?: string[]
 }
 
 export interface VectorStoreEntry {
 	node: Node
-	includedInWorkspace: NotePath[]
+	includedInWorkspace: FilePath[]
 	embedding: number[]
 }
 
 export interface WorkspaceStoreEntry {
-	workspaceFile: NotePath
-	links: NotePath[]
+	workspaceFile: FilePath
+	links: FilePath[]
 }
 
 export class LlmDexie extends Dexie {
@@ -33,9 +33,7 @@ export class LlmDexie extends Dexie {
 		})
 	}
 
-	async getNoteDerivedData(
-		path: string
-	): Promise<NoteDerivedData | undefined> {
+	async getNoteDerivedData(path: string): Promise<NoteDerivedData | undefined> {
 		return this.noteDerivedData.get(path)
 	}
 

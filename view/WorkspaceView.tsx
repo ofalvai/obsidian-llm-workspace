@@ -1,33 +1,33 @@
-import { ItemView, Notice, TFile, WorkspaceLeaf } from "obsidian";
-import { AppContext, PluginSettingsContext } from "utils/obsidian";
-import { LlmPluginSettings } from "main";
-import { LlmDexie } from "storage/db";
-import { render } from "preact";
-import { WorkspaceRAG } from "component/RAGComponent";
+import { ItemView, Notice, TFile, WorkspaceLeaf } from "obsidian"
+import { AppContext, PluginSettingsContext } from "utils/obsidian"
+import { LlmPluginSettings } from "main"
+import { LlmDexie } from "storage/db"
+import { render } from "preact"
+import { Workspace } from "component/RAGComponent"
 
-export const VIEW_TYPE_WORKSPACE = "llm-workspace-view";
+export const VIEW_TYPE_WORKSPACE = "llm-workspace-view"
 
 export class WorkspaceView extends ItemView {
-	settings: LlmPluginSettings;
+	settings: LlmPluginSettings
 
-	db: LlmDexie;
+	db: LlmDexie
 
-	viewTitle = "LLM Workspace";
+	viewTitle = "LLM Workspace"
 
 	constructor(leaf: WorkspaceLeaf, settings: LlmPluginSettings, db: LlmDexie) {
-		super(leaf);
-		this.settings = settings;
-		this.db = db;
+		super(leaf)
+		this.settings = settings
+		this.db = db
 	}
 
-	navigation = false;
+	navigation = false
 
 	getViewType() {
-		return VIEW_TYPE_WORKSPACE;
+		return VIEW_TYPE_WORKSPACE
 	}
 
 	getDisplayText() {
-		return this.viewTitle;
+		return this.viewTitle
 	}
 
 	getIcon(): string {
@@ -42,14 +42,13 @@ export class WorkspaceView extends ItemView {
 		}
 		// TODO: filter for non-Markdown files
 
-		await this.updateWorkspaceStore(file);
+		await this.updateWorkspaceStore(file)
 		this.viewTitle = `${file.basename} (LLM Workspace)`
-
 
 		render(
 			<AppContext.Provider value={this.app}>
 				<PluginSettingsContext.Provider value={this.settings}>
-					<WorkspaceRAG file={file} db={this.db} />
+					<Workspace workspaceFile={file} db={this.db} />
 				</PluginSettingsContext.Provider>
 			</AppContext.Provider>,
 			this.contentEl
@@ -65,27 +64,25 @@ export class WorkspaceView extends ItemView {
 		// TODO: add field to frontmatter if it's missing
 		// TODO: this could accidentally create a new workspace if the windows are restored after startup and the active tab is not the workspace note
 
-		const exists = await this.db.workspace
-			.where("workspaceFile")
-			.equals(file.path)
-			.count() == 1
+		const exists =
+			(await this.db.workspace.where("workspaceFile").equals(file.path).count()) == 1
 
 		if (exists) {
 			return
 		}
 
-		const links = this.app.metadataCache
-			.getFileCache(file)?.links
-			?.map(link => {
-				return this.app.metadataCache.getFirstLinkpathDest(link.link, file.path)
-			})
-			?.filter((l): l is Exclude<typeof l, null> => l !== null)
-			?.map((l) => l.path) ?? [];
+		const links =
+			this.app.metadataCache
+				.getFileCache(file)
+				?.links?.map((link) => {
+					return this.app.metadataCache.getFirstLinkpathDest(link.link, file.path)
+				})
+				?.filter((l): l is Exclude<typeof l, null> => l !== null)
+				?.map((l) => l.path) ?? []
 
 		await this.db.workspace.put({
 			workspaceFile: file.path,
 			links: links,
 		})
 	}
-
 }
