@@ -40,7 +40,7 @@ export const Workspace = ({ db, workspaceFile }: WorkspaceProps) => {
 		model: "gpt-3.5-turbo-1106",
 		temperature: 0.1,
 	})
-	const synthesizer = new DumbResponseSynthesizer(completionClient)
+	const synthesizer = new DumbResponseSynthesizer(completionClient, settings.systemPrompt)
 	const queryEngine = new RetrieverQueryEngine(retriever, synthesizer)
 
 	const [queryResponse, setQueryResponse] = useState<QueryResponse | undefined>(undefined)

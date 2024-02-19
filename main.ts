@@ -1,10 +1,4 @@
-import {
-	App,
-	Plugin,
-	PluginSettingTab,
-	Setting,
-	WorkspaceLeaf,
-} from "obsidian"
+import { App, Plugin, PluginSettingTab, Setting, WorkspaceLeaf } from "obsidian"
 import { VectorStoreIndex } from "rag/storage"
 import { LlmDexie } from "storage/db"
 import { ObsidianNoteReconciler } from "utils/reconciler"
@@ -12,11 +6,15 @@ import { NoteContextView, VIEW_TYPE_NOTE_CONTEXT } from "view/NoteContextView"
 import { VIEW_TYPE_WORKSPACE, WorkspaceView } from "view/WorkspaceView"
 
 export interface LlmPluginSettings {
-	openAIApiKey: string;
+	openAIApiKey: string
+	systemPrompt: string
 }
 
 const DEFAULT_SETTINGS: LlmPluginSettings = {
 	openAIApiKey: "",
+	systemPrompt: `You are ObsidianGPT, an assistant answering questions about information in my personal knowledgebase. My knowledgebase contains both original thoughts and references to other people's work on the internet and in books. I also keep track of projects and tasks there.
+Your answers should be precise and fact-based, but you are encouraged to be opinionated as long as they are marked as such. I prefer short and clear answers. You can be direct and honest with me, there is no need to preface your response with displaimers and warnings. You can assume I'm an expert in all subject matter. Cite sources whenever possible, and include URLs if possible.
+If possible, try to highlight implicit connections in the provided context that are otherwise hidden.`,
 }
 
 export default class LlmPlugin extends Plugin {
@@ -113,11 +111,7 @@ export default class LlmPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			await this.loadData()
-		)
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())
 	}
 
 	async saveSettings() {
@@ -150,5 +144,20 @@ class LlmSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings()
 					})
 			)
+
+		new Setting(containerEl)
+			.setName("System prompt")
+			.setDesc("The instructions and extra context included in all LLM queries.")
+			.addTextArea((textarea) => {
+				textarea
+					.setPlaceholder("System prompt")
+					.setValue(this.plugin.settings.systemPrompt)
+					.onChange(async (value) => {
+						this.plugin.settings.systemPrompt = value
+						await this.plugin.saveSettings()
+					})
+				textarea.inputEl.rows = 10
+				textarea.inputEl.style.width = "100%"
+			})
 	}
 }
