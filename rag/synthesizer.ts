@@ -1,48 +1,42 @@
 import { ChatCompletionClient } from "./llm"
-import { Node } from "./node"
 import { NodeSimilarity } from "./storage"
 
 export interface QueryResponse {
-	text: string;
-	sources: NodeSimilarity[];
+	text: string
+	sources: NodeSimilarity[]
 }
 
 export interface ResponseSynthesizer {
-	synthesize(query: string, nodes: NodeSimilarity[]): Promise<QueryResponse>;
+	synthesize(query: string, nodes: NodeSimilarity[]): Promise<QueryResponse>
 }
 
-const defaultSynthesisSystemPrompt =
-	"Given the context information and not prior knowledge, answer the query."
 const defaultSynthesisUserPrompt = (context: string, query: string) => {
-	return `Context information is below.
-  ---------------------
-  ${context}
-  ---------------------
-  Query: ${query}
-  Answer:`
+	return `Given the context information and not prior knowledge, answer the query.
+Context information is below.
+---------------------
+${context}
+---------------------
+Query: ${query}
+Answer:`
 }
 
 export class DumbResponseSynthesizer implements ResponseSynthesizer {
 	private completionClient: ChatCompletionClient
+	private systemPrompt: string
 
-	constructor(completionClient: ChatCompletionClient) {
+	constructor(completionClient: ChatCompletionClient, systemPrompt: string) {
 		this.completionClient = completionClient
+		this.systemPrompt = systemPrompt
 	}
 
-	async synthesize(
-		query: string,
-		nodes: NodeSimilarity[]
-	): Promise<QueryResponse> {
+	async synthesize(query: string, nodes: NodeSimilarity[]): Promise<QueryResponse> {
 		const context = nodes
-			.reverse() // knowledge is better recalled towards the end of window
+			.reverse() // TODO: knowledge is better recalled towards the end of window?
 			.map((n) => `${n.node.parent}\n${n.node.content}`)
 			.join("\n\n")
 		const userPrompt = defaultSynthesisUserPrompt(context, query)
-		const systemPrompt = defaultSynthesisSystemPrompt
-		const response = await this.completionClient.createChatCompletion(
-			userPrompt,
-			systemPrompt
-		)
+		const systemPrompt = this.systemPrompt
+		const response = await this.completionClient.createChatCompletion(userPrompt, systemPrompt)
 
 		return {
 			text: response.content,
