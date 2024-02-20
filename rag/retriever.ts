@@ -2,22 +2,23 @@ import { EmbeddingClient } from "./llm"
 import { NodeSimilarity, VectorStoreIndex } from "./storage"
 
 export interface Retriever {
-	retrieve(
-		query: string,
-		workspaceFilePath: string,
-		limit?: number
-	): Promise<NodeSimilarity[]>;
+	retrieve(query: string, workspaceFilePath: string, limit?: number): Promise<RetrieverResult>
 }
 
 export interface RetrieverOptions {
-	limit: number;
+	limit: number
+}
+
+export interface RetrieverResult {
+	nodes: NodeSimilarity[]
+	improvedQuery: string
 }
 
 const defaultRetrieverOptions: RetrieverOptions = {
 	limit: 10,
 }
 
-export class EmbeddingVectorRetriever {
+export class EmbeddingVectorRetriever implements Retriever {
 	private index: VectorStoreIndex
 	private embeddingClient: EmbeddingClient
 	private options: RetrieverOptions
@@ -32,15 +33,16 @@ export class EmbeddingVectorRetriever {
 		this.options = options ?? defaultRetrieverOptions
 	}
 
-	async retrieve(
-		query: string,
-		workspaceFilePath: string
-	): Promise<NodeSimilarity[]> {
+	async retrieve(query: string, workspaceFilePath: string): Promise<RetrieverResult> {
 		const queryEmbedding = await this.embeddingClient.embedQuery(query)
-		return this.index.query(
-			queryEmbedding,
+		const retrievedNodes = await this.index.query(
+			queryEmbedding.embedding,
 			workspaceFilePath,
 			this.options.limit
 		)
+		return {
+			nodes: retrievedNodes,
+			improvedQuery: queryEmbedding.improvedQuery,
+		}
 	}
 }

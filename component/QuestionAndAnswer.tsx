@@ -1,12 +1,13 @@
 import { TFile } from "obsidian"
 import path from "path"
 import { useState } from "preact/hooks"
-import { QueryResponse } from "rag/synthesizer"
+import { DebugInfo, QueryResponse } from "rag/synthesizer"
 
 interface QuestionAndAnswerProps {
 	file: TFile
 	isLoading: boolean
 	queryResponse?: QueryResponse
+	debugInfo?: DebugInfo
 	onQuestionSubmit: (q: string) => void
 	onSourceClick: (path: string) => void
 }

@@ -6,12 +6,13 @@ import { Node, NodeParser } from "rag/node"
 import { RetrieverQueryEngine } from "rag/query-engine"
 import { EmbeddingVectorRetriever } from "rag/retriever"
 import { VectorStoreIndex } from "rag/storage"
-import { DumbResponseSynthesizer, QueryResponse } from "rag/synthesizer"
+import { DebugInfo, DumbResponseSynthesizer, QueryResponse } from "rag/synthesizer"
 import { LlmDexie, VectorStoreEntry } from "storage/db"
 import { AppContext, PluginSettingsContext, isLlmWorkspace } from "utils/obsidian"
 import { EmbeddedFileInfo, NoteLinks } from "./NoteLinks"
 import { NonWorkspaceView, WorkspaceDetails } from "./WorkspaceDetails"
 import { QuestionAndAnswer } from "./QuestionAndAnswer"
+import { debugInfoToMarkdown } from "utils/debug"
 
 export type WorkspaceProps = {
 	workspaceFile: TFile
@@ -32,6 +33,7 @@ export const Workspace = ({ db, workspaceFile }: WorkspaceProps) => {
 	}, [workspaceFile])
 
 	// TODO: memoize all of this
+	const debug = true // TODO: make it a setting
 	const nodeParser = new NodeParser(NodeParser.defaultConfig())
 	const embeddingClient = new OpenAIEmbeddingClient(settings.openAIApiKey)
 	const vectorStore = new VectorStoreIndex(db)
@@ -40,16 +42,18 @@ export const Workspace = ({ db, workspaceFile }: WorkspaceProps) => {
 		model: "gpt-3.5-turbo-1106",
 		temperature: 0.1,
 	})
-	const synthesizer = new DumbResponseSynthesizer(completionClient, settings.systemPrompt)
+	const synthesizer = new DumbResponseSynthesizer(completionClient, settings.systemPrompt, debug)
 	const queryEngine = new RetrieverQueryEngine(retriever, synthesizer)
 
 	const [queryResponse, setQueryResponse] = useState<QueryResponse | undefined>(undefined)
+	const [debugInfo, setDebugInfo] = useState<DebugInfo | undefined>(undefined)
 	const [isLoading, setLoading] = useState(false)
 	const onQuestionSubmit = async (q: string) => {
 		setLoading(true)
 		try {
 			const response = await queryEngine.query(q, workspaceFile.path)
 			setQueryResponse(response)
+			setDebugInfo(response.debugInfo)
 		} catch (e) {
 			console.error(e)
 		} finally {
@@ -99,6 +103,21 @@ export const Workspace = ({ db, workspaceFile }: WorkspaceProps) => {
 			const embedding = await embeddingClient.embedNode(node)
 			await vectorStore.addNode(node, embedding, workspaceFile.path)
 		}
+	}
+
+	const onDebug = async (debugInfo: DebugInfo) => {
+		console.log(debugInfo)
+
+		const debugFilePath = "LLM workspace debug.md"
+		const file = app.metadataCache.getFirstLinkpathDest(debugFilePath, "")
+		const markdown = debugInfoToMarkdown(debugInfo)
+		if (file) {
+			await app.vault.append(file, markdown)
+		} else {
+			await app.vault.create(debugFilePath, markdown)
+		}
+
+		await app.workspace.openLinkText(debugFilePath, "", "tab")
 	}
 
 	const links = useLiveQuery(
@@ -178,11 +197,13 @@ export const Workspace = ({ db, workspaceFile }: WorkspaceProps) => {
 				<QuestionAndAnswer
 					file={workspaceFile}
 					isLoading={isLoading}
+					debugInfo={debugInfo}
 					onQuestionSubmit={onQuestionSubmit}
 					onSourceClick={onLinkClick}
 					queryResponse={queryResponse}
 				/>
 			)}
+			{debugInfo && <button onClick={() => onDebug(debugInfo)}>Debug response</button>}
 		</div>
 	)
 }

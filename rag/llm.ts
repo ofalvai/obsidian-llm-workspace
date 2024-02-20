@@ -27,28 +27,34 @@ const EXAMPLES = [
 const EMBEDDING_MODEL = "text-embedding-3-small"
 
 export interface EmbeddingClient {
-	embedNode(node: Node): Promise<number[]>;
-	embedQuery(query: string): Promise<number[]>;
+	embedNode(node: Node): Promise<number[]>
+	embedQuery(query: string): Promise<QueryEmbedding>
 }
 
 export enum Role {
 	System = 0,
 	User = 1,
-	Assistant = 2
+	Assistant = 2,
 }
 
 export interface ChatMessage {
-	content: string;
-	role: Role;
+	content: string
+	role: Role
 }
 
 export interface CompletionOptions {
-	model: string,
-	temperature: number,
+	model: string
+	temperature: number
 }
 
 export interface ChatCompletionClient {
 	createChatCompletion(userPrompt: string, systemPrompt: string): Promise<ChatMessage>
+}
+
+export interface QueryEmbedding {
+	originalQuery: string
+	improvedQuery: string
+	embedding: number[]
 }
 
 export class OpenAIChatCompletionClient implements ChatCompletionClient {
@@ -66,18 +72,18 @@ export class OpenAIChatCompletionClient implements ChatCompletionClient {
 			messages: [
 				{
 					role: "system",
-					content: systemPrompt
+					content: systemPrompt,
 				},
 				{
 					role: "user",
-					content: userPrompt
-				}
-			]
+					content: userPrompt,
+				},
+			],
 		})
 
 		return {
 			content: response.choices[0].message.content!,
-			role: Role.Assistant
+			role: Role.Assistant,
 		}
 	}
 }
@@ -92,39 +98,41 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 	async embedNode(node: Node): Promise<number[]> {
 		const response = await this.client.embeddings.create({
 			input: node.content,
-			model: EMBEDDING_MODEL
+			model: EMBEDDING_MODEL,
 		})
 
 		return response.data[0].embedding
 	}
 
-	async embedQuery(query: string): Promise<number[]> {
+	async embedQuery(query: string): Promise<QueryEmbedding> {
 		const improvedQuery = await this.improveQuery(query)
-		// TODO: return improved query for the UI
-		console.log("Improved query:", improvedQuery)
 		const response = await this.client.embeddings.create({
 			input: improvedQuery,
 			model: EMBEDDING_MODEL,
 		})
-		return response.data[0].embedding
+		return {
+			originalQuery: query,
+			improvedQuery: improvedQuery,
+			embedding: response.data[0].embedding,
+		}
 	}
 
 	private async improveQuery(query: string): Promise<string> {
 		const messages = [
 			{
-				role: 'system',
+				role: "system",
 				content: SELF_QUERY_PROMPT,
 			},
 			...EXAMPLES.flatMap((example) => {
 				return [
-					{ role: 'user', content: example.input },
-					{ role: 'assistant', content: example.output },
+					{ role: "user", content: example.input },
+					{ role: "assistant", content: example.output },
 				]
 			}),
 			{
 				role: "user",
 				content: query,
-			}
+			},
 		] as ChatCompletionMessageParam[]
 
 		const completion = await this.client.chat.completions.create({
