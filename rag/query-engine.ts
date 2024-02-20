@@ -2,7 +2,7 @@ import { Retriever } from "./retriever"
 import { QueryResponse, ResponseSynthesizer } from "./synthesizer"
 
 export interface QueryEngine {
-	query(query: string, workspaceFilePath: string): Promise<QueryResponse>;
+	query(query: string, workspaceFilePath: string): Promise<QueryResponse>
 }
 
 export class RetrieverQueryEngine {
@@ -14,11 +14,8 @@ export class RetrieverQueryEngine {
 		this.synthesizer = synthesizer
 	}
 
-	async query(
-		query: string,
-		workspaceFilePath: string
-	): Promise<QueryResponse> {
-		const nodes = await this.retriever.retrieve(query, workspaceFilePath)
-		return this.synthesizer.synthesize(query, nodes)
+	async query(query: string, workspaceFilePath: string): Promise<QueryResponse> {
+		const result = await this.retriever.retrieve(query, workspaceFilePath)
+		return this.synthesizer.synthesize(query, result.nodes, result.improvedQuery)
 	}
 }
