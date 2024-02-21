@@ -1,3 +1,4 @@
+import { defaultSynthesisUserPrompt } from "config/prompts"
 import { ChatCompletionClient } from "./llm"
 import { NodeSimilarity } from "./storage"
 
@@ -7,6 +8,9 @@ export interface QueryResponse {
 	debugInfo?: DebugInfo
 }
 
+// TODO: add inpput/output token usage
+// TODO: add response string
+// TODO: add response time
 export interface DebugInfo {
 	systemPrompt: string
 	userPrompt: string
@@ -21,16 +25,6 @@ export interface ResponseSynthesizer {
 		nodes: NodeSimilarity[],
 		improvedQuery: string
 	): Promise<QueryResponse>
-}
-
-const defaultSynthesisUserPrompt = (context: string, query: string) => {
-	return `Given the context information and not prior knowledge, answer the query.
-Context information is below.
----------------------
-${context}
----------------------
-Query: ${query}
-Answer:`
 }
 
 export class DumbResponseSynthesizer implements ResponseSynthesizer {

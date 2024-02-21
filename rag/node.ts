@@ -1,3 +1,4 @@
+import { NODE_PARSER_CHUNK_SIZE } from "config/rag"
 import { FilePath } from "utils/obsidian"
 
 export interface Node {
@@ -20,7 +21,7 @@ export class NodeParser {
 
 	static defaultConfig(): NodeParserConfig {
 		return {
-			chunkSize: 1024,
+			chunkSize: NODE_PARSER_CHUNK_SIZE,
 			paragraphSeparator: "\n\n",
 		}
 	}

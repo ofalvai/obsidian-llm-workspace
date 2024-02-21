@@ -1,30 +1,8 @@
 import OpenAI from "openai"
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions"
 import { Node } from "./node"
-
-const SELF_QUERY_PROMPT = `
-Your goal is to rewrite the user's question into search keywords.
-`
-const EXAMPLES = [
-	{
-		input: "How do I make a pie?",
-		output: "make a pie",
-	},
-	{
-		input: "What were the major contributions of Joseph Swan to the development of the incandescent light bulb?",
-		output: "Joseph Swan's contribution to development of incandescent light bulb",
-	},
-	{
-		input: "What is the difference between a solid and a liquid?",
-		output: "solid and liquid difference",
-	},
-	{
-		input: "What are the odds for slot machines?",
-		output: "slot machine odds",
-	},
-]
-
-const EMBEDDING_MODEL = "text-embedding-3-small"
+import { COMPLETION_MODEL, COMPLETION_TEMPERATURE, EMBEDDING_MODEL } from "config/openai"
+import { SELF_QUERY_EXAMPLES, SELF_QUERY_PROMPT } from "config/prompts"
 
 export interface EmbeddingClient {
 	embedNode(node: Node): Promise<number[]>
@@ -123,7 +101,7 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 				role: "system",
 				content: SELF_QUERY_PROMPT,
 			},
-			...EXAMPLES.flatMap((example) => {
+			...SELF_QUERY_EXAMPLES.flatMap((example) => {
 				return [
 					{ role: "user", content: example.input },
 					{ role: "assistant", content: example.output },
@@ -137,8 +115,8 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 
 		const completion = await this.client.chat.completions.create({
 			messages,
-			model: "gpt-3.5-turbo-1106",
-			temperature: 0.1,
+			model: COMPLETION_MODEL,
+			temperature: COMPLETION_TEMPERATURE,
 		})
 		return completion.choices[0].message.content!
 	}
