@@ -98,7 +98,7 @@ const Source = ({ sourceFile, onClick }: SourceProps) => {
 
 	return (
 		<li onClick={() => onClick(sourceFile.path)}>
-			<a>{sourceFile.base}</a> ({percentage}%)
+			<a>{sourceFile.base}</a> <span aria-label="Relevance score">({percentage}%)</span>
 		</li>
 	)
 }

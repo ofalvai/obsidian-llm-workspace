@@ -113,6 +113,7 @@ export const Workspace = ({ db, workspaceFile }: WorkspaceProps) => {
 		const markdown = debugInfoToMarkdown(debugInfo)
 		if (file) {
 			await app.vault.append(file, markdown)
+			new Notice("Debug info appended to the end of file")
 		} else {
 			await app.vault.create(debugFilePath, markdown)
 		}
