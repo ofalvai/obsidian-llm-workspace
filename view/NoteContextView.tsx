@@ -1,9 +1,9 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
 import { NoteContext } from "component/NoteContext";
 import { AppContext, PluginSettingsContext } from "utils/obsidian";
-import { LlmPluginSettings } from "main";
 import { LlmDexie } from "storage/db";
 import { render } from "preact";
+import { LlmPluginSettings } from "config/settings";
 
 export const VIEW_TYPE_NOTE_CONTEXT = "llm-note-context-view";
 

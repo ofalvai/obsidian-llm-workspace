@@ -13,6 +13,7 @@ import { EmbeddedFileInfo, NoteLinks } from "./NoteLinks"
 import { NonWorkspaceView, WorkspaceDetails } from "./WorkspaceDetails"
 import { QuestionAndAnswer } from "./QuestionAndAnswer"
 import { debugInfoToMarkdown } from "utils/debug"
+import { DEFAULT_SETTINGS } from "config/settings"
 
 export type WorkspaceProps = {
 	workspaceFile: TFile
@@ -42,7 +43,8 @@ export const Workspace = ({ db, workspaceFile }: WorkspaceProps) => {
 		model: "gpt-3.5-turbo-1106",
 		temperature: 0.1,
 	})
-	const synthesizer = new DumbResponseSynthesizer(completionClient, settings.systemPrompt, debug)
+	const systemPrompt = settings.systemPrompt ? settings.systemPrompt : DEFAULT_SETTINGS.systemPrompt;
+	const synthesizer = new DumbResponseSynthesizer(completionClient, systemPrompt, debug)
 	const queryEngine = new RetrieverQueryEngine(retriever, synthesizer)
 
 	const [queryResponse, setQueryResponse] = useState<QueryResponse | undefined>(undefined)

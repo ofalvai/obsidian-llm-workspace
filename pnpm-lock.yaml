@@ -14,6 +14,9 @@ dependencies:
   lucide-preact:
     specifier: ^0.330.0
     version: 0.330.0(preact@10.19.3)
+  markdown-to-jsx:
+    specifier: ^7.4.1
+    version: 7.4.1(@preact/compat@17.1.2)
   openai:
     specifier: ^4.24.0
     version: 4.24.0
@@ -1181,6 +1184,15 @@ packages:
       preact: ^10.5.13
     dependencies:
       preact: 10.19.3
+    dev: false
+
+  /markdown-to-jsx@7.4.1(@preact/compat@17.1.2):
+    resolution: {integrity: sha512-GbrbkTnHp9u6+HqbPRFJbObi369AgJNXi/sGqq5HRsoZW063xR1XDCaConqq+whfEIAlzB1YPnOgsPc7B7bc/A==}
+    engines: {node: '>= 10'}
+    peerDependencies:
+      react: '>= 0.14.0'
+    dependencies:
+      react: /@preact/compat@17.1.2(preact@10.19.3)
     dev: false
 
   /md5@2.3.0:

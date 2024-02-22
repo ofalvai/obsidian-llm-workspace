@@ -1,3 +1,4 @@
+import Markdown from "markdown-to-jsx"
 import { TFile } from "obsidian"
 import path from "path"
 import { useState } from "preact/hooks"
@@ -33,8 +34,8 @@ export const QuestionAndAnswer = ({
 	return (
 		<div>
 			<form onSubmit={onSubmit}>
-				<input
-					type="text"
+				<textarea
+					className="llm-workspace-question"
 					disabled={isLoading}
 					placeholder="Ask a question"
 					value={question}
@@ -47,7 +48,9 @@ export const QuestionAndAnswer = ({
 			</form>
 			{queryResponse && (
 				<div>
-					<div class="llm-workspace-completion">{queryResponse.text}</div>
+					<div class="llm-workspace-completion">
+						<Markdown>{queryResponse.text}</Markdown>
+					</div>
 					<SourceList queryResponse={queryResponse} onSourceClick={onSourceClick} />
 				</div>
 			)}

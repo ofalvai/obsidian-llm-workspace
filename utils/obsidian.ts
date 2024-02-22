@@ -1,6 +1,6 @@
 import { createContext } from "preact"
 import { App, CachedMetadata } from "obsidian"
-import { LlmPluginSettings } from "main"
+import { LlmPluginSettings } from "config/settings"
 
 export const AppContext = createContext<App | undefined>(undefined)
 
