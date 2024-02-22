@@ -1,6 +1,6 @@
-import { LlmDexie, VectorStoreEntry } from "storage/db"
-import { Node } from "./node"
-import { FilePath } from "utils/obsidian"
+import type { LlmDexie, VectorStoreEntry } from "storage/db"
+import type { Node } from "./node"
+import type { FilePath } from "utils/obsidian"
 
 export interface NodeSimilarity {
 	node: Node

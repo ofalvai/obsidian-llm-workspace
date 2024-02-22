@@ -1,6 +1,7 @@
 import { createContext } from "preact"
-import { App, CachedMetadata } from "obsidian"
-import { LlmPluginSettings } from "config/settings"
+import type { App, CachedMetadata } from "obsidian"
+import type { LlmPluginSettings } from "config/settings"
+import { writable } from "svelte/store"
 
 export const AppContext = createContext<App | undefined>(undefined)
 
@@ -24,3 +25,6 @@ export function isLlmWorkspace(metadata: CachedMetadata): boolean {
 	}
 	return frontmatter[frontmatterKeyCategory] === frontmatterValueWorkspace
 }
+
+export const settingsStore = writable<LlmPluginSettings>()
+export const appStore = writable<App>()

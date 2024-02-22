@@ -1,6 +1,6 @@
 import { defaultSynthesisUserPrompt } from "config/prompts"
-import { ChatCompletionClient } from "./llm"
-import { NodeSimilarity } from "./storage"
+import type { ChatCompletionClient } from "./llm"
+import type { NodeSimilarity } from "./storage"
 
 export interface QueryResponse {
 	text: string

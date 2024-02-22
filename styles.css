@@ -46,9 +46,6 @@ If your plugin does not need CSS, delete this file.
 	align-self: center;
 }
 
-.llm-workspace-link-parent {
-}
-
 .llm-workspace-link-expand {
 	align-self: center;
 	margin-left: 4px;

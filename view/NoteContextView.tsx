@@ -3,7 +3,7 @@ import { NoteContext } from "component/NoteContext";
 import { AppContext, PluginSettingsContext } from "utils/obsidian";
 import { LlmDexie } from "storage/db";
 import { render } from "preact";
-import { LlmPluginSettings } from "config/settings";
+import type { LlmPluginSettings } from "config/settings";
 
 export const VIEW_TYPE_NOTE_CONTEXT = "llm-note-context-view";
 

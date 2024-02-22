@@ -1,6 +1,6 @@
-import Dexie, { Table } from "dexie"
-import { Node } from "rag/node"
-import { FilePath } from "utils/obsidian"
+import Dexie, { type Table } from "dexie"
+import type { Node } from "rag/node"
+import type { FilePath } from "utils/obsidian"
 
 export interface NoteDerivedData {
 	path: FilePath
