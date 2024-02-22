@@ -1,5 +1,5 @@
-import { Retriever } from "./retriever"
-import { QueryResponse, ResponseSynthesizer } from "./synthesizer"
+import type { Retriever } from "./retriever"
+import type { QueryResponse, ResponseSynthesizer } from "./synthesizer"
 
 export interface QueryEngine {
 	query(query: string, workspaceFilePath: string): Promise<QueryResponse>

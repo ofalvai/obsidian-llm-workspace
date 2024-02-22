@@ -1,9 +1,8 @@
+import type { LlmPluginSettings } from "config/settings"
 import { ItemView, Notice, TFile, WorkspaceLeaf } from "obsidian"
-import { AppContext, PluginSettingsContext } from "utils/obsidian"
 import { LlmDexie } from "storage/db"
-import { render } from "preact"
-import { Workspace } from "component/RAGComponent"
-import { LlmPluginSettings } from "config/settings"
+import { appStore, settingsStore } from "utils/obsidian"
+import Workspace from "component/Workspace.svelte"
 
 export const VIEW_TYPE_WORKSPACE = "llm-workspace-view"
 
@@ -12,15 +11,15 @@ export class WorkspaceView extends ItemView {
 
 	db: LlmDexie
 
+	component!: Workspace
 	viewTitle = "LLM Workspace"
+	navigation = false
 
 	constructor(leaf: WorkspaceLeaf, settings: LlmPluginSettings, db: LlmDexie) {
 		super(leaf)
 		this.settings = settings
 		this.db = db
 	}
-
-	navigation = false
 
 	getViewType() {
 		return VIEW_TYPE_WORKSPACE
@@ -35,29 +34,31 @@ export class WorkspaceView extends ItemView {
 	}
 
 	async onOpen() {
+		// TODO: filter for non-Markdown files
 		const file = this.app.workspace.getActiveFile()
 		if (!file) {
 			new Notice("Open a file and try again")
 			return
 		}
-		// TODO: filter for non-Markdown files
+
+
+		settingsStore.set(this.settings)
+		appStore.set(this.app)
+
+		this.component = new Workspace({
+			target: this.contentEl,
+			props: {
+				workspaceFile: file,
+				db: this.db,		
+			},
+		})
 
 		await this.updateWorkspaceStore(file)
 		this.viewTitle = `${file.basename} (LLM Workspace)`
-
-		render(
-			<AppContext.Provider value={this.app}>
-				<PluginSettingsContext.Provider value={this.settings}>
-					<Workspace workspaceFile={file} db={this.db} />
-				</PluginSettingsContext.Provider>
-			</AppContext.Provider>,
-			this.contentEl
-		)
 	}
 
 	async onClose() {
-		// https://stackoverflow.com/questions/50946950/how-to-destroy-root-preact-node
-		render(null, this.contentEl)
+		this.component?.$destroy()
 	}
 
 	async updateWorkspaceStore(file: TFile) {

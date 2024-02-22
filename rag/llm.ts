@@ -1,6 +1,6 @@
 import OpenAI from "openai"
-import { ChatCompletionMessageParam } from "openai/resources/chat/completions"
-import { Node } from "./node"
+import type { ChatCompletionMessageParam } from "openai/resources/chat/completions"
+import type { Node } from "./node"
 import { COMPLETION_MODEL, COMPLETION_TEMPERATURE, EMBEDDING_MODEL } from "config/openai"
 import { SELF_QUERY_EXAMPLES, SELF_QUERY_PROMPT } from "config/prompts"
 
