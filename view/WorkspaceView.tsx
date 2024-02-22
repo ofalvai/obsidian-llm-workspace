@@ -1,9 +1,9 @@
 import { ItemView, Notice, TFile, WorkspaceLeaf } from "obsidian"
 import { AppContext, PluginSettingsContext } from "utils/obsidian"
-import { LlmPluginSettings } from "main"
 import { LlmDexie } from "storage/db"
 import { render } from "preact"
 import { Workspace } from "component/RAGComponent"
+import { LlmPluginSettings } from "config/settings"
 
 export const VIEW_TYPE_WORKSPACE = "llm-workspace-view"
 
