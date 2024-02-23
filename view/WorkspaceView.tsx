@@ -1,7 +1,7 @@
 import type { LlmPluginSettings } from "config/settings"
 import { ItemView, Notice, TFile, WorkspaceLeaf } from "obsidian"
 import { LlmDexie } from "storage/db"
-import { appStore, settingsStore } from "utils/obsidian"
+import { appStore, settingsStore, viewStore } from "utils/obsidian"
 import Workspace from "component/Workspace.svelte"
 
 export const VIEW_TYPE_WORKSPACE = "llm-workspace-view"
@@ -44,6 +44,7 @@ export class WorkspaceView extends ItemView {
 
 		settingsStore.set(this.settings)
 		appStore.set(this.app)
+		viewStore.set(this)
 
 		this.component = new Workspace({
 			target: this.contentEl,

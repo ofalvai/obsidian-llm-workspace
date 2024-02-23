@@ -2,3 +2,8 @@ node_modules
 main.js
 out/
 data.json
+
+# Exclude macOS Finder (System Explorer) View States
+.DS_Store
+
+out/

@@ -1,11 +1,14 @@
 <script lang="ts">
-	import type { DebugInfo, QueryResponse } from "rag/synthesizer"
-	import { createEventDispatcher, type ComponentEvents } from "svelte"
+	import { MarkdownRenderer } from "obsidian"
+	import type { QueryResponse } from "rag/synthesizer"
+	import { createEventDispatcher } from "svelte"
+	import { appStore, viewStore } from "utils/obsidian"
 	import SourceList from "./SourceList.svelte"
-	import SvelteMarkdown from "svelte-markdown"
 
 	export let isLoading = false
 	export let queryResponse: QueryResponse | null
+
+	let markdownEl: HTMLElement | undefined
 
 	const dispatch = createEventDispatcher<{
 		"query-submit": string
@@ -18,14 +21,23 @@
 		event.preventDefault()
 		dispatch("query-submit", query)
 	}
+
+	$: {
+		if (markdownEl && queryResponse) {
+			console.log("markdownEl", markdownEl)
+			MarkdownRenderer.render(
+				$appStore,
+				queryResponse.text,
+				markdownEl,
+				"",
+				$viewStore,
+			)
+		}
+	}
 </script>
 
 <form on:submit={onSubmit}>
-	<textarea
-		disabled={isLoading}
-		placeholder="Ask a question"
-		bind:value={query}
-	/>
+	<textarea disabled={isLoading} placeholder="Ask a question" bind:value={query} />
 	<button disabled={isLoading} type="submit">
 		Ask
 		{#if isLoading}...{/if}
@@ -34,13 +46,11 @@
 {#if queryResponse}
 	<div>
 		<div class="completion">
-			<SvelteMarkdown source={queryResponse.text} />
+			<div bind:this={markdownEl} />
 		</div>
-		<SourceList queryResponse={queryResponse} on:source-click />
+		<SourceList {queryResponse} on:source-click />
 	</div>
 {/if}
-
-
 
 <style>
 	textarea {
