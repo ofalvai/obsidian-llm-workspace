@@ -15,7 +15,7 @@
 	"dependencies": {
 		"dexie": "^3.2.4",
 		"dexie-react-hooks": "^1.1.7",
-		"lucide-preact": "^0.330.0",
+		"lucide-preact": "^0.344.0",
 		"markdown-to-jsx": "^7.4.1",
 		"openai": "^4.24.0",
 		"preact": "^10.19.3",
