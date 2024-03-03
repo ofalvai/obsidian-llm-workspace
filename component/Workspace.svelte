@@ -11,9 +11,11 @@
 	import type { LlmDexie, VectorStoreEntry } from "storage/db"
 	import type { ComponentEvents } from "svelte"
 	import { writable } from "svelte/store"
+	import { debugInfoToMarkdown } from "utils/debug"
 	import { appStore, isLlmWorkspace, settingsStore } from "utils/obsidian"
-	import NoteLinks, { type EmbeddedFileInfo } from "./NoteLinks.svelte"
+	import NoteLinks from "./NoteLinks.svelte"
 	import QuestionAndAnswer from "./QuestionAndAnswer.svelte"
+	import type { EmbeddedFileInfo } from "./types"
 
 	export let workspaceFile: TFile
 	export let db: LlmDexie
@@ -156,6 +158,19 @@
 			await vectorStore.addNode(node, embedding, workspaceFile.path)
 		}
 	}
+	const onDebugClick = async (event: ComponentEvents<QuestionAndAnswer>["debug-click"]) => {
+		const debugFilePath = "LLM workspace debug.md"
+		const file = $appStore.metadataCache.getFirstLinkpathDest(debugFilePath, "")
+		const markdown = debugInfoToMarkdown(event.detail)
+		if (file) {
+			await $appStore.vault.append(file, markdown)
+			new Notice("Debug info appended to the end of file")
+		} else {
+			await $appStore.vault.create(debugFilePath, markdown)
+		}
+
+		await $appStore.workspace.openLinkText(debugFilePath, "", "tab")
+	}
 </script>
 
 <div>
@@ -183,5 +198,6 @@
 			onQuestionSubmit(e.detail)
 		}}
 		on:source-click={onLinkClick}
+		on:debug-click={onDebugClick}
 	/>
 </div>

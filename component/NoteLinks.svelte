@@ -1,18 +1,7 @@
-<script context="module">
-	export interface EmbeddedFileInfo {
-		name: string
-		parent: TFolder | null
-		path: string
-		nodeCount: number
-		lastProcessed: number | undefined
-	}
-</script>
-
 <script lang="ts">
-	import { TFolder } from "obsidian"
-
 	import NoteLink from "./NoteLink.svelte"
 	import { createEventDispatcher } from "svelte"
+	import type { EmbeddedFileInfo } from "./types"
 
 	export let links: EmbeddedFileInfo[]
 
