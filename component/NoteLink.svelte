@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte"
-	import type { EmbeddedFileInfo } from "./NoteLinks"
 	import { FileX2, FileCheck2, ChevronDown, ChevronUp, Folder } from "lucide-svelte"
+	import type { EmbeddedFileInfo } from "./NoteLinks.svelte"
 
 	export let fileInfo: EmbeddedFileInfo
 
