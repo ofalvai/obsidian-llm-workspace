@@ -12,8 +12,7 @@
 	import type { ComponentEvents } from "svelte"
 	import { writable } from "svelte/store"
 	import { appStore, isLlmWorkspace, settingsStore } from "utils/obsidian"
-	import type { EmbeddedFileInfo } from "./NoteLinks"
-	import NoteLinks from "./NoteLinks.svelte"
+	import NoteLinks, { type EmbeddedFileInfo } from "./NoteLinks.svelte"
 	import QuestionAndAnswer from "./QuestionAndAnswer.svelte"
 
 	export let workspaceFile: TFile
