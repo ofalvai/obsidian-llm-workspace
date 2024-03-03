@@ -1,9 +1,8 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
-import { NoteContext } from "component/NoteContext";
-import { AppContext, PluginSettingsContext } from "utils/obsidian";
+import { appStore, settingsStore, viewStore } from "utils/obsidian";
 import { LlmDexie } from "storage/db";
-import { render } from "preact";
-import { LlmPluginSettings } from "config/settings";
+import type { LlmPluginSettings } from "config/settings";
+import NoteContext from "component/NoteContext.svelte";
 
 export const VIEW_TYPE_NOTE_CONTEXT = "llm-note-context-view";
 
@@ -11,6 +10,8 @@ export class NoteContextView extends ItemView {
 	settings: LlmPluginSettings;
 
 	db: LlmDexie;
+
+	component!: NoteContext
 
 	constructor(leaf: WorkspaceLeaf, settings: LlmPluginSettings, db: LlmDexie) {
 		super(leaf);
@@ -31,19 +32,19 @@ export class NoteContextView extends ItemView {
 	}
 
 	async onOpen() {
-		render(
-			<AppContext.Provider value={this.app}>
-				<PluginSettingsContext.Provider value={this.settings}>
-					<NoteContext db={this.db} />
-				</PluginSettingsContext.Provider>
-			</AppContext.Provider>,
-			this.contentEl
-		)
+		settingsStore.set(this.settings);
+		appStore.set(this.app);
+		viewStore.set(this);
+
+		this.component = new NoteContext({
+			target: this.contentEl,
+			props: {
+				db: this.db,
+			},
+		});
 	}
 
 	async onClose() {
-		// https://stackoverflow.com/questions/50946950/how-to-destroy-root-preact-node
-		render(null, this.contentEl)
+		this.component?.$destroy();
 	}
-
 }

@@ -1,5 +1,5 @@
-import { EmbeddingClient } from "./llm"
-import { NodeSimilarity, VectorStoreIndex } from "./storage"
+import type { EmbeddingClient } from "./llm"
+import type { NodeSimilarity, VectorStoreIndex } from "./storage"
 
 export interface Retriever {
 	retrieve(query: string, workspaceFilePath: string, limit?: number): Promise<RetrieverResult>

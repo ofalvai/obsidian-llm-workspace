@@ -1,4 +1,4 @@
-import { DEFAULT_SETTINGS, LlmPluginSettings, LlmSettingTab } from "config/settings"
+import { DEFAULT_SETTINGS, type LlmPluginSettings, LlmSettingTab } from "config/settings"
 import { Plugin, WorkspaceLeaf } from "obsidian"
 import { VectorStoreIndex } from "rag/storage"
 import { LlmDexie } from "storage/db"
@@ -7,9 +7,9 @@ import { NoteContextView, VIEW_TYPE_NOTE_CONTEXT } from "view/NoteContextView"
 import { VIEW_TYPE_WORKSPACE, WorkspaceView } from "view/WorkspaceView"
 
 export default class LlmPlugin extends Plugin {
-	settings: LlmPluginSettings
-	db: LlmDexie
-	reconciler: ObsidianNoteReconciler
+	settings!: LlmPluginSettings
+	db!: LlmDexie
+	reconciler!: ObsidianNoteReconciler
 
 	async onload() {
 		await this.loadSettings()

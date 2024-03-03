@@ -1,7 +1,7 @@
-import { Subscription, liveQuery } from "dexie"
-import { App, CachedMetadata, EventRef, TAbstractFile, TFile, TFolder } from "obsidian"
-import { LlmDexie, WorkspaceStoreEntry } from "storage/db"
-import { FilePath, isLlmWorkspace } from "./obsidian"
+import { type Subscription, liveQuery } from "dexie"
+import { App, type CachedMetadata, type EventRef, TAbstractFile, TFile, TFolder } from "obsidian"
+import type { LlmDexie, WorkspaceStoreEntry } from "storage/db"
+import { type FilePath, isLlmWorkspace } from "./obsidian"
 import { VectorStoreIndex } from "rag/storage"
 
 // ObsidianNoteReconciler is responsible for keeping the database in sync with changes in the Obsidian vault.
