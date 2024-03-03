@@ -19,12 +19,13 @@
 
 	const onSubmit = (event: SubmitEvent) => {
 		event.preventDefault()
+		queryResponse = null
+		markdownEl?.replaceChildren()
 		dispatch("query-submit", query)
 	}
 
 	$: {
 		if (markdownEl && queryResponse) {
-			console.log("markdownEl", markdownEl)
 			MarkdownRenderer.render(
 				$appStore,
 				queryResponse.text,

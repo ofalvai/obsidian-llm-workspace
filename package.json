@@ -14,13 +14,8 @@
 	"license": "MIT",
 	"dependencies": {
 		"dexie": "3.2.5",
-		"dexie-react-hooks": "^1.1.7",
 		"lucide-svelte": "^0.336.0",
-		"markdown-to-jsx": "^7.4.1",
-		"openai": "^4.24.0",
-		"preact": "^10.19.3",
-		"react": "npm:@preact/compat",
-		"react-dom": "npm:@preact/compat"
+		"openai": "^4.24.0"
 	},
 	"devDependencies": {
 		"@stylistic/eslint-plugin-js": "^1.5.1",

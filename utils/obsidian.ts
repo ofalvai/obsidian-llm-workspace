@@ -1,11 +1,7 @@
-import { createContext } from "preact"
 import type { App, CachedMetadata, View } from "obsidian"
 import type { LlmPluginSettings } from "config/settings"
 import { writable } from "svelte/store"
 
-export const AppContext = createContext<App | undefined>(undefined)
-
-export const PluginSettingsContext = createContext<LlmPluginSettings | undefined>(undefined)
 
 export type FilePath = string
 
