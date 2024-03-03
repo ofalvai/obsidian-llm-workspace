@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { MarkdownRenderer } from "obsidian"
-	import type { QueryResponse } from "rag/synthesizer"
+	import type { DebugInfo, QueryResponse } from "rag/synthesizer"
 	import { createEventDispatcher } from "svelte"
 	import { appStore, viewStore } from "utils/obsidian"
 	import SourceList from "./SourceList.svelte"
@@ -13,6 +13,7 @@
 	const dispatch = createEventDispatcher<{
 		"query-submit": string
 		"source-click": string
+		"debug-click": DebugInfo
 	}>()
 
 	let query = ""
@@ -24,15 +25,15 @@
 		dispatch("query-submit", query)
 	}
 
+	const onDebugClick = () => {
+		if (queryResponse?.debugInfo) {
+			dispatch("debug-click", queryResponse.debugInfo)
+		}
+	}
+
 	$: {
 		if (markdownEl && queryResponse) {
-			MarkdownRenderer.render(
-				$appStore,
-				queryResponse.text,
-				markdownEl,
-				"",
-				$viewStore,
-			)
+			MarkdownRenderer.render($appStore, queryResponse.text, markdownEl, "", $viewStore)
 		}
 	}
 </script>
@@ -51,6 +52,9 @@
 		</div>
 		<SourceList {queryResponse} on:source-click />
 	</div>
+	{#if queryResponse.debugInfo}
+		<button on:click={onDebugClick}>Debug response</button>
+	{/if}
 {/if}
 
 <style>
