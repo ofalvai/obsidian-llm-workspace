@@ -6,6 +6,7 @@ import { writable } from "svelte/store"
 export type FilePath = string
 
 const frontmatterKeyCategory = "category"
+const frontmatterKeyContext = "context"
 const frontmatterValueWorkspace = "LLM workspace"
 
 export function isLlmWorkspace(metadata: CachedMetadata): boolean {
@@ -20,6 +21,15 @@ export function isLlmWorkspace(metadata: CachedMetadata): boolean {
 		return frontmatter[frontmatterKeyCategory].includes(frontmatterValueWorkspace)
 	}
 	return frontmatter[frontmatterKeyCategory] === frontmatterValueWorkspace
+}
+
+export function readWorkspaceContext(metadata: CachedMetadata): string | null {
+	if (!metadata.frontmatter) return null
+
+	if (frontmatterKeyContext in metadata.frontmatter) {
+		return metadata.frontmatter[frontmatterKeyContext]
+	}
+	return null
 }
 
 export const settingsStore = writable<LlmPluginSettings>()
