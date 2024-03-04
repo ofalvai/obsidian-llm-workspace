@@ -30,11 +30,13 @@ export interface ResponseSynthesizer {
 export class DumbResponseSynthesizer implements ResponseSynthesizer {
 	private completionClient: ChatCompletionClient
 	private systemPrompt: string
+	private workspaceContext: string | null
 	private debug: boolean
 
-	constructor(completionClient: ChatCompletionClient, systemPrompt: string, debug: boolean) {
+	constructor(completionClient: ChatCompletionClient, systemPrompt: string, workspaceContext: string | null, debug: boolean) {
 		this.completionClient = completionClient
 		this.systemPrompt = systemPrompt
+		this.workspaceContext = workspaceContext
 		this.debug = debug
 	}
 
@@ -43,10 +45,13 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 		nodes: NodeSimilarity[],
 		improvedQuery: string
 	): Promise<QueryResponse> {
-		const context = nodes
+		let context = nodes
 			.reverse() // TODO: knowledge is better recalled towards the end of window?
 			.map((n) => `${n.node.parent}\n${n.node.content}`)
 			.join("\n\n")
+		if (this.workspaceContext) {
+			context += "\n\n" + this.workspaceContext
+		}
 		const userPrompt = defaultSynthesisUserPrompt(context, query)
 		const systemPrompt = this.systemPrompt
 		const result = await this.completionClient.createChatCompletion(userPrompt, systemPrompt)

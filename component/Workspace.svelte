@@ -12,7 +12,7 @@
 	import type { ComponentEvents } from "svelte"
 	import { writable } from "svelte/store"
 	import { debugInfoToMarkdown } from "utils/debug"
-	import { appStore, isLlmWorkspace, settingsStore } from "utils/obsidian"
+	import { appStore, isLlmWorkspace, readWorkspaceContext, settingsStore } from "utils/obsidian"
 	import NoteLinks from "./NoteLinks.svelte"
 	import QuestionAndAnswer from "./QuestionAndAnswer.svelte"
 	import type { EmbeddedFileInfo } from "./types"
@@ -20,10 +20,12 @@
 	export let workspaceFile: TFile
 	export let db: LlmDexie
 
-	let isWorkspace: boolean
-	$: {
-		const metadata = $appStore.metadataCache.getFileCache(workspaceFile)
-		isWorkspace = metadata != null && isLlmWorkspace(metadata)
+	// TODO: these are not refreshed when the workspace file changes
+	let workspaceContext: string | null = null
+	const metadata = $appStore.metadataCache.getFileCache(workspaceFile)
+	const isWorkspace = metadata != null && isLlmWorkspace(metadata)
+	if (metadata) {
+		workspaceContext = readWorkspaceContext(metadata)
 	}
 
 	const debug = true // TODO: make it a setting
@@ -38,7 +40,12 @@
 	const systemPrompt = $settingsStore.systemPrompt
 		? $settingsStore.systemPrompt
 		: DEFAULT_SETTINGS.systemPrompt
-	const synthesizer = new DumbResponseSynthesizer(completionClient, systemPrompt, debug)
+	const synthesizer = new DumbResponseSynthesizer(
+		completionClient,
+		systemPrompt,
+		workspaceContext,
+		debug,
+	)
 	const queryEngine = new RetrieverQueryEngine(retriever, synthesizer)
 
 	let queryResponse = writable<QueryResponse>()
@@ -115,7 +122,6 @@
 	})
 
 	const rebuildAll = async () => {
-		// TODO
 		// Collect all linked files
 		// Note: we can't use `app.metadataCache.getFileCache(workspaceFile).links` because
 		// it doesn't contain the full path of the linked file
