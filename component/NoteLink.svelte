@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte"
 	import { FileX2, FileCheck2, ChevronDown, ChevronUp, Folder } from "lucide-svelte"
-	import type { EmbeddedFileInfo } from "./NoteLinks.svelte"
+	import type { EmbeddedFileInfo } from "./types"
 
 	export let fileInfo: EmbeddedFileInfo
 
@@ -37,9 +37,9 @@
 			data-tooltip-delay="300"
 		>
 			{#if fileInfo.nodeCount === 0}
-				<FileX2 size="18" color="var(--background-modifier-error)" />
+				<FileX2 size="18" stroke-width="var(--icon-stroke)" color="var(--background-modifier-error)" />
 			{:else}
-				<FileCheck2 size="18" color="var(--background-modifier-success)" />
+				<FileCheck2 size="18" stroke-width="var(--icon-stroke)" color="var(--background-modifier-success)" />
 			{/if}
 		</span>
 		<!-- svelte-ignore a11y-invalid-attribute -->

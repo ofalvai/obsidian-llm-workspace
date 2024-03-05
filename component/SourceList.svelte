@@ -40,7 +40,9 @@
 		<li>
 			<!-- svelte-ignore a11y-invalid-attribute -->
 			<a href="#" on:click={() => dispatch("source-click", source.path)}>{source.base}</a>
-			<span aria-label="Relevance score">{Math.round(source.similarity * 100)}%</span>
+			<span aria-label="Relevance score" data-tooltip-delay="300"
+				>{Math.round(source.similarity * 100)}%</span
+			>
 		</li>
 	{/each}
 </ol>
