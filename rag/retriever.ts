@@ -1,4 +1,4 @@
-import type { EmbeddingClient } from "./llm"
+import type { EmbeddingClient } from "./llm/common"
 import type { NodeSimilarity, VectorStoreIndex } from "./storage"
 
 export interface Retriever {

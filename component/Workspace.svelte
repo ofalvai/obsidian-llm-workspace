@@ -2,7 +2,7 @@
 	import { DEFAULT_SETTINGS } from "config/settings"
 	import { liveQuery } from "dexie"
 	import { Notice, TFile } from "obsidian"
-	import { OpenAIChatCompletionClient, OpenAIEmbeddingClient } from "rag/llm"
+	import { OpenAIChatCompletionClient, OpenAIEmbeddingClient } from "rag/llm/openai"
 	import { NodeParser } from "rag/node"
 	import { RetrieverQueryEngine } from "rag/query-engine"
 	import { EmbeddingVectorRetriever } from "rag/retriever"
@@ -16,6 +16,7 @@
 	import NoteLinks from "./NoteLinks.svelte"
 	import QuestionAndAnswer from "./QuestionAndAnswer.svelte"
 	import type { EmbeddedFileInfo } from "./types"
+	import { AnthropicChatCompletionClient } from "rag/llm/anthropic"
 
 	export let workspaceFile: TFile
 	export let db: LlmDexie
@@ -33,10 +34,19 @@
 	const embeddingClient = new OpenAIEmbeddingClient($settingsStore.openAIApiKey)
 	const vectorStore = new VectorStoreIndex(db)
 	const retriever = new EmbeddingVectorRetriever(vectorStore, embeddingClient)
-	const completionClient = new OpenAIChatCompletionClient($settingsStore.openAIApiKey, {
-		model: "gpt-3.5-turbo-1106",
-		temperature: 0.1,
-	})
+	// const completionClient = new OpenAIChatCompletionClient($settingsStore.openAIApiKey, {
+	// 	model: "gpt-3.5-turbo-1106",
+	// 	temperature: 0.1,
+	// 	maxTokens: 1024,
+	// })
+	const completionClient = new AnthropicChatCompletionClient(
+		$settingsStore.anthropicApikey,
+		{
+			model: "claude-3-sonnet-20240229",
+			temperature: 0.1,
+			maxTokens: 1024,
+		},
+	)
 	const systemPrompt = $settingsStore.systemPrompt
 		? $settingsStore.systemPrompt
 		: DEFAULT_SETTINGS.systemPrompt

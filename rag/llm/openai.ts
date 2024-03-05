@@ -1,39 +1,9 @@
-import OpenAI from "openai"
-import type { ChatCompletionMessageParam } from "openai/resources/chat/completions"
-import type { Node } from "./node"
 import { COMPLETION_MODEL, COMPLETION_TEMPERATURE, EMBEDDING_MODEL } from "config/openai"
 import { SELF_QUERY_EXAMPLES, SELF_QUERY_PROMPT } from "config/prompts"
-
-export interface EmbeddingClient {
-	embedNode(node: Node): Promise<number[]>
-	embedQuery(query: string): Promise<QueryEmbedding>
-}
-
-export enum Role {
-	System = 0,
-	User = 1,
-	Assistant = 2,
-}
-
-export interface ChatMessage {
-	content: string
-	role: Role
-}
-
-export interface CompletionOptions {
-	model: string
-	temperature: number
-}
-
-export interface ChatCompletionClient {
-	createChatCompletion(userPrompt: string, systemPrompt: string): Promise<ChatMessage>
-}
-
-export interface QueryEmbedding {
-	originalQuery: string
-	improvedQuery: string
-	embedding: number[]
-}
+import OpenAI from "openai"
+import type { ChatCompletionMessageParam } from "openai/resources"
+import type { Node } from "../node"
+import { Role, type ChatCompletionClient, type ChatMessage, type CompletionOptions, type EmbeddingClient, type QueryEmbedding } from "./common"
 
 export class OpenAIChatCompletionClient implements ChatCompletionClient {
 	private client: OpenAI
@@ -57,6 +27,7 @@ export class OpenAIChatCompletionClient implements ChatCompletionClient {
 					content: userPrompt,
 				},
 			],
+			max_tokens: this.options.maxTokens,
 		})
 
 		return {
