@@ -3,11 +3,13 @@ import { PluginSettingTab, App, Setting } from "obsidian"
 
 export interface LlmPluginSettings {
 	openAIApiKey: string
+	anthropicApikey: string
 	systemPrompt: string
 }
 
 export const DEFAULT_SETTINGS: LlmPluginSettings = {
 	openAIApiKey: "",
+	anthropicApikey: "",
 	systemPrompt: `You are ObsidianGPT, an assistant answering questions about information in my personal knowledgebase. My knowledgebase contains both original thoughts and references to other people's work on the internet and in books. I also keep track of projects and tasks there.
 Your answers should be precise and fact-based, but you are encouraged to be opinionated as long as they are marked as such. I prefer short and clear answers. You can be direct and honest with me, there is no need to preface your response with disclaimers and warnings. You can assume I'm an expert in all subject matter.
 If possible, try to highlight implicit connections in the provided context that are otherwise hidden.
@@ -30,13 +32,26 @@ export class LlmSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("OpenAI API key")
-			.setDesc("Get one at platform.openai.com")
+			.setDesc("Get one at platform.openai.com") // TODO: make it clickable via DocumentFragment
 			.addText((text) =>
 				text
 					.setPlaceholder("sk-")
 					.setValue(this.plugin.settings.openAIApiKey)
 					.onChange(async (value) => {
 						this.plugin.settings.openAIApiKey = value
+						await this.plugin.saveSettings()
+					})
+			)
+		
+			new Setting(containerEl)
+			.setName("Anthropic API key")
+			.setDesc("Get one at console.anthropic.com")
+			.addText((text) =>
+				text
+					.setPlaceholder("sk-ant-")
+					.setValue(this.plugin.settings.anthropicApikey)
+					.onChange(async (value) => {
+						this.plugin.settings.anthropicApikey = value
 						await this.plugin.saveSettings()
 					})
 			)
