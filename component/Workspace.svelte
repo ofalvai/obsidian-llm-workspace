@@ -186,8 +186,8 @@
 			links={$links || []}
 			on:link-click={onLinkClick}
 			on:link-rebuild={onLinkRebuild}
+			on:rebuild-all={rebuildAll}
 		/>
-		<button on:click={rebuildAll}>Rebuild embedding DB</button>
 	{:else}
 		<div>
 			<h4>Not a workspace yet</h4>
