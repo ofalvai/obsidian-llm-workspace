@@ -25,7 +25,7 @@
 			<RefreshCw size="18" stroke-width="var(--icon-stroke)" />
 		</button>
 	</div>
-	<div>
+	<div class="my-4">
 		{#each links as link (link.path)}
 			<NoteLink fileInfo={link} on:link-click on:link-rebuild />
 		{/each}
