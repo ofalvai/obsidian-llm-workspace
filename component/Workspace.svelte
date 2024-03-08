@@ -95,7 +95,7 @@
 			if (map.has(filePath)) {
 				map.get(filePath)!.nodeCount += 1
 			} else {
-				const file = app.vault.getAbstractFileByPath(filePath) as TFile
+				const file = $appStore.vault.getFileByPath(filePath)!
 				map.set(filePath, {
 					name: file.basename,
 					parent: file.parent,
@@ -117,7 +117,7 @@
 				}
 				return embeddingInfo
 			} else {
-				const file = $appStore.vault.getAbstractFileByPath(link) as TFile
+				const file = $appStore.vault.getFileByPath(link)!
 				return {
 					name: file.basename,
 					parent: file.parent,
@@ -151,7 +151,10 @@
 		for (const path of linkedFilePaths) {
 			// TODO: test for non-markdown files
 			// TODO: batched iteration
-			const file = $appStore.vault.getAbstractFileByPath(path) as TFile
+			const file = $appStore.vault.getFileByPath(path)
+			if (!file) {
+				continue
+			}
 			const text = await $appStore.vault.cachedRead(file)
 			for (const node of nodeParser.parse(text, file.path)) {
 				const embedding = await embeddingClient.embedNode(node)
@@ -165,7 +168,10 @@
 	}
 	const onLinkRebuild = async (event: ComponentEvents<NoteLinks>["link-rebuild"]) => {
 		await vectorStore.deleteFiles(event.detail.path)
-		const file = $appStore.vault.getAbstractFileByPath(event.detail.path) as TFile
+		const file = $appStore.vault.getFileByPath(event.detail.path)
+		if (!file) {
+			return
+		}
 		const text = await $appStore.vault.cachedRead(file)
 		for (const node of nodeParser.parse(text, file.path)) {
 			const embedding = await embeddingClient.embedNode(node)

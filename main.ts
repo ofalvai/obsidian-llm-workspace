@@ -65,6 +65,7 @@ export default class LlmPlugin extends Plugin {
 			// Our view could not be found in the workspace, create a new leaf
 			// in the right sidebar for it
 			leaf = workspace.getRightLeaf(false)
+			if (!leaf) return
 			await leaf.setViewState({
 				type: VIEW_TYPE_NOTE_CONTEXT,
 				active: true,
