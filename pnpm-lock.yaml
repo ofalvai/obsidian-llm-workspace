@@ -41,8 +41,8 @@ devDependencies:
     specifier: ^0.8.0
     version: 0.8.0(esbuild@0.19.11)(svelte@4.2.11)
   obsidian:
-    specifier: latest
-    version: 1.4.11(@codemirror/state@6.3.3)(@codemirror/view@6.22.3)
+    specifier: 1.5.7-1
+    version: 1.5.7-1(@codemirror/state@6.3.3)(@codemirror/view@6.22.3)
   postcss:
     specifier: ^8.4.35
     version: 8.4.35
@@ -1987,8 +1987,8 @@ packages:
     resolution: {integrity: sha512-5qoj1RUiKOMsCCNLV1CBiPYE10sziTsnmNxkAI/rZhiD63CF7IqdFGC/XzjWjpSgLf0LxXX3bDFIh0E18f6UhQ==}
     dev: false
 
-  /obsidian@1.4.11(@codemirror/state@6.3.3)(@codemirror/view@6.22.3):
-    resolution: {integrity: sha512-BCVYTvaXxElJMl6MMbDdY/CGK+aq18SdtDY/7vH8v6BxCBQ6KF4kKxL0vG9UZ0o5qh139KpUoJHNm+6O5dllKA==}
+  /obsidian@1.5.7-1(@codemirror/state@6.3.3)(@codemirror/view@6.22.3):
+    resolution: {integrity: sha512-T5ZRuQ1FnfXqEoakTTHVDYvzUEEoT8zSPnQCW31PVgYwG4D4tZCQfKHN2hTz1ifnCe8upvwa6mBTAP2WUA5Vng==}
     peerDependencies:
       '@codemirror/state': ^6.0.0
       '@codemirror/view': ^6.0.0

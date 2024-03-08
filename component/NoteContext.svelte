@@ -11,6 +11,8 @@
 	// TODO: add UI that displays when this happens
 	const minChars = 500
 
+	let element: HTMLElement | undefined
+
 	const openFile = readable($appStore.workspace.getActiveFile(), (set) => {
 		const onOpen = (f: TFile | null) => {
 			set(f)
@@ -59,6 +61,8 @@
 	openFile.subscribe(async (f) => {
 		if (!f || $settingsStore.openAIApiKey === "") return
 
+		if (!element || !element.isShown()) return
+
 		const localData = await db.getNoteDerivedData(f.path)
 		if (!localData) {
 			fetchSummary(f)
@@ -74,7 +78,7 @@
 	}
 </script>
 
-<h5>{$openFile?.basename ?? ""}</h5>
+<h5 bind:this={element}>{$openFile?.basename ?? ""}</h5>
 <button on:click={onRecompute}>Recompute</button>
 
 {#if $networkLoading}
