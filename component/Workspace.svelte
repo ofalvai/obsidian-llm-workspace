@@ -17,6 +17,7 @@
 	import QuestionAndAnswer from "./QuestionAndAnswer.svelte"
 	import type { EmbeddedFileInfo } from "./types"
 	import { AnthropicChatCompletionClient } from "rag/llm/anthropic"
+	import TailwindCss from "./TailwindCSS.svelte"
 
 	export let workspaceFile: TFile
 	export let db: LlmDexie
@@ -39,14 +40,11 @@
 	// 	temperature: 0.1,
 	// 	maxTokens: 1024,
 	// })
-	const completionClient = new AnthropicChatCompletionClient(
-		$settingsStore.anthropicApikey,
-		{
-			model: "claude-3-sonnet-20240229",
-			temperature: 0.1,
-			maxTokens: 1024,
-		},
-	)
+	const completionClient = new AnthropicChatCompletionClient($settingsStore.anthropicApikey, {
+		model: "claude-3-sonnet-20240229",
+		temperature: 0.1,
+		maxTokens: 512,
+	})
 	const systemPrompt = $settingsStore.systemPrompt
 		? $settingsStore.systemPrompt
 		: DEFAULT_SETTINGS.systemPrompt
@@ -189,7 +187,8 @@
 	}
 </script>
 
-<div>
+<TailwindCss />
+<div class="h-full w-full flex flex-col">
 	{#if isWorkspace}
 		<h4>{workspaceFile.basename}</h4>
 		<NoteLinks

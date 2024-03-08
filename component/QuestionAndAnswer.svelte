@@ -38,27 +38,34 @@
 	}
 </script>
 
-<form on:submit={onSubmit}>
-	<textarea disabled={isLoading} placeholder="Ask a question" bind:value={query} />
-	<button disabled={isLoading} type="submit">
-		Ask
-		{#if isLoading}...{/if}
-	</button>
-</form>
-{#if queryResponse}
-	<div>
-		<div class="completion">
-			<div bind:this={markdownEl} />
+<div class="grow relative">
+	{#if queryResponse}
+		<div class="grow">
+			<div class="leading-relaxed">
+				<div bind:this={markdownEl} />
+			</div>
+			<SourceList {queryResponse} on:source-click />
+			{#if queryResponse.debugInfo}
+				<button on:click={onDebugClick}>Debug response</button>
+			{/if}
 		</div>
-		<SourceList {queryResponse} on:source-click />
-	</div>
-	{#if queryResponse.debugInfo}
-		<button on:click={onDebugClick}>Debug response</button>
 	{/if}
-{/if}
-
-<style>
-	textarea {
-		width: 100%;
-	}
-</style>
+	<form class="sticky bottom-0 left-0 right-0" on:submit={onSubmit}>
+		<textarea
+			class="w-full"
+			rows="2"
+			on:keydown={(event) => {
+				if (event.key === "Enter") {
+					onSubmit(new SubmitEvent("submit"))
+				}
+			}}
+			disabled={isLoading}
+			placeholder="Ask a question"
+			bind:value={query}
+		/>
+		<button disabled={isLoading} type="submit">
+			Ask
+			{#if isLoading}...{/if}
+		</button>
+	</form>
+</div>
