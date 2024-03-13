@@ -35,7 +35,7 @@
 
 		try {
 			networkLoading.set(true)
-			const summary = await noteSummary(text, $settingsStore?.openAIApiKey)
+			const summary = await noteSummary(text, $settingsStore?.anthropicApikey)
 			await db.updateNoteSummary(f.path, summary)
 		} catch (e) {
 			console.error(e)

@@ -1,4 +1,5 @@
 import OpenAI from "openai"
+import { AnthropicChatCompletionClient } from "rag/llm/anthropic"
 
 const summaryPrompt = `Summarize the following note in two sentences. Use simple language.
 Do not add any context or prefix (such as 'The note outlines...'), just respond with the summary.
@@ -18,27 +19,24 @@ Response format: JSON with the following schema:
 }
 `
 
-export async function noteSummary(note: string, apiKey: string): Promise<string> {
-	const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
+// TODO: refactor all of this to be based on the RAG building blocks
 
-	const completion = await openai.chat.completions.create({
-		messages: [
-			{
-				role: "system",
-				content: summaryPrompt,
-			},
-			{ role: "user", content: note },
-		],
-		model: "gpt-3.5-turbo-1106",
+export async function noteSummary(note: string, apiKey: string): Promise<string> {
+	const client = new AnthropicChatCompletionClient(apiKey, {
+		model: "claude-3-sonnet-20240229",
 		temperature: 0.1,
-		max_tokens: 200,
+		maxTokens: 512
 	})
 
-	console.info(`Note summary token use: ${completion.usage?.total_tokens}`)
+	const completion = await client.createChatCompletion([
+		{ role: "system", content: summaryPrompt },
+		{ role: "user", content: note },
+	])
 
-	return completion.choices[0].message.content!
+	return completion.content
 }
 
+// TODO: https://docs.anthropic.com/claude/docs/control-output-format
 export async function extractKeyTopics(note: string, apiKey: string): Promise<string[]> {
 	const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
 

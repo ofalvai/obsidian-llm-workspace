@@ -18,6 +18,8 @@
 	import type { EmbeddedFileInfo } from "./types"
 	import { AnthropicChatCompletionClient } from "rag/llm/anthropic"
 	import TailwindCss from "./TailwindCSS.svelte"
+	import type { Conversation } from "rag/conversation"
+	import type { ChatMessage } from "rag/llm/common"
 
 	export let workspaceFile: TFile
 	export let db: LlmDexie
@@ -30,21 +32,20 @@
 		workspaceContext = readWorkspaceContext(metadata)
 	}
 
-	const debug = true // TODO: make it a setting
 	const nodeParser = new NodeParser(NodeParser.defaultConfig())
 	const embeddingClient = new OpenAIEmbeddingClient($settingsStore.openAIApiKey)
 	const vectorStore = new VectorStoreIndex(db)
 	const retriever = new EmbeddingVectorRetriever(vectorStore, embeddingClient)
-	// const completionClient = new OpenAIChatCompletionClient($settingsStore.openAIApiKey, {
-	// 	model: "gpt-3.5-turbo-1106",
-	// 	temperature: 0.1,
-	// 	maxTokens: 1024,
-	// })
-	const completionClient = new AnthropicChatCompletionClient($settingsStore.anthropicApikey, {
-		model: "claude-3-sonnet-20240229",
+	const completionClient = new OpenAIChatCompletionClient($settingsStore.openAIApiKey, {
+		model: "gpt-3.5-turbo-1106",
 		temperature: 0.1,
-		maxTokens: 512,
+		maxTokens: 1024,
 	})
+	// const completionClient = new AnthropicChatCompletionClient($settingsStore.anthropicApikey, {
+	// 	model: "claude-3-sonnet-20240229",
+	// 	temperature: 0.1,
+	// 	maxTokens: 512,
+	// })
 	const systemPrompt = $settingsStore.systemPrompt
 		? $settingsStore.systemPrompt
 		: DEFAULT_SETTINGS.systemPrompt
@@ -52,26 +53,10 @@
 		completionClient,
 		systemPrompt,
 		workspaceContext,
-		debug,
 	)
 	const queryEngine = new RetrieverQueryEngine(retriever, synthesizer)
 
-	let queryResponse = writable<QueryResponse>()
-	let debugInfo = writable<DebugInfo | undefined>()
 	let isLoading = false
-	const onQuestionSubmit = async (q: string) => {
-		isLoading = true
-		try {
-			const response = await queryEngine.query(q, workspaceFile.path)
-			queryResponse.set(response)
-			debugInfo.set(response.debugInfo)
-		} catch (e) {
-			console.error(e)
-		} finally {
-			isLoading = false
-		}
-	}
-
 	let links = liveQuery(async () => {
 		const workspace = await db.workspace
 			.where("workspaceFile")
@@ -191,6 +176,77 @@
 
 		await $appStore.workspace.openLinkText(debugFilePath, "", "tab")
 	}
+	let conversation: Conversation | null = null
+	const onMessageSubmit = async (newMessage: string) => {
+		if (!conversation || !conversation.queryResponse) {
+			conversation = {
+				initialUserQuery: newMessage,
+				queryResponse: null,
+				additionalMessages: [],
+			}
+			isLoading = true
+			try {
+				const response = await queryEngine.query(newMessage, workspaceFile.path)
+				conversation = {
+					...conversation,
+					queryResponse: response,
+				}
+			} catch (e) {
+				console.error(e)
+			} finally {
+				isLoading = false
+			}
+		} else {
+			conversation = {
+				...conversation,
+				additionalMessages: [
+					...conversation.additionalMessages,
+					{
+						role: "user",
+						content: newMessage,
+					},
+				],
+			}
+			const messages: ChatMessage[] = [
+				{
+					role: "system",
+					content: conversation.queryResponse!.debugInfo.systemPrompt,
+				},
+				{
+					role: "user",
+					content: conversation.queryResponse!.debugInfo.userPrompt,
+				},
+				{
+					role: "assistant",
+					content: conversation.queryResponse!.text,
+				},
+				...conversation.additionalMessages,
+			]
+			isLoading = true
+			try {
+				const response = await completionClient.createChatCompletion(messages)
+				conversation = {
+					...conversation,
+					additionalMessages: [
+						...conversation.additionalMessages,
+						{
+							role: response.role,
+							content: response.content,
+						},
+					],
+				}
+			} catch (e) {
+				console.error(e)
+			} finally {
+				isLoading = false
+			}
+		}
+	}
+	const onNewConversationClick = (
+		event: ComponentEvents<QuestionAndAnswer>["new-conversation-click"],
+	) => {
+		conversation = null
+	}
 </script>
 
 <TailwindCss />
@@ -213,12 +269,13 @@
 		</div>
 	{/if}
 	<QuestionAndAnswer
-		queryResponse={$queryResponse}
+		conversation={conversation}
 		{isLoading}
-		on:query-submit={async (e) => {
-			onQuestionSubmit(e.detail)
+		on:message-submit={async (e) => {
+			onMessageSubmit(e.detail)
 		}}
 		on:source-click={onLinkClick}
 		on:debug-click={onDebugClick}
+		on:new-conversation-click={onNewConversationClick}
 	/>
 </div>
