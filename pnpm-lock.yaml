@@ -9,8 +9,8 @@ dependencies:
     specifier: 3.2.5
     version: 3.2.5(karma@6.4.2)
   lucide-svelte:
-    specifier: ^0.336.0
-    version: 0.336.0(svelte@4.2.11)
+    specifier: ^0.357.0
+    version: 0.357.0(svelte@4.2.11)
   openai:
     specifier: ^4.24.0
     version: 4.24.0
@@ -1823,8 +1823,8 @@ packages:
       yallist: 4.0.0
     dev: true
 
-  /lucide-svelte@0.336.0(svelte@4.2.11):
-    resolution: {integrity: sha512-43wL/CZV/vUDenXlBAkowKOKjG23OElOPtk+92nccKsAYmZ7+hHpC7LlbYptmLd/I0+ZCquD8UodsPx6aDJ6eg==}
+  /lucide-svelte@0.357.0(svelte@4.2.11):
+    resolution: {integrity: sha512-RKv0BduRbGW7hvWiNtb0IXktanNtVrGG+ZpDy5Mhra9e5vPG8BIhSOjWiQsajeq0ACbyBjaSy94ZXyZ3XSdOwg==}
     peerDependencies:
       svelte: ^3 || ^4 || ^5.0.0-next.42
     dependencies:
