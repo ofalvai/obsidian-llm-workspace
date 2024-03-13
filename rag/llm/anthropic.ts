@@ -1,5 +1,5 @@
 import { requestUrl } from "obsidian";
-import { Role, type ChatCompletionClient, type ChatMessage, type CompletionOptions } from "./common";
+import { type ChatCompletionClient, type ChatMessage, type CompletionOptions } from "./common";
 
 
 // We are using the REST API directly because the Anthropic SDK refuses to run
@@ -13,7 +13,15 @@ export class AnthropicChatCompletionClient implements ChatCompletionClient {
 		this.options = options
 	}
 
-	async createChatCompletion(userPrompt: string, systemPrompt: string): Promise<ChatMessage> {
+	async createChatCompletion(messages: ChatMessage[]): Promise<ChatMessage> {
+		if (messages.length == 0) {
+			throw new Error("At least one message is required and first message must be the system role")
+		}
+
+		if (messages[0].role !== "system") {
+			throw new Error("First message must be the system role, got " + messages[0].role)
+		}
+
 		try {
 			const response = await requestUrl({
 				url: "https://api.anthropic.com/v1/messages",
@@ -27,24 +35,24 @@ export class AnthropicChatCompletionClient implements ChatCompletionClient {
 					model: this.options.model,
 					temperature: this.options.temperature,
 					max_tokens: this.options.maxTokens,
-					system: systemPrompt,
-					messages: [
-						{
-							role: "user",
-							content: userPrompt,
-						},
-					],
+					system: messages[0].content,
+					messages: messages.slice(1).map((message) => {
+						return {
+							role: message.role,
+							content: message.content,
+						}
+					}),
 				}),
 				throw: false, // We handle the error ourselves, default handling swallows the error
 			})
 			if (response.status < 200 || response.status >= 400) {
 				return Promise.reject(response.text)
 			}
-			const message = response.json as Message
+			const newMessage = response.json as Message
 	
 			return {
-				content: message.content[0].text,
-				role: Role.Assistant,
+				content: newMessage.content[0].text,
+				role: "assistant",
 			}
 		} catch (e) {
 			return Promise.reject(e)

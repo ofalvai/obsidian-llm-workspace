@@ -1,71 +1,84 @@
 <script lang="ts">
-	import { MarkdownRenderer } from "obsidian"
-	import type { DebugInfo, QueryResponse } from "rag/synthesizer"
+	import type { Conversation } from "rag/conversation"
+	import type { DebugInfo } from "rag/synthesizer"
 	import { createEventDispatcher } from "svelte"
-	import { appStore, viewStore } from "utils/obsidian"
+	import Markdown from "./Markdown.svelte"
 	import SourceList from "./SourceList.svelte"
 
 	export let isLoading = false
-	export let queryResponse: QueryResponse | null
-
-	let markdownEl: HTMLElement | undefined
+	export let conversation: Conversation | null
 
 	const dispatch = createEventDispatcher<{
-		"query-submit": string
+		"message-submit": string
 		"source-click": string
 		"debug-click": DebugInfo
+		"new-conversation-click": void
 	}>()
 
 	let query = ""
 
-	const onSubmit = (event: SubmitEvent) => {
-		event.preventDefault()
-		queryResponse = null
-		markdownEl?.replaceChildren()
-		dispatch("query-submit", query)
+	const onSubmit = () => {
+		if (!query) return
+		dispatch("message-submit", query)
+		query = ""
 	}
 
 	const onDebugClick = () => {
-		if (queryResponse?.debugInfo) {
-			dispatch("debug-click", queryResponse.debugInfo)
+		if (conversation?.queryResponse?.debugInfo) {
+			dispatch("debug-click", conversation.queryResponse.debugInfo)
 		}
 	}
 
-	$: {
-		if (markdownEl && queryResponse) {
-			MarkdownRenderer.render($appStore, queryResponse.text, markdownEl, "", $viewStore)
-		}
+	const onNewConversationClick = () => {
+		query = ""
+		dispatch("new-conversation-click")
 	}
 </script>
 
 <div class="grow relative">
-	{#if queryResponse}
-		<div class="grow">
-			<div class="leading-relaxed">
-				<div bind:this={markdownEl} />
-			</div>
-			<SourceList {queryResponse} on:source-click />
-			{#if queryResponse.debugInfo}
+	{#if conversation}
+		<div class="grow pb-16">
+			{#if conversation.initialUserQuery}
+				<Markdown source={conversation.initialUserQuery} />
+			{/if}
+			{#if conversation.queryResponse}
+				<div>
+					Improved query: <Markdown
+						source={conversation.queryResponse.debugInfo.improvedQuery}
+					/>
+				</div>
+				<div class="leading-relaxed">
+					<Markdown source={conversation.queryResponse.text} />
+				</div>
+				<SourceList queryResponse={conversation.queryResponse} on:source-click />
 				<button on:click={onDebugClick}>Debug response</button>
 			{/if}
+			{#each conversation.additionalMessages as msg}
+				<div class="my-8">
+					<Markdown source={msg.content} />
+				</div>
+			{/each}
 		</div>
 	{/if}
-	<form class="sticky bottom-0 left-0 right-0" on:submit={onSubmit}>
+	<form class="sticky bottom-0 left-0 right-0" on:submit|preventDefault={onSubmit}>
 		<textarea
 			class="w-full"
 			rows="2"
 			on:keydown={(event) => {
 				if (event.key === "Enter") {
-					onSubmit(new SubmitEvent("submit"))
+					onSubmit()
 				}
 			}}
 			disabled={isLoading}
 			placeholder="Ask a question"
 			bind:value={query}
 		/>
-		<button disabled={isLoading} type="submit">
+		<button disabled={isLoading || query.trim() == ""} type="submit">
 			Ask
 			{#if isLoading}...{/if}
 		</button>
+		{#if conversation}
+			<button on:click|preventDefault={onNewConversationClick}>New conversation</button>
+		{/if}
 	</form>
 </div>

@@ -5,7 +5,7 @@ import type { NodeSimilarity } from "./storage"
 export interface QueryResponse {
 	text: string
 	sources: NodeSimilarity[]
-	debugInfo?: DebugInfo
+	debugInfo: DebugInfo
 }
 
 // TODO: add inpput/output token usage
@@ -31,13 +31,11 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 	private completionClient: ChatCompletionClient
 	private systemPrompt: string
 	private workspaceContext: string | null
-	private debug: boolean
 
-	constructor(completionClient: ChatCompletionClient, systemPrompt: string, workspaceContext: string | null, debug: boolean) {
+	constructor(completionClient: ChatCompletionClient, systemPrompt: string, workspaceContext: string | null) {
 		this.completionClient = completionClient
 		this.systemPrompt = systemPrompt
 		this.workspaceContext = workspaceContext
-		this.debug = debug
 	}
 
 	async synthesize(
@@ -54,15 +52,15 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 		}
 		const userPrompt = defaultSynthesisUserPrompt(context, query)
 		const systemPrompt = this.systemPrompt
-		const result = await this.completionClient.createChatCompletion(userPrompt, systemPrompt)
+		const result = await this.completionClient.createChatCompletion([
+			{ role: "system", content: systemPrompt },
+			{ role: "user", content: userPrompt },
+		])
 
 		const response: QueryResponse = {
 			text: result.content,
 			sources: nodes,
-		}
-
-		if (this.debug) {
-			response.debugInfo = {
+			debugInfo: {
 				systemPrompt: systemPrompt,
 				userPrompt: userPrompt,
 				originalQuery: query,
@@ -70,7 +68,6 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 				createdAt: Date.now(),
 			}
 		}
-
 		return response
 	}
 }

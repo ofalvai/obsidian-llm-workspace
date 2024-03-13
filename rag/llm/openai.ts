@@ -3,7 +3,7 @@ import { SELF_QUERY_EXAMPLES, SELF_QUERY_PROMPT } from "config/prompts"
 import OpenAI from "openai"
 import type { ChatCompletionMessageParam } from "openai/resources"
 import type { Node } from "../node"
-import { Role, type ChatCompletionClient, type ChatMessage, type CompletionOptions, type EmbeddingClient, type QueryEmbedding } from "./common"
+import { type ChatCompletionClient, type ChatMessage, type CompletionOptions, type EmbeddingClient, type QueryEmbedding } from "./common"
 
 export class OpenAIChatCompletionClient implements ChatCompletionClient {
 	private client: OpenAI
@@ -14,25 +14,21 @@ export class OpenAIChatCompletionClient implements ChatCompletionClient {
 		this.options = options
 	}
 
-	async createChatCompletion(userPrompt: string, systemPrompt: string): Promise<ChatMessage> {
+	async createChatCompletion(messages: ChatMessage[]): Promise<ChatMessage> {
 		const response = await this.client.chat.completions.create({
 			model: this.options.model,
-			messages: [
-				{
-					role: "system",
-					content: systemPrompt,
-				},
-				{
-					role: "user",
-					content: userPrompt,
-				},
-			],
+			messages: messages.map((message) => {
+				return {
+					role: message.role,
+					content: message.content,
+				}
+			}),
 			max_tokens: this.options.maxTokens,
 		})
 
 		return {
 			content: response.choices[0].message.content!,
-			role: Role.Assistant,
+			role: "assistant",
 		}
 	}
 }

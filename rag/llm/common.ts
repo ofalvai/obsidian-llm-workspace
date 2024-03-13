@@ -5,11 +5,7 @@ export interface EmbeddingClient {
 	embedQuery(query: string): Promise<QueryEmbedding>
 }
 
-export enum Role {
-	System = 0,
-	User = 1,
-	Assistant = 2,
-}
+export type Role = "system" | "user" | "assistant"
 
 export interface ChatMessage {
 	content: string
@@ -23,7 +19,7 @@ export interface CompletionOptions {
 }
 
 export interface ChatCompletionClient {
-	createChatCompletion(userPrompt: string, systemPrompt: string): Promise<ChatMessage>
+	createChatCompletion(messages: ChatMessage[]): Promise<ChatMessage>
 }
 
 export interface QueryEmbedding {
