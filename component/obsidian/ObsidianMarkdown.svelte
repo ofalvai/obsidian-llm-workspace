@@ -3,6 +3,7 @@
 	import { appStore, viewStore } from "utils/obsidian"
 
 	export let source: string
+	export let className: string = ""
 
 	let markdownEl: HTMLElement | undefined
 
@@ -14,4 +15,4 @@
 	}
 </script>
 
-<div bind:this={markdownEl} />
+<div bind:this={markdownEl} class={className} />

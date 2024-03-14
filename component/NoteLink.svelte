@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte"
-	import { FileX2, FileCheck2, ChevronDown, ChevronUp, Folder } from "lucide-svelte"
 	import type { EmbeddedFileInfo } from "./types"
+	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
 
 	export let fileInfo: EmbeddedFileInfo
 
@@ -37,9 +37,9 @@
 			data-tooltip-delay="300"
 		>
 			{#if fileInfo.nodeCount === 0}
-				<FileX2 size="18" stroke-width="var(--icon-stroke)" color="var(--background-modifier-error)" />
+				<ObsidianIcon iconId="file-x-2" size="m" color="error" />
 			{:else}
-				<FileCheck2 size="18" stroke-width="var(--icon-stroke)" color="var(--background-modifier-success)" />
+				<ObsidianIcon iconId="file-check-2" size="m" color="success" />
 			{/if}
 		</span>
 		<!-- svelte-ignore a11y-invalid-attribute -->
@@ -48,16 +48,16 @@
 		</a>
 		<button class="clickable-icon link-expand" on:click={() => (isCollapsed = !isCollapsed)}>
 			{#if isCollapsed}
-				<ChevronDown size="18" />
+				<ObsidianIcon iconId="chevron-down" size="m" />
 			{:else}
-				<ChevronUp size="18" />
+				<ObsidianIcon iconId="chevron-up" size="m" />
 			{/if}
 		</button>
 	</div>
 	<div class={(isCollapsed ? "collapsed" : "") + " link-details"}>
 		{#if fileInfo.parent && !fileInfo.parent.isRoot()}
 			<div class="link-parent">
-				<Folder size="18" class="icon-folder" />
+				<ObsidianIcon iconId="folder" size="m" className="relative top-1" />
 				{fileInfo.parent.name}
 			</div>
 		{/if}
@@ -73,11 +73,12 @@
 	.header {
 		display: flex;
 		flex-direction: row;
+		margin-bottom: 2px;
 	}
 	.icon-status {
 		margin-right: 4px;
 		margin-top: 1px;
-		align-self: center;
+		align-self: baseline;
 	}
 	.link-name {
 		flex-grow: 1;

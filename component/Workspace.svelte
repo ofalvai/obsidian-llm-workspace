@@ -252,12 +252,21 @@
 <TailwindCss />
 <div class="h-full w-full flex flex-col">
 	{#if isWorkspace}
-		<h4>{workspaceFile.basename}</h4>
 		<NoteLinks
 			links={$links || []}
 			on:link-click={onLinkClick}
 			on:link-rebuild={onLinkRebuild}
 			on:rebuild-all={rebuildAll}
+		/>
+		<QuestionAndAnswer
+			{conversation}
+			{isLoading}
+			on:message-submit={async (e) => {
+				onMessageSubmit(e.detail)
+			}}
+			on:source-click={onLinkClick}
+			on:debug-click={onDebugClick}
+			on:new-conversation-click={onNewConversationClick}
 		/>
 	{:else}
 		<div>
@@ -268,14 +277,4 @@
 			</p>
 		</div>
 	{/if}
-	<QuestionAndAnswer
-		conversation={conversation}
-		{isLoading}
-		on:message-submit={async (e) => {
-			onMessageSubmit(e.detail)
-		}}
-		on:source-click={onLinkClick}
-		on:debug-click={onDebugClick}
-		on:new-conversation-click={onNewConversationClick}
-	/>
 </div>
