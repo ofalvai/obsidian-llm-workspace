@@ -2,7 +2,7 @@
 	import NoteLink from "./NoteLink.svelte"
 	import { createEventDispatcher } from "svelte"
 	import type { EmbeddedFileInfo } from "./types"
-	import { RefreshCw } from "lucide-svelte"
+	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
 
 	export let links: EmbeddedFileInfo[]
 
@@ -15,17 +15,17 @@
 
 <div>
 	<div class="linked-notes-header">
-		<h6>Linked notes</h6>
+		<div class="text-base font-medium">Linked notes</div>
 		<button
 			class="clickable-icon"
 			on:click={() => dispatch("rebuild-all")}
 			aria-label="Re-index all"
 			data-tooltip-delay="300"
 		>
-			<RefreshCw size="18" stroke-width="var(--icon-stroke)" />
+			<ObsidianIcon iconId="refresh-cw" size="s" />
 		</button>
 	</div>
-	<div class="my-4">
+	<div class="mb-8 mt-2">
 		{#each links as link (link.path)}
 			<NoteLink fileInfo={link} on:link-click on:link-rebuild />
 		{/each}

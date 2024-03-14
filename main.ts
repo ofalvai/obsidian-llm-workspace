@@ -87,8 +87,7 @@ export default class LlmPlugin extends Plugin {
 			// A leaf with our view already exists, use that
 			leaf = leaves[0]
 		} else {
-			// Our view could not be found in the root split,
-			//
+			// Our view could not be found in the root split
 			leaf = workspace.getLeaf("split", "vertical")
 			await leaf.setViewState({
 				type: VIEW_TYPE_WORKSPACE,

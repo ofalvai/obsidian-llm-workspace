@@ -2,7 +2,8 @@
 	import type { Conversation } from "rag/conversation"
 	import type { DebugInfo } from "rag/synthesizer"
 	import { createEventDispatcher } from "svelte"
-	import Markdown from "./Markdown.svelte"
+	import ObsidianMarkdown from "./obsidian/ObsidianMarkdown.svelte"
+	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
 	import SourceList from "./SourceList.svelte"
 
 	export let isLoading = false
@@ -39,23 +40,56 @@
 	{#if conversation}
 		<div class="grow pb-16">
 			{#if conversation.initialUserQuery}
-				<Markdown source={conversation.initialUserQuery} />
-			{/if}
-			{#if conversation.queryResponse}
-				<div>
-					Improved query: <Markdown
-						source={conversation.queryResponse.debugInfo.improvedQuery}
+				<div class="flex flex-row items-center">
+					<ObsidianIcon className="mr-2" iconId="user" size="s" />
+					<ObsidianMarkdown
+						className="grow select-text"
+						source={conversation.initialUserQuery}
 					/>
 				</div>
-				<div class="leading-relaxed">
-					<Markdown source={conversation.queryResponse.text} />
+			{/if}
+			{#if conversation.queryResponse}
+				<div class="flex flex-row items-center">
+					<ObsidianIcon size="s" iconId="target" className="mr-2" />
+					<div aria-label="Improved query" data-tooltip-delay="300">
+						<ObsidianMarkdown
+							className="grow select-text"
+							source={conversation.queryResponse.debugInfo.improvedQuery}
+						/>
+					</div>
+				</div>
+				<div class="flex flex-row items-baseline">
+					<ObsidianIcon
+						iconId="sparkles"
+						size="s"
+						className="mr-2 flex-none relative top-1"
+					/>
+					<ObsidianMarkdown
+						className="grow select-text"
+						source={conversation.queryResponse.text}
+					/>
 				</div>
 				<SourceList queryResponse={conversation.queryResponse} on:source-click />
-				<button on:click={onDebugClick}>Debug response</button>
+				<div>
+					<button class="clickable-icon" on:click={onDebugClick}> </button>
+				</div>
 			{/if}
 			{#each conversation.additionalMessages as msg}
-				<div class="my-8">
-					<Markdown source={msg.content} />
+				<div class="flex flex-row items-baseline">
+					{#if msg.role === "user"}
+						<ObsidianIcon
+							iconId="user"
+							size="s"
+							className="mr-2 flex-none relative top-1"
+						/>
+					{:else if msg.role === "assistant"}
+						<ObsidianIcon
+							iconId="sparkles"
+							size="s"
+							className="mr-2 flex-none relative top-1"
+						/>
+					{/if}
+					<ObsidianMarkdown source={msg.content} className="grow select-text" />
 				</div>
 			{/each}
 		</div>

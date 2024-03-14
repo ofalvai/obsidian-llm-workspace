@@ -14,7 +14,6 @@
 	"license": "MIT",
 	"dependencies": {
 		"dexie": "3.2.5",
-		"lucide-svelte": "^0.336.0",
 		"openai": "^4.24.0"
 	},
 	"devDependencies": {

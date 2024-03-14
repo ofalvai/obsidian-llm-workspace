@@ -40,7 +40,7 @@ export class WorkspaceView extends ItemView {
 			new Notice("Open a file and try again")
 			return
 		}
-
+		this.viewTitle = `${file.basename} (LLM Workspace)`
 
 		settingsStore.set(this.settings)
 		appStore.set(this.app)
@@ -54,8 +54,11 @@ export class WorkspaceView extends ItemView {
 			},
 		})
 
+		this.addAction("file-input", "Open workspace note", () => {
+			this.app.workspace.openLinkText(file.path, "", "tab")
+		})
+
 		await this.updateWorkspaceStore(file)
-		this.viewTitle = `${file.basename} (LLM Workspace)`
 	}
 
 	async onClose() {
