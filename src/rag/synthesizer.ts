@@ -1,4 +1,4 @@
-import { defaultSynthesisUserPrompt } from "config/prompts"
+import { defaultSynthesisUserPrompt } from "src/config/prompts"
 import type { ChatCompletionClient } from "./llm/common"
 import type { NodeSimilarity } from "./storage"
 

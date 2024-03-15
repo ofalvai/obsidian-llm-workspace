@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Conversation } from "rag/conversation"
-	import type { DebugInfo } from "rag/synthesizer"
+	import type { Conversation } from "src/rag/conversation"
+	import type { DebugInfo } from "src/rag/synthesizer"
 	import { createEventDispatcher } from "svelte"
 	import ObsidianMarkdown from "./obsidian/ObsidianMarkdown.svelte"
 	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"

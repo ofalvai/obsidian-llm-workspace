@@ -1,10 +1,10 @@
 {
-	"id": "obsidian-llm-plugin",
-	"name": "My LLM Plugin",
-	"version": "1.0.0",
+	"id": "obsidian-llm-workspace",
+	"name": "LLM workspace",
+	"version": "0.1.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"isDesktopOnly": false
+	"description": "Use Large Language Models grounded in your notes.",
+	"author": "ofalvai",
+	"authorUrl": "https://oliverfalvai.com",
+	"isDesktopOnly": true
 }
