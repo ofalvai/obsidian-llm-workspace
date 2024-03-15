@@ -1,5 +1,5 @@
-import LlmPlugin from "main"
 import { PluginSettingTab, App, Setting } from "obsidian"
+import type LlmPlugin from "src/main"
 
 export interface LlmPluginSettings {
 	openAIApiKey: string

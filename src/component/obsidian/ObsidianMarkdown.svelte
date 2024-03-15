@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { MarkdownRenderer } from "obsidian"
-	import { appStore, viewStore } from "utils/obsidian"
+	import { appStore, viewStore } from "src/utils/obsidian"
 
 	export let source: string
 	export let className: string = ""

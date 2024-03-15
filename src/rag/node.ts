@@ -1,5 +1,5 @@
-import { NODE_PARSER_CHUNK_SIZE } from "config/rag"
-import type { FilePath } from "utils/obsidian"
+import { NODE_PARSER_CHUNK_SIZE } from "src/config/rag"
+import type { FilePath } from "src/utils/obsidian"
 
 export interface Node {
 	content: string

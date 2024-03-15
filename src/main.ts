@@ -1,10 +1,10 @@
-import { DEFAULT_SETTINGS, type LlmPluginSettings, LlmSettingTab } from "config/settings"
+import { DEFAULT_SETTINGS, type LlmPluginSettings, LlmSettingTab } from "src/config/settings"
 import { Plugin, WorkspaceLeaf } from "obsidian"
-import { VectorStoreIndex } from "rag/storage"
-import { LlmDexie } from "storage/db"
-import { ObsidianNoteReconciler } from "utils/reconciler"
-import { NoteContextView, VIEW_TYPE_NOTE_CONTEXT } from "view/NoteContextView"
-import { VIEW_TYPE_WORKSPACE, WorkspaceView } from "view/WorkspaceView"
+import { VectorStoreIndex } from "src/rag/storage"
+import { LlmDexie } from "src/storage/db"
+import { ObsidianNoteReconciler } from "src/utils/reconciler"
+import { NoteContextView, VIEW_TYPE_NOTE_CONTEXT } from "src/view/NoteContextView"
+import { VIEW_TYPE_WORKSPACE, WorkspaceView } from "src/view/WorkspaceView"
 
 export default class LlmPlugin extends Plugin {
 	settings!: LlmPluginSettings

@@ -7,7 +7,7 @@
 </script>
 
 <script lang="ts">
-	import type { QueryResponse } from "rag/synthesizer"
+	import type { QueryResponse } from "src/rag/synthesizer"
 
 	import { createEventDispatcher } from "svelte"
 

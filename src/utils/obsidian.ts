@@ -1,5 +1,5 @@
 import type { App, CachedMetadata, View } from "obsidian"
-import type { LlmPluginSettings } from "config/settings"
+import type { LlmPluginSettings } from "src/config/settings"
 import { writable } from "svelte/store"
 
 

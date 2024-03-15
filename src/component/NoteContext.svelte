@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { liveQuery, type Observable } from "dexie"
 	import { TFile } from "obsidian"
-	import type { LlmDexie, NoteDerivedData } from "storage/db"
+	import type { LlmDexie, NoteDerivedData } from "src/storage/db"
 	import { readable, writable } from "svelte/store"
-	import { appStore, settingsStore } from "utils/obsidian"
-	import { extractKeyTopics, noteSummary } from "utils/openai"
+	import { appStore, settingsStore } from "src/utils/obsidian"
+	import { extractKeyTopics, noteSummary } from "src/utils/openai"
 
 	export let db: LlmDexie
 

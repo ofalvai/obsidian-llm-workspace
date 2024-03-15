@@ -1,4 +1,4 @@
-import type { DebugInfo } from "rag/synthesizer"
+import type { DebugInfo } from "src/rag/synthesizer"
 
 export function debugInfoToMarkdown(debugInfo: DebugInfo): string {
 	const datetime = window.moment(debugInfo.createdAt).format("YYYY-MM-DD HH:mm:ss")

@@ -31,7 +31,7 @@ const commonOptions = {
 		js: banner,
 	},
 	conditions: ["svelte"], // because of svelte-markdown
-	entryPoints: ["main.ts"],
+	entryPoints: ["src/main.ts"],
 	bundle: true,
 	external: [
 		"obsidian",

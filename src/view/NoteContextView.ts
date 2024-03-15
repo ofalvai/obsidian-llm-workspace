@@ -1,8 +1,8 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
-import { appStore, settingsStore, viewStore } from "utils/obsidian";
-import { LlmDexie } from "storage/db";
-import type { LlmPluginSettings } from "config/settings";
-import NoteContext from "component/NoteContext.svelte";
+import { appStore, settingsStore, viewStore } from "src/utils/obsidian";
+import { LlmDexie } from "src/storage/db";
+import type { LlmPluginSettings } from "src/config/settings";
+import NoteContext from "src/component/NoteContext.svelte";
 
 export const VIEW_TYPE_NOTE_CONTEXT = "llm-note-context-view";
 

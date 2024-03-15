@@ -1,5 +1,5 @@
 import OpenAI from "openai"
-import { AnthropicChatCompletionClient } from "rag/llm/anthropic"
+import { AnthropicChatCompletionClient } from "src/rag/llm/anthropic"
 
 const summaryPrompt = `Summarize the following note in two sentences. Use simple language.
 Do not add any context or prefix (such as 'The note outlines...'), just respond with the summary.

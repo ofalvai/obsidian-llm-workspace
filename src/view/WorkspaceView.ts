@@ -1,8 +1,8 @@
-import type { LlmPluginSettings } from "config/settings"
+import type { LlmPluginSettings } from "src/config/settings"
 import { ItemView, Notice, TFile, WorkspaceLeaf } from "obsidian"
-import { LlmDexie } from "storage/db"
-import { appStore, settingsStore, viewStore } from "utils/obsidian"
-import Workspace from "component/Workspace.svelte"
+import { LlmDexie } from "src/storage/db"
+import { appStore, settingsStore, viewStore } from "src/utils/obsidian"
+import Workspace from "src/component/Workspace.svelte"
 
 export const VIEW_TYPE_WORKSPACE = "llm-workspace-view"
 
