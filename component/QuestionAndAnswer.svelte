@@ -96,7 +96,7 @@
 	{/if}
 	<form class="sticky bottom-0 left-0 right-0" on:submit|preventDefault={onSubmit}>
 		<textarea
-			class="w-full"
+			class="w-full resize-y bg-form-field"
 			rows="2"
 			on:keydown={(event) => {
 				if (event.key === "Enter") {

@@ -37,7 +37,7 @@
 			data-tooltip-delay="300"
 		>
 			{#if fileInfo.nodeCount === 0}
-				<ObsidianIcon iconId="file-x-2" size="m" color="error" />
+				<ObsidianIcon iconId="file-x" size="m" color="error" />
 			{:else}
 				<ObsidianIcon iconId="file-check-2" size="m" color="success" />
 			{/if}

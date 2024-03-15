@@ -37,12 +37,16 @@
 
 <ol>
 	{#each sources as source}
-		<li>
+		<li class="mb-1">
 			<!-- svelte-ignore a11y-invalid-attribute -->
 			<a href="#" on:click={() => dispatch("source-click", source.path)}>{source.base}</a>
-			<span aria-label="Relevance score" data-tooltip-delay="300"
-				>{Math.round(source.similarity * 100)}%</span
+			<span
+				aria-label="Relevance score"
+				data-tooltip-delay="300"
+				class="text-xs font-mono bg-secondary px-1 py-0.5 ml-1 rounded-md"
 			>
+				{Math.round(source.similarity * 100)}%
+			</span>
 		</li>
 	{/each}
 </ol>

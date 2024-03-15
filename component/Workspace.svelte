@@ -36,16 +36,16 @@
 	const embeddingClient = new OpenAIEmbeddingClient($settingsStore.openAIApiKey)
 	const vectorStore = new VectorStoreIndex(db)
 	const retriever = new EmbeddingVectorRetriever(vectorStore, embeddingClient)
-	const completionClient = new OpenAIChatCompletionClient($settingsStore.openAIApiKey, {
-		model: "gpt-3.5-turbo-1106",
-		temperature: 0.1,
-		maxTokens: 1024,
-	})
-	// const completionClient = new AnthropicChatCompletionClient($settingsStore.anthropicApikey, {
-	// 	model: "claude-3-sonnet-20240229",
+	// const completionClient = new OpenAIChatCompletionClient($settingsStore.openAIApiKey, {
+	// 	model: "gpt-3.5-turbo-1106",
 	// 	temperature: 0.1,
-	// 	maxTokens: 512,
+	// 	maxTokens: 1024,
 	// })
+	const completionClient = new AnthropicChatCompletionClient($settingsStore.anthropicApikey, {
+		model: "claude-3-haiku-20240307",
+		temperature: 0.1,
+		maxTokens: 512,
+	})
 	const systemPrompt = $settingsStore.systemPrompt
 		? $settingsStore.systemPrompt
 		: DEFAULT_SETTINGS.systemPrompt
