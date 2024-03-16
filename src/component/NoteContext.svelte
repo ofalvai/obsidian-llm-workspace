@@ -5,6 +5,9 @@
 	import { readable, writable } from "svelte/store"
 	import { appStore, settingsStore } from "src/utils/obsidian"
 	import { extractKeyTopics, noteSummary } from "src/utils/openai"
+	import type { KeyTopic } from "./types"
+	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
+	import TailwindCss from "./TailwindCSS.svelte"
 
 	export let db: LlmDexie
 
@@ -27,6 +30,15 @@
 
 		return await db.getNoteDerivedData($openFile.path)
 	})
+
+	let keyTopics: KeyTopic[]
+	$: keyTopics =
+		$derivedData?.keyTopics?.map((t) => {
+			return {
+				name: t,
+				file: $appStore.metadataCache.getFirstLinkpathDest(t, ""),
+			}
+		}) ?? []
 
 	let networkLoading = writable(false)
 	const fetchSummary = async (f: TFile) => {
@@ -76,10 +88,16 @@
 		fetchTopics($openFile)
 		fetchSummary($openFile)
 	}
+	const onKeyTopicClick = (path: string) => {
+		$appStore.workspace.openLinkText(path, "", "tab")
+	}
 </script>
 
-<h5 bind:this={element}>{$openFile?.basename ?? ""}</h5>
-<button on:click={onRecompute}>Recompute</button>
+<TailwindCss />
+<h6 bind:this={element}>{$openFile?.basename ?? ""}</h6>
+<button on:click={onRecompute} class="icon-button" aria-label="Recompute" data-tooltip-delay="300">
+	<ObsidianIcon iconId="refresh-cw" size="s" />
+</button>
 
 {#if $networkLoading}
 	<div>Loading...</div>
@@ -90,11 +108,28 @@
 	<p>{$derivedData.summary}</p>
 {/if}
 
-{#if $derivedData?.keyTopics && $derivedData.keyTopics.length > 0}
+{#if keyTopics && keyTopics.length > 0}
 	<h6>Key topics</h6>
 	<ul>
-		{#each $derivedData.keyTopics as topic}
-			<li>{topic}</li>
+		{#each keyTopics as topic}
+			<li>
+				{#if topic.file}
+					<!-- svelte-ignore a11y-invalid-attribute -->
+					<a href="#" on:click={() => onKeyTopicClick(topic.file?.path ?? "")}
+						>{topic.name}</a
+					>
+				{:else}
+					<div class="flex flex-row items-center group">
+						<span class="mr-1">{topic.name}</span>
+						<span
+							class="clickable-icon invisible group-hover:visible"
+							aria-label="Create note"
+						>
+							<ObsidianIcon iconId="file-plus" size="xs" />
+						</span>
+					</div>
+				{/if}
+			</li>
 		{/each}
 	</ul>
 {/if}

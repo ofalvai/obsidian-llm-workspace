@@ -1,4 +1,4 @@
-import type { TFolder } from "obsidian"
+import type { TFile, TFolder } from "obsidian"
 
 export interface EmbeddedFileInfo {
 	name: string
@@ -6,4 +6,9 @@ export interface EmbeddedFileInfo {
 	path: string
 	nodeCount: number
 	lastProcessed: number | undefined
+}
+
+export interface KeyTopic {
+	name: string
+	file: TFile | null
 }
