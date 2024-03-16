@@ -52,6 +52,7 @@ module.exports = {
 		"space",
 		"textAlign",
 		"userSelect",
+		"visibility",
 		"width",
 	],
 	plugins: [],
