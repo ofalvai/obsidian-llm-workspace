@@ -2,7 +2,7 @@
 	import { liveQuery, type Observable } from "dexie"
 	import { TFile } from "obsidian"
 	import type { LlmDexie, NoteDerivedData } from "src/storage/db"
-	import { readable, writable } from "svelte/store"
+	import { derived, readable, writable } from "svelte/store"
 	import { appStore, settingsStore } from "src/utils/obsidian"
 	import { extractKeyTopics, noteSummary } from "src/utils/openai"
 	import type { KeyTopic } from "./types"
@@ -10,9 +10,6 @@
 	import TailwindCss from "./TailwindCSS.svelte"
 
 	export let db: LlmDexie
-
-	// TODO: add UI that displays when this happens
-	const minChars = 500
 
 	let element: HTMLElement | undefined
 
@@ -23,6 +20,20 @@
 		$appStore.workspace.on("file-open", onOpen)
 		return () => $appStore.workspace.off("file-open", onOpen)
 	})
+
+	let noteContextEnabled = derived(
+		[openFile, settingsStore],
+		([$openFile, $settingsStore], set) => {
+			if (!$openFile) {
+				set(false)
+				return
+			}
+			$appStore.vault.cachedRead($openFile).then((fileContent) => {
+				set(fileContent.length >= $settingsStore.noteContextMinChars)
+			})
+		},
+		false,
+	)
 
 	let derivedData: Observable<NoteDerivedData | undefined>
 	$: derivedData = liveQuery(async () => {
@@ -43,7 +54,7 @@
 	let networkLoading = writable(false)
 	const fetchSummary = async (f: TFile) => {
 		const text = await $appStore.vault.cachedRead(f)
-		if (text.length < minChars) return
+		if (text.length < $settingsStore.noteContextMinChars) return
 
 		try {
 			networkLoading.set(true)
@@ -57,7 +68,7 @@
 	}
 	const fetchTopics = async (f: TFile) => {
 		const text = await $appStore.vault.cachedRead(f)
-		if (text.length < minChars) return
+		if (text.length < $settingsStore.noteContextMinChars) return
 
 		try {
 			networkLoading.set(true)
@@ -103,33 +114,40 @@
 	<div>Loading...</div>
 {/if}
 
-{#if $derivedData?.summary}
-	<h6>Summary</h6>
-	<p>{$derivedData.summary}</p>
-{/if}
+{#if $noteContextEnabled}
+	{#if $derivedData?.summary}
+		<h6>Summary</h6>
+		<p>{$derivedData.summary}</p>
+	{/if}
 
-{#if keyTopics && keyTopics.length > 0}
-	<h6>Key topics</h6>
-	<ul>
-		{#each keyTopics as topic}
-			<li>
-				{#if topic.file}
-					<!-- svelte-ignore a11y-invalid-attribute -->
-					<a href="#" on:click={() => onKeyTopicClick(topic.file?.path ?? "")}
-						>{topic.name}</a
-					>
-				{:else}
-					<div class="flex flex-row items-center group">
-						<span class="mr-1">{topic.name}</span>
-						<span
-							class="clickable-icon invisible group-hover:visible"
-							aria-label="Create note"
+	{#if keyTopics && keyTopics.length > 0}
+		<h6>Key topics</h6>
+		<ul>
+			{#each keyTopics as topic}
+				<li>
+					{#if topic.file}
+						<!-- svelte-ignore a11y-invalid-attribute -->
+						<a href="#" on:click={() => onKeyTopicClick(topic.file?.path ?? "")}
+							>{topic.name}</a
 						>
-							<ObsidianIcon iconId="file-plus" size="xs" />
-						</span>
-					</div>
-				{/if}
-			</li>
-		{/each}
-	</ul>
+					{:else}
+						<div class="flex flex-row items-center group">
+							<span class="mr-1">{topic.name}</span>
+							<span
+								class="clickable-icon invisible group-hover:visible"
+								aria-label="Create note"
+							>
+								<ObsidianIcon iconId="file-plus" size="xs" />
+							</span>
+						</div>
+					{/if}
+				</li>
+			{/each}
+		</ul>
+	{/if}
+{:else if $openFile}
+	<p>Note is too short to generate context data for.</p>
+	<p>You can adjust the threshold in the plugin settings.</p>
+{:else}
+	<p class="w-full text-center">No file is open</p>
 {/if}

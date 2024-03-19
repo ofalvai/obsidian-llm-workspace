@@ -5,6 +5,7 @@ export interface LlmPluginSettings {
 	openAIApiKey: string
 	anthropicApikey: string
 	systemPrompt: string
+	noteContextMinChars: number
 }
 
 export const DEFAULT_SETTINGS: LlmPluginSettings = {
@@ -15,6 +16,7 @@ Your answers should be precise and fact-based, but you are encouraged to be opin
 If possible, try to highlight implicit connections in the provided context that are otherwise hidden.
 Formatting rules:
 - Use additional Markdown formatting to highlight the most important parts of the answer. For example, bold, italic, bulleted and numbered lists.`,
+	noteContextMinChars: 500
 }
 
 export class LlmSettingTab extends PluginSettingTab {
@@ -69,6 +71,20 @@ export class LlmSettingTab extends PluginSettingTab {
 					})
 				textarea.inputEl.rows = 10
 				textarea.inputEl.style.width = "100%"
+			})
+		
+		new Setting(containerEl)
+			.setName("Note context minimum length")
+			.setDesc("Don't create note context (summary, key topics) for notes shorter than this many characters.")
+			.addSlider((slider) => {
+				slider
+					.setLimits(0, 1000, 100)
+					.setValue(this.plugin.settings.noteContextMinChars)
+					.setDynamicTooltip()
+					.onChange(async (value) => {
+						this.plugin.settings.noteContextMinChars = value
+						await this.plugin.saveSettings()
+					})
 			})
 	}
 }
