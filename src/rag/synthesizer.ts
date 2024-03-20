@@ -1,5 +1,5 @@
 import { defaultSynthesisUserPrompt } from "src/config/prompts"
-import type { ChatCompletionClient } from "./llm/common"
+import type { ChatCompletionClient, CompletionOptions } from "./llm/common"
 import type { NodeSimilarity } from "./storage"
 
 export interface QueryResponse {
@@ -23,17 +23,24 @@ export interface ResponseSynthesizer {
 	synthesize(
 		query: string,
 		nodes: NodeSimilarity[],
-		improvedQuery: string
+		improvedQuery: string,
 	): Promise<QueryResponse>
 }
 
 export class DumbResponseSynthesizer implements ResponseSynthesizer {
 	private completionClient: ChatCompletionClient
+	private completionOptions: CompletionOptions
 	private systemPrompt: string
 	private workspaceContext: string | null
 
-	constructor(completionClient: ChatCompletionClient, systemPrompt: string, workspaceContext: string | null) {
+	constructor(
+		completionClient: ChatCompletionClient,
+		completionOptions: CompletionOptions,
+		systemPrompt: string,
+		workspaceContext: string | null,
+	) {
 		this.completionClient = completionClient
+		this.completionOptions = completionOptions
 		this.systemPrompt = systemPrompt
 		this.workspaceContext = workspaceContext
 	}
@@ -41,7 +48,7 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 	async synthesize(
 		query: string,
 		nodes: NodeSimilarity[],
-		improvedQuery: string
+		improvedQuery: string,
 	): Promise<QueryResponse> {
 		let context = nodes
 			.reverse() // TODO: knowledge is better recalled towards the end of window?
@@ -55,7 +62,7 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 		const result = await this.completionClient.createChatCompletion([
 			{ role: "system", content: systemPrompt },
 			{ role: "user", content: userPrompt },
-		])
+		], this.completionOptions)
 
 		const response: QueryResponse = {
 			text: result.content,
@@ -66,7 +73,7 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 				originalQuery: query,
 				improvedQuery: improvedQuery,
 				createdAt: Date.now(),
-			}
+			},
 		}
 		return response
 	}

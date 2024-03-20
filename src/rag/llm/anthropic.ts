@@ -4,15 +4,15 @@ import { type ChatCompletionClient, type ChatMessage, type CompletionOptions } f
 // We are using the REST API directly because the Anthropic SDK refuses to run
 // in the browser context: https://github.com/anthropics/anthropic-sdk-typescript/issues/28
 export class AnthropicChatCompletionClient implements ChatCompletionClient {
-	private options: CompletionOptions
 	private apiKey: string
+	private model: string
 
-	constructor(apiKey: string, options: CompletionOptions) {
+	constructor(apiKey: string, model: string) {
 		this.apiKey = apiKey
-		this.options = options
+		this.model = model
 	}
 
-	async createChatCompletion(messages: ChatMessage[]): Promise<ChatMessage> {
+	async createChatCompletion(messages: ChatMessage[], options: CompletionOptions): Promise<ChatMessage> {
 		if (messages.length == 0) {
 			throw new Error(
 				"At least one message is required and first message must be the system role",
@@ -23,7 +23,7 @@ export class AnthropicChatCompletionClient implements ChatCompletionClient {
 			throw new Error("First message must be the system role, got " + messages[0].role)
 		}
 		try {
-			const newMessage = await this.makeRequest(messages)
+			const newMessage = await this.makeRequest(messages, options)
 			return {
 				content: newMessage.content[0].text,
 				role: "assistant",
@@ -33,13 +33,13 @@ export class AnthropicChatCompletionClient implements ChatCompletionClient {
 		}
 	}
 
-	async createJSONCompletion<T>(systemPrompt: string, userPrompt: string): Promise<T> {
+	async createJSONCompletion<T>(systemPrompt: string, userPrompt: string, options: CompletionOptions): Promise<T> {
 		const messages: ChatMessage[] = [
 			{ role: "system", content: systemPrompt },
 			{ role: "user", content: userPrompt },
 			{ role: "assistant", content: "{" }, // force valid JSON output
 		]
-		const newMessage = await this.makeRequest(messages)
+		const newMessage = await this.makeRequest(messages, options)
 		try {
 			return JSON.parse("{" + newMessage.content[0].text) as T
 		} catch (e) {
@@ -49,7 +49,7 @@ export class AnthropicChatCompletionClient implements ChatCompletionClient {
 		}
 	}
 
-	async makeRequest(messages: ChatMessage[]): Promise<Message> {
+	async makeRequest(messages: ChatMessage[], options: CompletionOptions): Promise<Message> {
 		const response = await requestUrl({
 			url: "https://api.anthropic.com/v1/messages",
 			method: "POST",
@@ -59,9 +59,9 @@ export class AnthropicChatCompletionClient implements ChatCompletionClient {
 				"x-api-key": this.apiKey,
 			},
 			body: JSON.stringify({
-				model: this.options.model,
-				temperature: this.options.temperature,
-				max_tokens: this.options.maxTokens,
+				model: this.model,
+				temperature: options.temperature,
+				max_tokens: options.maxTokens,
 				system: messages[0].content,
 				messages: messages.slice(1).map((message) => {
 					return {

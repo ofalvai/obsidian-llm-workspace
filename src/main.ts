@@ -5,6 +5,7 @@ import { LlmDexie } from "src/storage/db"
 import { ObsidianNoteReconciler } from "src/utils/reconciler"
 import { NoteContextView, VIEW_TYPE_NOTE_CONTEXT } from "src/view/NoteContextView"
 import { VIEW_TYPE_WORKSPACE, WorkspaceView } from "src/view/WorkspaceView"
+import { settingsStore } from "./utils/obsidian"
 
 export default class LlmPlugin extends Plugin {
 	settings!: LlmPluginSettings
@@ -101,9 +102,11 @@ export default class LlmPlugin extends Plugin {
 
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())
+		settingsStore.set(this.settings)
 	}
 
 	async saveSettings() {
 		await this.saveData(this.settings)
+		settingsStore.set(this.settings)
 	}
 }

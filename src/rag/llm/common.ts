@@ -13,14 +13,13 @@ export interface ChatMessage {
 }
 
 export interface CompletionOptions {
-	model: string
 	temperature: number
 	maxTokens: number
 }
 
 export interface ChatCompletionClient {
-	createChatCompletion(messages: ChatMessage[]): Promise<ChatMessage>
-	createJSONCompletion<T>(systemPrompt: string, userPrompt: string): Promise<T>
+	createChatCompletion(messages: ChatMessage[], options: CompletionOptions): Promise<ChatMessage>
+	createJSONCompletion<T>(systemPrompt: string, userPrompt: string, options: CompletionOptions): Promise<T>
 }
 
 export interface QueryEmbedding {
