@@ -1,20 +1,19 @@
 <script lang="ts">
-	import { DEFAULT_SETTINGS } from "src/config/settings"
 	import { liveQuery } from "dexie"
 	import { Notice, TFile } from "obsidian"
+	import { DEFAULT_SETTINGS, type LlmPluginSettings } from "src/config/settings"
+	import type { Conversation } from "src/rag/conversation"
+	import { AnthropicChatCompletionClient } from "src/rag/llm/anthropic"
+	import type { ChatCompletionClient, ChatMessage } from "src/rag/llm/common"
 	import { OpenAIChatCompletionClient, OpenAIEmbeddingClient } from "src/rag/llm/openai"
 	import { NodeParser } from "src/rag/node"
 	import { RetrieverQueryEngine } from "src/rag/query-engine"
 	import { EmbeddingVectorRetriever } from "src/rag/retriever"
 	import { VectorStoreIndex } from "src/rag/storage"
 	import {
-		DumbResponseSynthesizer,
-		type DebugInfo,
-		type QueryResponse,
+		DumbResponseSynthesizer
 	} from "src/rag/synthesizer"
 	import type { LlmDexie, VectorStoreEntry } from "src/storage/db"
-	import type { ComponentEvents } from "svelte"
-	import { writable } from "svelte/store"
 	import { debugInfoToMarkdown } from "src/utils/debug"
 	import {
 		appStore,
@@ -22,13 +21,12 @@
 		readWorkspaceContext,
 		settingsStore,
 	} from "src/utils/obsidian"
+	import type { ComponentEvents } from "svelte"
+	import { derived, type Writable } from "svelte/store"
 	import NoteLinks from "./NoteLinks.svelte"
 	import QuestionAndAnswer from "./QuestionAndAnswer.svelte"
-	import type { EmbeddedFileInfo } from "./types"
-	import { AnthropicChatCompletionClient } from "src/rag/llm/anthropic"
 	import TailwindCss from "./TailwindCSS.svelte"
-	import type { Conversation } from "src/rag/conversation"
-	import type { ChatMessage } from "src/rag/llm/common"
+	import type { EmbeddedFileInfo } from "./types"
 
 	export let workspaceFile: TFile
 	export let db: LlmDexie
@@ -45,21 +43,30 @@
 	const embeddingClient = new OpenAIEmbeddingClient($settingsStore.openAIApiKey)
 	const vectorStore = new VectorStoreIndex(db)
 	const retriever = new EmbeddingVectorRetriever(vectorStore, embeddingClient)
-	// const completionClient = new OpenAIChatCompletionClient($settingsStore.openAIApiKey, {
-	// 	model: "gpt-3.5-turbo-1106",
-	// 	temperature: 0.1,
-	// 	maxTokens: 1024,
-	// })
-	const completionClient = new AnthropicChatCompletionClient($settingsStore.anthropicApikey, {
-		model: "claude-3-haiku-20240307",
+	let llmClient = derived<Writable<LlmPluginSettings>, ChatCompletionClient>(
+		settingsStore,
+		($settingsStore) => {
+			console.log("Recreating LLM client")
+			const model = $settingsStore.questionAndAnswerModel
+			if (model.startsWith("gpt")) {
+				return new OpenAIChatCompletionClient($settingsStore.openAIApiKey, model)
+			} else if (model.startsWith("claude")) {
+				return new AnthropicChatCompletionClient($settingsStore.anthropicApikey, model)
+			} else {
+				throw new Error("Invalid model: " + model)
+			}
+		},
+	)
+	const completionOptions = {
 		temperature: 0.1,
 		maxTokens: 512,
-	})
+	}
 	const systemPrompt = $settingsStore.systemPrompt
 		? $settingsStore.systemPrompt
 		: DEFAULT_SETTINGS.systemPrompt
 	const synthesizer = new DumbResponseSynthesizer(
-		completionClient,
+		$llmClient,
+		completionOptions,
 		systemPrompt,
 		workspaceContext,
 	)
@@ -233,7 +240,7 @@
 			]
 			isLoading = true
 			try {
-				const response = await completionClient.createChatCompletion(messages)
+				const response = await $llmClient.createChatCompletion(messages, completionOptions)
 				conversation = {
 					...conversation,
 					additionalMessages: [

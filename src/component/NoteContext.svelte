@@ -2,12 +2,16 @@
 	import { liveQuery, type Observable } from "dexie"
 	import { TFile } from "obsidian"
 	import type { LlmDexie, NoteDerivedData } from "src/storage/db"
-	import { derived, readable, writable } from "svelte/store"
+	import { derived, readable, writable, type Writable } from "svelte/store"
 	import { appStore, settingsStore } from "src/utils/obsidian"
-	import { extractKeyTopics, noteSummary } from "src/utils/openai"
+	import { extractKeyTopics, noteSummary } from "src/utils/context"
 	import type { KeyTopic } from "./types"
 	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
 	import TailwindCss from "./TailwindCSS.svelte"
+	import { OpenAIChatCompletionClient } from "src/rag/llm/openai"
+	import { AnthropicChatCompletionClient } from "src/rag/llm/anthropic"
+	import type { ChatCompletionClient } from "src/rag/llm/common"
+	import type { LlmPluginSettings } from "src/config/settings"
 
 	export let db: LlmDexie
 
@@ -20,6 +24,20 @@
 		$appStore.workspace.on("file-open", onOpen)
 		return () => $appStore.workspace.off("file-open", onOpen)
 	})
+
+	let llmClient = derived<Writable<LlmPluginSettings>, ChatCompletionClient>(
+		settingsStore,
+		($settingsStore) => {
+			const model = $settingsStore.noteContextModel
+			if (model.startsWith("gpt")) {
+				return new OpenAIChatCompletionClient($settingsStore.openAIApiKey, model)
+			} else if (model.startsWith("claude")) {
+				return new AnthropicChatCompletionClient($settingsStore.anthropicApikey, model)
+			} else {
+				throw new Error("Invalid model: " + $settingsStore.noteContextModel)
+			}
+		},
+	)
 
 	let noteContextEnabled = derived(
 		[openFile, settingsStore],
@@ -58,7 +76,7 @@
 
 		try {
 			networkLoading.set(true)
-			const summary = await noteSummary(text, $settingsStore?.anthropicApikey)
+			const summary = await noteSummary(text, $llmClient)
 			await db.updateNoteSummary(f.path, summary)
 		} catch (e) {
 			console.error(e)
@@ -72,7 +90,7 @@
 
 		try {
 			networkLoading.set(true)
-			const topics = await extractKeyTopics(text, $settingsStore?.anthropicApikey)
+			const topics = await extractKeyTopics(text, $llmClient)
 			await db.updateNoteKeyTopics(f.path, topics)
 		} catch (e) {
 			console.error(e)

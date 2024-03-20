@@ -13,24 +13,24 @@ import {
 
 export class OpenAIChatCompletionClient implements ChatCompletionClient {
 	private client: OpenAI
-	private options: CompletionOptions
+	private model: string
 
-	constructor(apiKey: string, options: CompletionOptions) {
+	constructor(apiKey: string, model: string) {
 		this.client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
-		this.options = options
+		this.model = model
 	}
 
-	async createChatCompletion(messages: ChatMessage[]): Promise<ChatMessage> {
+	async createChatCompletion(messages: ChatMessage[], options: CompletionOptions): Promise<ChatMessage> {
 		const response = await this.client.chat.completions.create({
-			model: this.options.model,
+			model: this.model,
 			messages: messages.map((message) => {
 				return {
 					role: message.role,
 					content: message.content,
 				}
 			}),
-			max_tokens: this.options.maxTokens,
-			temperature: this.options.temperature,
+			max_tokens: options.maxTokens,
+			temperature: options.temperature,
 		})
 
 		return {
@@ -39,9 +39,9 @@ export class OpenAIChatCompletionClient implements ChatCompletionClient {
 		}
 	}
 
-	async createJSONCompletion<T>(systemPrompt: string, userPrompt: string): Promise<T> {
+	async createJSONCompletion<T>(systemPrompt: string, userPrompt: string, options: CompletionOptions): Promise<T> {
 		const response = await this.client.chat.completions.create({
-			model: this.options.model,
+			model: this.model,
 			messages: [
 				{
 					role: "system",
@@ -53,8 +53,8 @@ export class OpenAIChatCompletionClient implements ChatCompletionClient {
 				},
 			],
 			response_format: { type: "json_object" },
-			max_tokens: this.options.maxTokens,
-			temperature: this.options.temperature,
+			max_tokens: options.maxTokens,
+			temperature: options.temperature,
 		})
 
 		try {

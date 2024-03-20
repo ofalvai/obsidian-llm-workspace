@@ -1,5 +1,4 @@
-import OpenAI from "openai"
-import { AnthropicChatCompletionClient } from "src/rag/llm/anthropic"
+import type { ChatCompletionClient } from "src/rag/llm/common"
 
 const summaryPrompt = `Summarize the following note in two sentences. Use simple language.
 Do not add any context or prefix (such as 'The note outlines...'), just respond with the summary.
@@ -20,33 +19,38 @@ Response format: JSON with the following schema:
 Don't forget to encode special characters according to the JSON format specification.
 `
 
-// TODO: refactor all of this to be based on the RAG building blocks
-
-export async function noteSummary(note: string, apiKey: string): Promise<string> {
-	const client = new AnthropicChatCompletionClient(apiKey, {
-		model: "claude-3-haiku-20240307",
+export async function noteSummary(note: string, client: ChatCompletionClient): Promise<string> {
+	const options = {
 		temperature: 0.1,
 		maxTokens: 512,
-	})
-
-	const completion = await client.createChatCompletion([
-		{ role: "system", content: summaryPrompt },
-		{ role: "user", content: note },
-	])
+	}
+	const completion = await client.createChatCompletion(
+		[
+			{ role: "system", content: summaryPrompt },
+			{ role: "user", content: note },
+		],
+		options,
+	)
 
 	return completion.content
 }
 
-export async function extractKeyTopics(note: string, apiKey: string): Promise<string[]> {
-	const client = new AnthropicChatCompletionClient(apiKey, {
-		model: "claude-3-haiku-20240307",
+export async function extractKeyTopics(
+	note: string,
+	client: ChatCompletionClient,
+): Promise<string[]> {
+	const options = {
 		temperature: 0.1,
 		maxTokens: 1024,
-	})
+	}
 
 	type topicsSchema = {
 		topics: string[]
 	}
-	const response = await client.createJSONCompletion<topicsSchema>(extractKeyTopicsPrompt, note)
+	const response = await client.createJSONCompletion<topicsSchema>(
+		extractKeyTopicsPrompt,
+		note,
+		options,
+	)
 	return response.topics
 }
