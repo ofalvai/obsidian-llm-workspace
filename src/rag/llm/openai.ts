@@ -3,7 +3,13 @@ import { SELF_QUERY_EXAMPLES, SELF_QUERY_PROMPT } from "src/config/prompts"
 import OpenAI from "openai"
 import type { ChatCompletionMessageParam } from "openai/resources"
 import type { Node } from "../node"
-import { type ChatCompletionClient, type ChatMessage, type CompletionOptions, type EmbeddingClient, type QueryEmbedding } from "./common"
+import {
+	type ChatCompletionClient,
+	type ChatMessage,
+	type CompletionOptions,
+	type EmbeddingClient,
+	type QueryEmbedding,
+} from "./common"
 
 export class OpenAIChatCompletionClient implements ChatCompletionClient {
 	private client: OpenAI
@@ -24,11 +30,39 @@ export class OpenAIChatCompletionClient implements ChatCompletionClient {
 				}
 			}),
 			max_tokens: this.options.maxTokens,
+			temperature: this.options.temperature,
 		})
 
 		return {
 			content: response.choices[0].message.content!,
 			role: "assistant",
+		}
+	}
+
+	async createJSONCompletion<T>(systemPrompt: string, userPrompt: string): Promise<T> {
+		const response = await this.client.chat.completions.create({
+			model: this.options.model,
+			messages: [
+				{
+					role: "system",
+					content: systemPrompt,
+				},
+				{
+					role: "user",
+					content: userPrompt,
+				},
+			],
+			response_format: { type: "json_object" },
+			max_tokens: this.options.maxTokens,
+			temperature: this.options.temperature,
+		})
+
+		try {
+			return JSON.parse(response.choices[0].message.content!) as T
+		} catch (error) {
+			throw new Error(
+				`LLM response could not be parsed to JSON schema: ${error}\nResponse: ${response.choices[0].message.content}`,
+			)
 		}
 	}
 }

@@ -20,6 +20,7 @@ export interface CompletionOptions {
 
 export interface ChatCompletionClient {
 	createChatCompletion(messages: ChatMessage[]): Promise<ChatMessage>
+	createJSONCompletion<T>(systemPrompt: string, userPrompt: string): Promise<T>
 }
 
 export interface QueryEmbedding {
@@ -27,7 +28,3 @@ export interface QueryEmbedding {
 	improvedQuery: string
 	embedding: number[]
 }
-
-
-
-

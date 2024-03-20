@@ -72,7 +72,7 @@
 
 		try {
 			networkLoading.set(true)
-			const topics = await extractKeyTopics(text, $settingsStore?.openAIApiKey)
+			const topics = await extractKeyTopics(text, $settingsStore?.anthropicApikey)
 			await db.updateNoteKeyTopics(f.path, topics)
 		} catch (e) {
 			console.error(e)
