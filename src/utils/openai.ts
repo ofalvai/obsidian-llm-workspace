@@ -17,15 +17,16 @@ Response format: JSON with the following schema:
 		"topic3"
 	]
 }
+Don't forget to encode special characters according to the JSON format specification.
 `
 
 // TODO: refactor all of this to be based on the RAG building blocks
 
 export async function noteSummary(note: string, apiKey: string): Promise<string> {
 	const client = new AnthropicChatCompletionClient(apiKey, {
-		model: "claude-3-sonnet-20240229",
+		model: "claude-3-haiku-20240307",
 		temperature: 0.1,
-		maxTokens: 512
+		maxTokens: 512,
 	})
 
 	const completion = await client.createChatCompletion([
@@ -36,29 +37,16 @@ export async function noteSummary(note: string, apiKey: string): Promise<string>
 	return completion.content
 }
 
-// TODO: https://docs.anthropic.com/claude/docs/control-output-format
 export async function extractKeyTopics(note: string, apiKey: string): Promise<string[]> {
-	const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
-
-	const completion = await openai.chat.completions.create({
-		messages: [
-			{
-				role: "system",
-				content: extractKeyTopicsPrompt,
-			},
-			{ role: "user", content: note },
-		],
-		model: "gpt-3.5-turbo-1106",
-		response_format: { type: "json_object" },
-		temperature: 0.3,
+	const client = new AnthropicChatCompletionClient(apiKey, {
+		model: "claude-3-haiku-20240307",
+		temperature: 0.1,
+		maxTokens: 1024,
 	})
 
-	console.info(`Key topics token use: ${completion.usage?.total_tokens}`)
-
-	const response = completion.choices[0].message.content
-	try {
-		return JSON.parse(response!)["topics"]
-	} catch (error) {
-		throw new Error(`OpenAI response could not be parsed to schema: ${error}\nResponse: ${response}`)
+	type topicsSchema = {
+		topics: string[]
 	}
+	const response = await client.createJSONCompletion<topicsSchema>(extractKeyTopicsPrompt, note)
+	return response.topics
 }
