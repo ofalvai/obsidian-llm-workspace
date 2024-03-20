@@ -1,26 +1,24 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-	content: [
-		"src/component/**/*.svelte",
-	],
+	content: ["src/component/**/*.svelte"],
 	theme: {
 		backgroundColor: {
-			transparent: 'transparent',
-			current: 'currentColor',
-			"primary": "var(--background-primary)",
+			transparent: "transparent",
+			current: "currentColor",
+			primary: "var(--background-primary)",
 			"primary-alt": "var(--background-primary-alt)",
-			"secondary": "var(--background-secondary)",
+			secondary: "var(--background-secondary)",
 			"secondary-alt": "var(--background-secondary-alt)",
-			"error": "var(--background-modifier-error)",
-			"success": "var(--background-modifier-success)",
+			error: "var(--background-modifier-error)",
+			success: "var(--background-modifier-success)",
 			"form-field": "var(--background-modifier-form-field)",
 		},
 		extend: {
 			fontSize: {
-				xs: ['var(--font-ui-smaller)', { lineHeight: '1rem' }],
-				sm: ['var(--font-ui-small)', { lineHeight: '1.25rem' }],
-				base: ['var(--font-ui-medium)', { lineHeight: '1.5rem' }],
-				lg: ['var(--font-ui-large)', { lineHeight: '1.75rem' }],
+				xs: ["var(--font-ui-smaller)", { lineHeight: "1rem" }],
+				sm: ["var(--font-ui-small)", { lineHeight: "1.25rem" }],
+				base: ["var(--font-ui-medium)", { lineHeight: "1.5rem" }],
+				lg: ["var(--font-ui-large)", { lineHeight: "1.75rem" }],
 			},
 		},
 	},
@@ -57,4 +55,3 @@ module.exports = {
 	],
 	plugins: [],
 }
-

@@ -1,7 +1,7 @@
 import "obsidian"
 
 declare module "obsidian" {
-    interface App {
-        appId?: string;
-    }
+	interface App {
+		appId?: string
+	}
 }

@@ -131,7 +131,7 @@
 							>{topic.name}</a
 						>
 					{:else}
-						<div class="flex flex-row items-center group">
+						<div class="group flex flex-row items-center">
 							<span class="mr-1">{topic.name}</span>
 							<span
 								class="clickable-icon invisible group-hover:visible"

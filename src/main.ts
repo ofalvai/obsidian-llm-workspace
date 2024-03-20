@@ -22,11 +22,11 @@ export default class LlmPlugin extends Plugin {
 
 		this.registerView(
 			VIEW_TYPE_NOTE_CONTEXT,
-			(leaf) => new NoteContextView(leaf, this.settings, this.db)
+			(leaf) => new NoteContextView(leaf, this.settings, this.db),
 		)
 		this.registerView(
 			VIEW_TYPE_WORKSPACE,
-			(leaf) => new WorkspaceView(leaf, this.settings, this.db)
+			(leaf) => new WorkspaceView(leaf, this.settings, this.db),
 		)
 
 		this.addSettingTab(new LlmSettingTab(this.app, this))

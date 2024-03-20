@@ -43,7 +43,7 @@
 			<span
 				aria-label="Relevance score"
 				data-tooltip-delay="300"
-				class="text-xs font-mono bg-secondary px-1 py-0.5 ml-1 rounded-md"
+				class="ml-1 rounded-md bg-secondary px-1 py-0.5 font-mono text-xs"
 			>
 				{Math.round(source.similarity * 100)}%
 			</span>
