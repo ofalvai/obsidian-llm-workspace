@@ -36,7 +36,7 @@
 	}
 </script>
 
-<div class="grow relative">
+<div class="relative grow">
 	{#if conversation}
 		<div class="grow pb-16">
 			{#if conversation.initialUserQuery}

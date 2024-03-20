@@ -7,12 +7,21 @@
 	import { RetrieverQueryEngine } from "src/rag/query-engine"
 	import { EmbeddingVectorRetriever } from "src/rag/retriever"
 	import { VectorStoreIndex } from "src/rag/storage"
-	import { DumbResponseSynthesizer, type DebugInfo, type QueryResponse } from "src/rag/synthesizer"
+	import {
+		DumbResponseSynthesizer,
+		type DebugInfo,
+		type QueryResponse,
+	} from "src/rag/synthesizer"
 	import type { LlmDexie, VectorStoreEntry } from "src/storage/db"
 	import type { ComponentEvents } from "svelte"
 	import { writable } from "svelte/store"
 	import { debugInfoToMarkdown } from "src/utils/debug"
-	import { appStore, isLlmWorkspace, readWorkspaceContext, settingsStore } from "src/utils/obsidian"
+	import {
+		appStore,
+		isLlmWorkspace,
+		readWorkspaceContext,
+		settingsStore,
+	} from "src/utils/obsidian"
 	import NoteLinks from "./NoteLinks.svelte"
 	import QuestionAndAnswer from "./QuestionAndAnswer.svelte"
 	import type { EmbeddedFileInfo } from "./types"
@@ -250,7 +259,7 @@
 </script>
 
 <TailwindCss />
-<div class="h-full w-full flex flex-col">
+<div class="flex h-full w-full flex-col">
 	{#if isWorkspace}
 		<NoteLinks
 			links={$links || []}
