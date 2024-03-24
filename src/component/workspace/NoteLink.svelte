@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte"
-	import type { EmbeddedFileInfo } from "./types"
-	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
+	import type { EmbeddedFileInfo } from "../types"
+	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 
 	export let fileInfo: EmbeddedFileInfo
 

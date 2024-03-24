@@ -7,7 +7,7 @@
 	import { writeDebugInfo } from "src/utils/debug"
 	import { appStore, settingsStore } from "src/utils/obsidian"
 	import { readable } from "svelte/store"
-	import QuestionAndAnswer from "./QuestionAndAnswer.svelte"
+	import QuestionAndAnswer from "./chat/QuestionAndAnswer.svelte"
 	import TailwindCss from "./TailwindCSS.svelte"
 
 	export let note: TFile
