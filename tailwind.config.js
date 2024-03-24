@@ -41,6 +41,7 @@ module.exports = {
 		"fontWeight",
 		"height",
 		"inset", // top, right, bottom, left
+		"justifyContent",
 		"margin",
 		"padding",
 		"position",

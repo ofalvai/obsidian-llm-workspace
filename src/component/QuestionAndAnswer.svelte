@@ -5,6 +5,8 @@
 	import ObsidianMarkdown from "./obsidian/ObsidianMarkdown.svelte"
 	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
 	import SourceList from "./SourceList.svelte"
+	import Loading from "./obsidian/Loading.svelte"
+	import { Notice } from "obsidian"
 
 	export let conversation: Conversation | null
 	export let displaySources = true
@@ -23,16 +25,18 @@
 		dispatch("message-submit", query)
 		query = ""
 	}
-
 	const onDebugClick = () => {
 		if (conversation?.queryResponse?.debugInfo) {
 			dispatch("debug-click", conversation.queryResponse.debugInfo)
 		}
 	}
-
 	const onNewConversationClick = () => {
 		query = ""
 		dispatch("new-conversation-click")
+	}
+	const copyToClipboard = (text: string) => {
+		navigator.clipboard.writeText(text)
+		new Notice("Copied to clipboard", 1000)
 	}
 </script>
 
@@ -74,7 +78,15 @@
 				{#if displaySources}
 					<SourceList queryResponse={conversation.queryResponse} on:source-click />
 				{/if}
-				<div class="flex flex-row w-full items-end">
+				<div class="justify-end flex w-full flex-row">
+					<button
+						class="clickable-icon"
+						on:click={() => copyToClipboard(conversation?.queryResponse?.text ?? "")}
+						aria-label="Copy response"
+						data-tooltip-delay="300"
+					>
+						<ObsidianIcon iconId="copy" size="s" />
+					</button>
 					<button
 						class="clickable-icon"
 						on:click={onDebugClick}
@@ -102,7 +114,32 @@
 					{/if}
 					<ObsidianMarkdown source={msg.content} className="grow select-text" />
 				</div>
+				<div class="justify-end flex w-full flex-row">
+					{#if msg.role === "assistant"}
+						<button
+							class="clickable-icon"
+							on:click={() => copyToClipboard(msg.content)}
+							aria-label="Copy response"
+							data-tooltip-delay="300"
+						>
+							<ObsidianIcon iconId="copy" size="s" />
+						</button>
+					{:else if msg.role === "user"}
+					{/if}
+				</div>
 			{/each}
+			{#if conversation.isLoading}
+				<div class="flex flex-row items-baseline">
+					<ObsidianIcon
+						iconId="sparkles"
+						size="s"
+						className="mr-2 flex-none relative top-1"
+					/>
+					<div class="relative top-2">
+						<Loading size="l" />
+					</div>
+				</div>
+			{/if}
 		</div>
 	{/if}
 	<form class="sticky bottom-0 left-0 right-0" on:submit|preventDefault={onSubmit}>
