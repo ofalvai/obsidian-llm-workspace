@@ -19,9 +19,9 @@
 	} from "src/utils/obsidian"
 	import type { ComponentEvents } from "svelte"
 	import NoteLinks from "./NoteLinks.svelte"
-	import QuestionAndAnswer from "./QuestionAndAnswer.svelte"
-	import TailwindCss from "./TailwindCSS.svelte"
-	import type { EmbeddedFileInfo } from "./types"
+	import QuestionAndAnswer from "../chat/QuestionAndAnswer.svelte"
+	import TailwindCss from "../TailwindCSS.svelte"
+	import type { EmbeddedFileInfo } from "../types"
 
 	export let workspaceFile: TFile
 	export let db: LlmDexie
@@ -179,7 +179,7 @@
 			}}
 			on:source-click={onLinkClick}
 			on:debug-click={(e) => writeDebugInfo($appStore, e.detail)}
-			on:new-conversation-click={conversation.resetConversation}
+			on:new-conversation={conversation.resetConversation}
 		/>
 	{:else}
 		<div>

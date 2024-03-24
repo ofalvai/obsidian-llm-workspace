@@ -2,11 +2,13 @@
 	import type { Conversation } from "src/rag/conversation"
 	import type { DebugInfo } from "src/rag/synthesizer"
 	import { createEventDispatcher } from "svelte"
-	import ObsidianMarkdown from "./obsidian/ObsidianMarkdown.svelte"
-	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
+	import ObsidianMarkdown from "../obsidian/ObsidianMarkdown.svelte"
+	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 	import SourceList from "./SourceList.svelte"
-	import Loading from "./obsidian/Loading.svelte"
+	import Loading from "../obsidian/Loading.svelte"
 	import { Notice } from "obsidian"
+	import Message from "./Message.svelte"
+	import UserInput from "./UserInput.svelte"
 
 	export let conversation: Conversation | null
 	export let displaySources = true
@@ -15,24 +17,12 @@
 		"message-submit": string
 		"source-click": string
 		"debug-click": DebugInfo
-		"new-conversation-click": void
+		"new-conversation": void
 	}>()
-
-	let query = ""
-
-	const onSubmit = () => {
-		if (!query) return
-		dispatch("message-submit", query)
-		query = ""
-	}
 	const onDebugClick = () => {
 		if (conversation?.queryResponse?.debugInfo) {
 			dispatch("debug-click", conversation.queryResponse.debugInfo)
 		}
-	}
-	const onNewConversationClick = () => {
-		query = ""
-		dispatch("new-conversation-click")
 	}
 	const copyToClipboard = (text: string) => {
 		navigator.clipboard.writeText(text)
@@ -78,7 +68,7 @@
 				{#if displaySources}
 					<SourceList queryResponse={conversation.queryResponse} on:source-click />
 				{/if}
-				<div class="justify-end flex w-full flex-row">
+				<div class="flex w-full flex-row justify-end">
 					<button
 						class="clickable-icon"
 						on:click={() => copyToClipboard(conversation?.queryResponse?.text ?? "")}
@@ -98,35 +88,7 @@
 				</div>
 			{/if}
 			{#each conversation.additionalMessages as msg}
-				<div class="flex flex-row items-baseline">
-					{#if msg.role === "user"}
-						<ObsidianIcon
-							iconId="user"
-							size="s"
-							className="mr-2 flex-none relative top-1"
-						/>
-					{:else if msg.role === "assistant"}
-						<ObsidianIcon
-							iconId="sparkles"
-							size="s"
-							className="mr-2 flex-none relative top-1"
-						/>
-					{/if}
-					<ObsidianMarkdown source={msg.content} className="grow select-text" />
-				</div>
-				<div class="justify-end flex w-full flex-row">
-					{#if msg.role === "assistant"}
-						<button
-							class="clickable-icon"
-							on:click={() => copyToClipboard(msg.content)}
-							aria-label="Copy response"
-							data-tooltip-delay="300"
-						>
-							<ObsidianIcon iconId="copy" size="s" />
-						</button>
-					{:else if msg.role === "user"}
-					{/if}
-				</div>
+				<Message message={msg} on:copy={(e) => copyToClipboard(e.detail)} />
 			{/each}
 			{#if conversation.isLoading}
 				<div class="flex flex-row items-baseline">
@@ -142,27 +104,10 @@
 			{/if}
 		</div>
 	{/if}
-	<form class="sticky bottom-0 left-0 right-0" on:submit|preventDefault={onSubmit}>
-		<!-- svelte-ignore a11y-autofocus -->
-		<textarea
-			class="w-full resize-y bg-form-field"
-			autofocus
-			rows="2"
-			on:keydown={(event) => {
-				if (event.key === "Enter") {
-					event.preventDefault()
-					onSubmit()
-				}
-			}}
-			disabled={conversation?.isLoading ?? false}
-			placeholder="Ask a question"
-			bind:value={query}
-		/>
-		<button disabled={(conversation?.isLoading ?? false) || query.trim() == ""} type="submit">
-			Ask
-		</button>
-		{#if conversation}
-			<button on:click|preventDefault={onNewConversationClick}>New conversation</button>
-		{/if}
-	</form>
+	<UserInput
+		disabled={conversation?.isLoading ?? false}
+		isConversationActive={conversation != null}
+		on:submit={(e) => dispatch("message-submit", e.detail)}
+		on:new-conversation={(e) => dispatch("new-conversation")}
+	/>
 </div>

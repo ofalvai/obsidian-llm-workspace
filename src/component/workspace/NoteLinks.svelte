@@ -1,8 +1,8 @@
 <script lang="ts">
 	import NoteLink from "./NoteLink.svelte"
 	import { createEventDispatcher } from "svelte"
-	import type { EmbeddedFileInfo } from "./types"
-	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
+	import type { EmbeddedFileInfo } from "../types"
+	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 
 	export let links: EmbeddedFileInfo[]
 
