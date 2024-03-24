@@ -6,6 +6,7 @@ import { ObsidianNoteReconciler } from "src/utils/reconciler"
 import { NoteContextView, VIEW_TYPE_NOTE_CONTEXT } from "src/view/NoteContextView"
 import { VIEW_TYPE_WORKSPACE, WorkspaceView } from "src/view/WorkspaceView"
 import { settingsStore } from "./utils/obsidian"
+import { NoteChatView, VIEW_TYPE_NOTE_CHAT } from "./view/NoteChatView"
 
 export default class LlmPlugin extends Plugin {
 	settings!: LlmPluginSettings
@@ -29,6 +30,10 @@ export default class LlmPlugin extends Plugin {
 			VIEW_TYPE_WORKSPACE,
 			(leaf) => new WorkspaceView(leaf, this.settings, this.db),
 		)
+		this.registerView(
+			VIEW_TYPE_NOTE_CHAT,
+			(leaf) => new NoteChatView(leaf, this.settings, this.db),
+		)
 
 		this.addSettingTab(new LlmSettingTab(this.app, this))
 
@@ -45,6 +50,14 @@ export default class LlmPlugin extends Plugin {
 			name: "Activate workspace",
 			callback: () => {
 				this.activateWorkspaceView()
+			},
+		})
+
+		this.addCommand({
+			id: "activate-note-chat-view",
+			name: "Chat with current note",
+			callback: () => {
+				this.activateNoteChatView()
 			},
 		})
 	}
@@ -92,6 +105,28 @@ export default class LlmPlugin extends Plugin {
 			leaf = workspace.getLeaf("split", "vertical")
 			await leaf.setViewState({
 				type: VIEW_TYPE_WORKSPACE,
+				active: true,
+			})
+		}
+
+		// "Reveal" the leaf in case it is in a collapsed sidebar
+		workspace.revealLeaf(leaf)
+	}
+
+	async activateNoteChatView() {
+		const { workspace } = this.app
+
+		let leaf: WorkspaceLeaf | null = null
+		const leaves = workspace.getLeavesOfType(VIEW_TYPE_NOTE_CHAT)
+
+		if (leaves.length > 0) {
+			// A leaf with our view already exists, use that
+			leaf = leaves[0]
+		} else {
+			// Our view could not be found in the root split
+			leaf = workspace.getLeaf("split", "vertical")
+			await leaf.setViewState({
+				type: VIEW_TYPE_NOTE_CHAT,
 				active: true,
 			})
 		}
