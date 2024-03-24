@@ -37,7 +37,7 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 		completionClient: ChatCompletionClient,
 		completionOptions: CompletionOptions,
 		systemPrompt: string,
-		workspaceContext: string | null,
+		workspaceContext: string | null = null,
 	) {
 		this.completionClient = completionClient
 		this.completionOptions = completionOptions

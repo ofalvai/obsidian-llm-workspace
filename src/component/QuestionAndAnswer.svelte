@@ -6,8 +6,8 @@
 	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
 	import SourceList from "./SourceList.svelte"
 
-	export let isLoading = false
 	export let conversation: Conversation | null
+	export let displaySources = true
 
 	const dispatch = createEventDispatcher<{
 		"message-submit": string
@@ -49,15 +49,17 @@
 				</div>
 			{/if}
 			{#if conversation.queryResponse}
-				<div class="flex flex-row items-center">
-					<ObsidianIcon size="s" iconId="target" className="mr-2" />
-					<div aria-label="Improved query" data-tooltip-delay="300">
-						<ObsidianMarkdown
-							className="grow select-text"
-							source={conversation.queryResponse.debugInfo.improvedQuery}
-						/>
+				{#if conversation.queryResponse.debugInfo.originalQuery != conversation.queryResponse.debugInfo.improvedQuery}
+					<div class="flex flex-row items-center">
+						<ObsidianIcon size="s" iconId="target" className="mr-2" />
+						<div aria-label="Improved query" data-tooltip-delay="300">
+							<ObsidianMarkdown
+								className="grow select-text"
+								source={conversation.queryResponse.debugInfo.improvedQuery}
+							/>
+						</div>
 					</div>
-				</div>
+				{/if}
 				<div class="flex flex-row items-baseline">
 					<ObsidianIcon
 						iconId="sparkles"
@@ -69,9 +71,18 @@
 						source={conversation.queryResponse.text}
 					/>
 				</div>
-				<SourceList queryResponse={conversation.queryResponse} on:source-click />
-				<div>
-					<button class="clickable-icon" on:click={onDebugClick}> </button>
+				{#if displaySources}
+					<SourceList queryResponse={conversation.queryResponse} on:source-click />
+				{/if}
+				<div class="flex flex-row w-full items-end">
+					<button
+						class="clickable-icon"
+						on:click={onDebugClick}
+						aria-label="Debug response"
+						data-tooltip-delay="300"
+					>
+						<ObsidianIcon iconId="bug-play" size="s" />
+					</button>
 				</div>
 			{/if}
 			{#each conversation.additionalMessages as msg}
@@ -95,21 +106,23 @@
 		</div>
 	{/if}
 	<form class="sticky bottom-0 left-0 right-0" on:submit|preventDefault={onSubmit}>
+		<!-- svelte-ignore a11y-autofocus -->
 		<textarea
 			class="w-full resize-y bg-form-field"
+			autofocus
 			rows="2"
 			on:keydown={(event) => {
 				if (event.key === "Enter") {
+					event.preventDefault()
 					onSubmit()
 				}
 			}}
-			disabled={isLoading}
+			disabled={conversation?.isLoading ?? false}
 			placeholder="Ask a question"
 			bind:value={query}
 		/>
-		<button disabled={isLoading || query.trim() == ""} type="submit">
+		<button disabled={(conversation?.isLoading ?? false) || query.trim() == ""} type="submit">
 			Ask
-			{#if isLoading}...{/if}
 		</button>
 		{#if conversation}
 			<button on:click|preventDefault={onNewConversationClick}>New conversation</button>

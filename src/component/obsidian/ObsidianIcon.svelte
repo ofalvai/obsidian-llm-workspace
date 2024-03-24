@@ -20,7 +20,7 @@
 	}
 </script>
 
-<span bind:this={el} class={`size-${size} color-${color} ${className}`}></span>
+<span bind:this={el} class="size-{size} color-{color} {className}"></span>
 
 <style>
 	span {

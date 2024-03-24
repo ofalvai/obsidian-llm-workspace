@@ -1,20 +1,16 @@
 <script lang="ts">
 	import { liveQuery } from "dexie"
 	import { Notice, TFile } from "obsidian"
-	import { DEFAULT_SETTINGS, type LlmPluginSettings } from "src/config/settings"
-	import type { Conversation } from "src/rag/conversation"
-	import { AnthropicChatCompletionClient } from "src/rag/llm/anthropic"
-	import type { ChatCompletionClient, ChatMessage } from "src/rag/llm/common"
-	import { OpenAIChatCompletionClient, OpenAIEmbeddingClient } from "src/rag/llm/openai"
+	import { conversationStore, type ConversationStore } from "src/conversation"
+	import { llmClient } from "src/llm"
+	import { OpenAIEmbeddingClient } from "src/rag/llm/openai"
 	import { NodeParser } from "src/rag/node"
-	import { RetrieverQueryEngine } from "src/rag/query-engine"
+	import { RetrieverQueryEngine, type QueryEngine } from "src/rag/query-engine"
 	import { EmbeddingVectorRetriever } from "src/rag/retriever"
 	import { VectorStoreIndex } from "src/rag/storage"
-	import {
-		DumbResponseSynthesizer
-	} from "src/rag/synthesizer"
+	import { DumbResponseSynthesizer, type ResponseSynthesizer } from "src/rag/synthesizer"
 	import type { LlmDexie, VectorStoreEntry } from "src/storage/db"
-	import { debugInfoToMarkdown } from "src/utils/debug"
+	import { writeDebugInfo } from "src/utils/debug"
 	import {
 		appStore,
 		isLlmWorkspace,
@@ -22,7 +18,6 @@
 		settingsStore,
 	} from "src/utils/obsidian"
 	import type { ComponentEvents } from "svelte"
-	import { derived, type Writable } from "svelte/store"
 	import NoteLinks from "./NoteLinks.svelte"
 	import QuestionAndAnswer from "./QuestionAndAnswer.svelte"
 	import TailwindCss from "./TailwindCSS.svelte"
@@ -31,7 +26,6 @@
 	export let workspaceFile: TFile
 	export let db: LlmDexie
 
-	// TODO: these are not refreshed when the workspace file changes
 	let workspaceContext: string | null = null
 	const metadata = $appStore.metadataCache.getFileCache(workspaceFile)
 	const isWorkspace = metadata != null && isLlmWorkspace(metadata)
@@ -43,36 +37,24 @@
 	const embeddingClient = new OpenAIEmbeddingClient($settingsStore.openAIApiKey)
 	const vectorStore = new VectorStoreIndex(db)
 	const retriever = new EmbeddingVectorRetriever(vectorStore, embeddingClient)
-	let llmClient = derived<Writable<LlmPluginSettings>, ChatCompletionClient>(
-		settingsStore,
-		($settingsStore) => {
-			console.log("Recreating LLM client")
-			const model = $settingsStore.questionAndAnswerModel
-			if (model.startsWith("gpt")) {
-				return new OpenAIChatCompletionClient($settingsStore.openAIApiKey, model)
-			} else if (model.startsWith("claude")) {
-				return new AnthropicChatCompletionClient($settingsStore.anthropicApikey, model)
-			} else {
-				throw new Error("Invalid model: " + model)
-			}
-		},
-	)
 	const completionOptions = {
 		temperature: 0.1,
 		maxTokens: 512,
 	}
-	const systemPrompt = $settingsStore.systemPrompt
-		? $settingsStore.systemPrompt
-		: DEFAULT_SETTINGS.systemPrompt
-	const synthesizer = new DumbResponseSynthesizer(
-		$llmClient,
-		completionOptions,
-		systemPrompt,
-		workspaceContext,
-	)
-	const queryEngine = new RetrieverQueryEngine(retriever, synthesizer)
+	let synthesizer: ResponseSynthesizer
+	let queryEngine: QueryEngine
+	let conversation: ConversationStore
+	$: {
+		synthesizer = new DumbResponseSynthesizer(
+			$llmClient,
+			completionOptions,
+			$settingsStore.systemPrompt,
+			workspaceContext,
+		)
+		queryEngine = new RetrieverQueryEngine(retriever, synthesizer, workspaceFile.path)
+		conversation = conversationStore(queryEngine, $llmClient, completionOptions)
+	}
 
-	let isLoading = false
 	let links = liveQuery(async () => {
 		const workspace = await db.workspace
 			.where("workspaceFile")
@@ -179,90 +161,6 @@
 			await vectorStore.addNode(node, embedding, workspaceFile.path)
 		}
 	}
-	const onDebugClick = async (event: ComponentEvents<QuestionAndAnswer>["debug-click"]) => {
-		const debugFilePath = "LLM workspace debug.md"
-		const file = $appStore.metadataCache.getFirstLinkpathDest(debugFilePath, "")
-		const markdown = debugInfoToMarkdown(event.detail)
-		if (file) {
-			await $appStore.vault.append(file, markdown)
-			new Notice("Debug info appended to the end of file")
-		} else {
-			await $appStore.vault.create(debugFilePath, markdown)
-		}
-
-		await $appStore.workspace.openLinkText(debugFilePath, "", "tab")
-	}
-	let conversation: Conversation | null = null
-	const onMessageSubmit = async (newMessage: string) => {
-		if (!conversation || !conversation.queryResponse) {
-			conversation = {
-				initialUserQuery: newMessage,
-				queryResponse: null,
-				additionalMessages: [],
-			}
-			isLoading = true
-			try {
-				const response = await queryEngine.query(newMessage, workspaceFile.path)
-				conversation = {
-					...conversation,
-					queryResponse: response,
-				}
-			} catch (e) {
-				console.error(e)
-			} finally {
-				isLoading = false
-			}
-		} else {
-			conversation = {
-				...conversation,
-				additionalMessages: [
-					...conversation.additionalMessages,
-					{
-						role: "user",
-						content: newMessage,
-					},
-				],
-			}
-			const messages: ChatMessage[] = [
-				{
-					role: "system",
-					content: conversation.queryResponse!.debugInfo.systemPrompt,
-				},
-				{
-					role: "user",
-					content: conversation.queryResponse!.debugInfo.userPrompt,
-				},
-				{
-					role: "assistant",
-					content: conversation.queryResponse!.text,
-				},
-				...conversation.additionalMessages,
-			]
-			isLoading = true
-			try {
-				const response = await $llmClient.createChatCompletion(messages, completionOptions)
-				conversation = {
-					...conversation,
-					additionalMessages: [
-						...conversation.additionalMessages,
-						{
-							role: response.role,
-							content: response.content,
-						},
-					],
-				}
-			} catch (e) {
-				console.error(e)
-			} finally {
-				isLoading = false
-			}
-		}
-	}
-	const onNewConversationClick = (
-		event: ComponentEvents<QuestionAndAnswer>["new-conversation-click"],
-	) => {
-		conversation = null
-	}
 </script>
 
 <TailwindCss />
@@ -275,14 +173,13 @@
 			on:rebuild-all={rebuildAll}
 		/>
 		<QuestionAndAnswer
-			{conversation}
-			{isLoading}
+			conversation={$conversation}
 			on:message-submit={async (e) => {
-				onMessageSubmit(e.detail)
+				conversation.submitMessage(e.detail)
 			}}
 			on:source-click={onLinkClick}
-			on:debug-click={onDebugClick}
-			on:new-conversation-click={onNewConversationClick}
+			on:debug-click={(e) => writeDebugInfo($appStore, e.detail)}
+			on:new-conversation-click={conversation.resetConversation}
 		/>
 	{:else}
 		<div>
