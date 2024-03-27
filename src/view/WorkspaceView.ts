@@ -1,15 +1,23 @@
 import type { LlmPluginSettings } from "src/config/settings"
-import { ItemView, Notice, TFile, WorkspaceLeaf } from "obsidian"
+import { ItemView, Notice, TFile, WorkspaceLeaf, type ViewStateResult } from "obsidian"
 import { LlmDexie } from "src/storage/db"
 import { appStore, settingsStore, viewStore } from "src/utils/obsidian"
 import Workspace from "src/component/workspace/Workspace.svelte"
 
 export const VIEW_TYPE_WORKSPACE = "llm-workspace-view"
 
+export type WorkspaceViewState = {
+	// Path of the note file this view is associated with.
+	// This could be an empty string or an invalid path, so it should be always checked.
+	filePath: string
+}
+
 export class WorkspaceView extends ItemView {
 	settings: LlmPluginSettings
 
 	db: LlmDexie
+
+	filePath?: string
 
 	component!: Workspace
 	viewTitle = "LLM Workspace"
@@ -34,17 +42,49 @@ export class WorkspaceView extends ItemView {
 	}
 
 	async onOpen() {
-		// TODO: filter for non-Markdown files
-		const file = this.app.workspace.getActiveFile()
-		if (!file) {
-			new Notice("Open a file and try again")
-			return
-		}
-		this.viewTitle = `${file.basename} (LLM Workspace)`
-
 		settingsStore.set(this.settings)
 		appStore.set(this.app)
 		viewStore.set(this)
+
+
+		this.addAction("file-input", "Open workspace note", () => {
+			if (this.filePath) {
+				this.app.workspace.openLinkText(this.filePath, "", "tab")
+			}
+		})
+
+		// setState() is called after onOpen(), so we can't create the component here yet
+	}
+
+	async onClose() {
+		this.component?.$destroy()
+	}
+
+	async setState(state: WorkspaceViewState, result: ViewStateResult): Promise<void> {
+		this.filePath = state.filePath
+
+		// Recreate the component because it depends on the file path
+		this.createComponent()
+
+		await this.updateWorkspaceStore(state.filePath)
+
+		return super.setState(state, result)
+	}
+
+	getState(): WorkspaceViewState {
+		return {
+			filePath: this.filePath ?? "",
+		}
+	}
+
+	private createComponent() {
+		const file = this.app.vault.getFileByPath(this.filePath ?? "")
+		if (!file) {
+			const container = this.containerEl.children[1]
+			container.empty()
+			container.createEl("p", { text: `File not found: ${this.filePath}` })
+			return
+		}
 
 		this.component = new Workspace({
 			target: this.contentEl,
@@ -54,25 +94,21 @@ export class WorkspaceView extends ItemView {
 			},
 		})
 
-		this.addAction("file-input", "Open workspace note", () => {
-			this.app.workspace.openLinkText(file.path, "", "tab")
-		})
-
-		await this.updateWorkspaceStore(file)
+		this.viewTitle = `${file.basename} (LLM Workspace)`
 	}
 
-	async onClose() {
-		this.component?.$destroy()
-	}
-
-	async updateWorkspaceStore(file: TFile) {
+	async updateWorkspaceStore(filePath: string) {
 		// TODO: add field to frontmatter if it's missing
-		// TODO: this could accidentally create a new workspace if the windows are restored after startup and the active tab is not the workspace note
 
 		const exists =
-			(await this.db.workspace.where("workspaceFile").equals(file.path).count()) == 1
+			(await this.db.workspace.where("workspaceFile").equals(filePath).count()) == 1
 
 		if (exists) {
+			return
+		}
+
+		const file = this.app.vault.getFileByPath(filePath)
+		if (!file) {
 			return
 		}
 

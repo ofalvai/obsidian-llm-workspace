@@ -10,11 +10,11 @@
 	import QuestionAndAnswer from "./chat/QuestionAndAnswer.svelte"
 	import TailwindCss from "./TailwindCSS.svelte"
 
-	export let note: TFile
+	export let file: TFile
 
 	// TODO: make note content reactive
 	const noteContent = readable("", (set) => {
-		$appStore.vault.cachedRead(note).then((content) => {
+		$appStore.vault.cachedRead(file).then((content) => {
 			set(content)
 		})
 	})
@@ -31,7 +31,7 @@
 			completionOptions,
 			$settingsStore.systemPrompt,
 		)
-		queryEngine = new SingleNoteQueryEngine(synthesizer, $noteContent, note.path)
+		queryEngine = new SingleNoteQueryEngine(synthesizer, $noteContent, file.path)
 		conversation = conversationStore(queryEngine, $llmClient, completionOptions)
 	}
 </script>
