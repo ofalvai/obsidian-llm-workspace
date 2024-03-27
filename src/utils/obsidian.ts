@@ -1,7 +1,6 @@
-import type { App, CachedMetadata, View } from "obsidian"
+import { type App, type CachedMetadata, type View } from "obsidian"
 import type { LlmPluginSettings } from "src/config/settings"
 import { writable } from "svelte/store"
-
 
 export type FilePath = string
 
