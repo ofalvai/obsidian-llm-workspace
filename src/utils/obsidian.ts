@@ -31,6 +31,13 @@ export function readWorkspaceContext(metadata: CachedMetadata): string | null {
 	return null
 }
 
+export function addWorkspaceProperty(frontmatter: any) {
+	if (!frontmatter) {
+		frontmatter = {}
+	}
+	frontmatter[frontmatterKeyCategory] = frontmatterValueWorkspace
+}
+
 export const settingsStore = writable<LlmPluginSettings>()
 export const appStore = writable<App>()
 export const viewStore = writable<View>()

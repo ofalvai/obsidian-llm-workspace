@@ -1,7 +1,7 @@
 import type { LlmPluginSettings } from "src/config/settings"
 import { ItemView, Notice, TFile, WorkspaceLeaf, type ViewStateResult } from "obsidian"
 import { LlmDexie } from "src/storage/db"
-import { appStore, settingsStore, viewStore } from "src/utils/obsidian"
+import { addWorkspaceProperty, appStore, settingsStore, viewStore } from "src/utils/obsidian"
 import Workspace from "src/component/workspace/Workspace.svelte"
 
 export const VIEW_TYPE_WORKSPACE = "llm-workspace-view"
@@ -63,10 +63,10 @@ export class WorkspaceView extends ItemView {
 	async setState(state: WorkspaceViewState, result: ViewStateResult): Promise<void> {
 		this.filePath = state.filePath
 
+		await this.updateWorkspaceStore(state.filePath)
+
 		// Recreate the component because it depends on the file path
 		this.createComponent()
-
-		await this.updateWorkspaceStore(state.filePath)
 
 		return super.setState(state, result)
 	}
@@ -98,17 +98,21 @@ export class WorkspaceView extends ItemView {
 	}
 
 	async updateWorkspaceStore(filePath: string) {
-		// TODO: add field to frontmatter if it's missing
+		const file = this.app.vault.getFileByPath(filePath)
+		if (!file) {
+			return
+		}
+
+		try {
+			await this.app.fileManager.processFrontMatter(file, addWorkspaceProperty)
+		} catch(e) {
+			console.warn("Failed to add workspace property to frontmatter", e)
+		}
 
 		const exists =
 			(await this.db.workspace.where("workspaceFile").equals(filePath).count()) == 1
 
 		if (exists) {
-			return
-		}
-
-		const file = this.app.vault.getFileByPath(filePath)
-		if (!file) {
 			return
 		}
 
