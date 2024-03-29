@@ -1,17 +1,14 @@
 <script lang="ts">
 	import { liveQuery, type Observable } from "dexie"
 	import { TFile } from "obsidian"
+	import { extractKeyTopics, noteSummary } from "src/llm-features/note-context"
+	import { llmClient } from "src/llm-features/client"
 	import type { LlmDexie, NoteDerivedData } from "src/storage/db"
-	import { derived, readable, writable, type Writable } from "svelte/store"
 	import { appStore, settingsStore } from "src/utils/obsidian"
-	import { extractKeyTopics, noteSummary } from "src/utils/context"
-	import type { KeyTopic } from "./types"
+	import { derived, readable, writable } from "svelte/store"
 	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
 	import TailwindCss from "./TailwindCSS.svelte"
-	import { OpenAIChatCompletionClient } from "src/rag/llm/openai"
-	import { AnthropicChatCompletionClient } from "src/rag/llm/anthropic"
-	import type { ChatCompletionClient } from "src/rag/llm/common"
-	import type { LlmPluginSettings } from "src/config/settings"
+	import type { KeyTopic } from "./types"
 
 	export let db: LlmDexie
 
@@ -24,20 +21,6 @@
 		$appStore.workspace.on("file-open", onOpen)
 		return () => $appStore.workspace.off("file-open", onOpen)
 	})
-
-	let llmClient = derived<Writable<LlmPluginSettings>, ChatCompletionClient>(
-		settingsStore,
-		($settingsStore) => {
-			const model = $settingsStore.noteContextModel
-			if (model.startsWith("gpt")) {
-				return new OpenAIChatCompletionClient($settingsStore.openAIApiKey, model)
-			} else if (model.startsWith("claude")) {
-				return new AnthropicChatCompletionClient($settingsStore.anthropicApikey, model)
-			} else {
-				throw new Error("Invalid model: " + $settingsStore.noteContextModel)
-			}
-		},
-	)
 
 	let noteContextEnabled = derived(
 		[openFile, settingsStore],

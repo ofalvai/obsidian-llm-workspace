@@ -1,7 +1,7 @@
 import { get, writable, type Readable } from "svelte/store"
-import type { Conversation } from "./rag/conversation"
-import type { ChatCompletionClient, ChatMessage, CompletionOptions } from "./rag/llm/common"
-import type { QueryEngine } from "./rag/query-engine"
+import type { Conversation } from "../rag/conversation"
+import type { ChatCompletionClient, ChatMessage, CompletionOptions } from "../rag/llm/common"
+import type { QueryEngine } from "../rag/query-engine"
 
 export type ConversationStore = Readable<Conversation | null> & {
 	submitMessage: (newMessage: string) => Promise<void>

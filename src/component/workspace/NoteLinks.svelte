@@ -25,7 +25,7 @@
 			<ObsidianIcon iconId="refresh-cw" size="s" />
 		</button>
 	</div>
-	<div class="mb-8 mt-2">
+	<div class="mt-2">
 		{#each links as link (link.path)}
 			<NoteLink fileInfo={link} on:link-click on:link-rebuild />
 		{/each}

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { TFile } from "obsidian"
-	import { conversationStore } from "src/conversation"
-	import { llmClient } from "src/llm"
+	import { conversationStore } from "src/llm-features/conversation"
+	import { llmClient } from "src/llm-features/client"
 	import { SingleNoteQueryEngine, type QueryEngine } from "src/rag/query-engine"
 	import { DumbResponseSynthesizer, type ResponseSynthesizer } from "src/rag/synthesizer"
 	import { writeDebugInfo } from "src/utils/debug"

@@ -1,8 +1,12 @@
 <script lang="ts">
 	import { liveQuery } from "dexie"
 	import { Notice, TFile } from "obsidian"
-	import { conversationStore, type ConversationStore } from "src/conversation"
-	import { llmClient } from "src/llm"
+	import { conversationStore, type ConversationStore } from "src/llm-features/conversation"
+	import { llmClient } from "src/llm-features/client"
+	import {
+		workspaceQuestions,
+		type WorkspaceQuestion,
+	} from "src/llm-features/workspace-questions"
 	import { OpenAIEmbeddingClient } from "src/rag/llm/openai"
 	import { NodeParser } from "src/rag/node"
 	import { RetrieverQueryEngine, type QueryEngine } from "src/rag/query-engine"
@@ -18,10 +22,12 @@
 		settingsStore,
 	} from "src/utils/obsidian"
 	import type { ComponentEvents } from "svelte"
-	import NoteLinks from "./NoteLinks.svelte"
-	import QuestionAndAnswer from "../chat/QuestionAndAnswer.svelte"
+	import { writable } from "svelte/store"
 	import TailwindCss from "../TailwindCSS.svelte"
+	import QuestionAndAnswer from "../chat/QuestionAndAnswer.svelte"
 	import type { EmbeddedFileInfo } from "../types"
+	import NoteLinks from "./NoteLinks.svelte"
+	import Questions from "./Questions.svelte"
 
 	export let workspaceFile: TFile
 	export let db: LlmDexie
@@ -112,6 +118,26 @@
 		})
 	})
 
+	const workspaceData = liveQuery(async () => {
+		return db.workspace.where("workspaceFile").equals(workspaceFile.path).first()
+	})
+	const isLoadingQuestions = writable(false)
+	const buildQuestions = async () => {
+		isLoadingQuestions.set(true)
+		try {
+			const questions = await workspaceQuestions($llmClient, $appStore.vault, $links)
+			await db.workspace.update(workspaceFile.path, { derivedQuestions: questions })
+		} catch (e) {
+			console.error("Failed to build questions", e)
+		} finally {
+			isLoadingQuestions.set(false)
+		}
+	}
+	const selectQuestion = async (question: WorkspaceQuestion) => {
+		conversation.resetConversation()
+		conversation.submitMessage(question.content)
+	}
+
 	const rebuildAll = async () => {
 		// Collect all linked files
 		// Note: we can't use `app.metadataCache.getFileCache(workspaceFile).links` because
@@ -172,6 +198,14 @@
 			on:link-rebuild={onLinkRebuild}
 			on:rebuild-all={rebuildAll}
 		/>
+		{#if !$conversation}
+			<Questions
+				questions={$workspaceData?.derivedQuestions ?? []}
+				isLoading={$isLoadingQuestions}
+				on:regenerate={buildQuestions}
+				on:question-select={async (e) => selectQuestion(e.detail)}
+			/>
+		{/if}
 		<QuestionAndAnswer
 			conversation={$conversation}
 			on:message-submit={async (e) => {
