@@ -44,7 +44,7 @@ export class AnthropicChatCompletionClient implements ChatCompletionClient {
 			return JSON.parse("{" + newMessage.content[0].text) as T
 		} catch (e) {
 			throw new Error(
-				`LLM response could not be parsed to JSON schema: ${e}\nResponse: ${newMessage.content[0].text}`,
+				`LLM response could not be parsed to JSON schema: ${e}\nResponse: {${newMessage.content[0].text}`,
 			)
 		}
 	}

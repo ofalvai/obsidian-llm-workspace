@@ -1,4 +1,5 @@
 import Dexie, { type Table } from "dexie"
+import type { WorkspaceQuestion } from "src/llm-features/workspace-questions"
 import type { Node } from "src/rag/node"
 import type { FilePath } from "src/utils/obsidian"
 
@@ -17,6 +18,7 @@ export interface VectorStoreEntry {
 export interface WorkspaceStoreEntry {
 	workspaceFile: FilePath
 	links: FilePath[]
+	derivedQuestions: WorkspaceQuestion[]
 }
 
 export class LlmDexie extends Dexie {
@@ -25,6 +27,7 @@ export class LlmDexie extends Dexie {
 	workspace!: Table<WorkspaceStoreEntry>
 
 	constructor(vaultId: string) {
+		// TODO: rename this
 		super(`llm-plugin/cache/${vaultId}`)
 		this.version(1).stores({
 			noteDerivedData: "path", // indexed props
@@ -33,6 +36,7 @@ export class LlmDexie extends Dexie {
 		})
 	}
 
+	// TODO: move these to a separate class
 	async getNoteDerivedData(path: string): Promise<NoteDerivedData | undefined> {
 		return this.noteDerivedData.get(path)
 	}

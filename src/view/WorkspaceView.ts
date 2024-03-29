@@ -128,6 +128,7 @@ export class WorkspaceView extends ItemView {
 		await this.db.workspace.put({
 			workspaceFile: file.path,
 			links: links,
+			derivedQuestions: [],
 		})
 	}
 }
