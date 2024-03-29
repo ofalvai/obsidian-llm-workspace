@@ -42,7 +42,7 @@
 		conversation={$conversation}
 		displaySources={false}
 		on:message-submit={async (e) => conversation.submitMessage(e.detail)}
-		on:new-conversation-click={() => conversation.resetConversation()}
+		on:new-conversation={conversation.resetConversation}
 		on:debug-click={(e) => writeDebugInfo($appStore, e.detail)}
 	/>
 </div>

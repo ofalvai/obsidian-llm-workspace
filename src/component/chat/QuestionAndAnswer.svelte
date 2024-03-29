@@ -65,10 +65,7 @@
 						source={conversation.queryResponse.text}
 					/>
 				</div>
-				{#if displaySources}
-					<SourceList queryResponse={conversation.queryResponse} on:source-click />
-				{/if}
-				<div class="flex w-full flex-row justify-end">
+				<div class="flex w-full flex-row justify-end mb-1">
 					<button
 						class="clickable-icon"
 						on:click={() => copyToClipboard(conversation?.queryResponse?.text ?? "")}
@@ -86,6 +83,9 @@
 						<ObsidianIcon iconId="bug-play" size="s" />
 					</button>
 				</div>
+				{#if displaySources}
+					<SourceList queryResponse={conversation.queryResponse} on:source-click />
+				{/if}
 			{/if}
 			{#each conversation.additionalMessages as msg}
 				<Message message={msg} on:copy={(e) => copyToClipboard(e.detail)} />

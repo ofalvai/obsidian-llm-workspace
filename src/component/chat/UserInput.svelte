@@ -35,7 +35,7 @@
 			}
 		}}
 		{disabled}
-		placeholder="Ask a question"
+		placeholder={isConversationActive ? "Continue conversation" : "Ask a question"}
 		bind:value={query}
 	/>
 	<button disabled={disabled || query.trim() == ""} type="submit"> Ask </button>

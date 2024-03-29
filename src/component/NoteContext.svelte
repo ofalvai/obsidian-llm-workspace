@@ -118,7 +118,7 @@
 {#if $noteContextEnabled}
 	{#if $derivedData?.summary}
 		<h6>Summary</h6>
-		<p>{$derivedData.summary}</p>
+		<p class="select-text">{$derivedData.summary}</p>
 	{/if}
 
 	{#if keyTopics && keyTopics.length > 0}
@@ -133,7 +133,7 @@
 						>
 					{:else}
 						<div class="group flex flex-row items-center">
-							<span class="mr-1">{topic.name}</span>
+							<span class="mr-1 select-text">{topic.name}</span>
 							<span
 								class="clickable-icon invisible group-hover:visible"
 								aria-label="Create note"
