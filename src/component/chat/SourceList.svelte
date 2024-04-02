@@ -37,7 +37,7 @@
 
 <div class="mt-2 rounded bg-primary-alt p-3">
 	<div class="font-medium">Sources:</div>
-	<ol class="mt-2 mb-0">
+	<ol class="mb-0 mt-2">
 		{#each sources as source}
 			<li class="mb-1">
 				<!-- svelte-ignore a11y-invalid-attribute -->

@@ -30,9 +30,9 @@
 	}
 </script>
 
-<div class="relative grow">
+<div class="relative grow pb-32">
 	{#if conversation}
-		<div class="grow pb-16">
+		<div class="grow">
 			{#if conversation.initialUserQuery}
 				<div class="flex flex-row items-center">
 					<ObsidianIcon className="mr-2" iconId="user" size="s" />
@@ -65,7 +65,7 @@
 						source={conversation.queryResponse.text}
 					/>
 				</div>
-				<div class="flex w-full flex-row justify-end mb-1">
+				<div class="mb-1 flex w-full flex-row justify-end">
 					<button
 						class="clickable-icon"
 						on:click={() => copyToClipboard(conversation?.queryResponse?.text ?? "")}
