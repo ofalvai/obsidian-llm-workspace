@@ -20,7 +20,7 @@
 	{/if}
 	<ObsidianMarkdown source={message.content} className="grow select-text" />
 </div>
-<div class="flex w-full flex-row justify-end mt-1">
+<div class="mt-1 flex w-full flex-row justify-end">
 	{#if message.role === "assistant"}
 		<button
 			class="clickable-icon"
