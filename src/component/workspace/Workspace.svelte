@@ -26,7 +26,7 @@
 	import TailwindCss from "../TailwindCSS.svelte"
 	import QuestionAndAnswer from "../chat/QuestionAndAnswer.svelte"
 	import type { EmbeddedFileInfo } from "../types"
-	import NoteLinks from "./NoteLinks.svelte"
+	import IndexedFiles from "./IndexedFiles.svelte"
 	import Questions from "./Questions.svelte"
 
 	export let workspaceFile: TFile
@@ -72,10 +72,11 @@
 			return []
 		}
 
+		const filePaths = [workspace.workspaceFile, ...workspace.links]
 		const vectorStoreResults: VectorStoreEntry[][] = await Promise.all(
-			workspace.links.map(async (link) => {
+			filePaths.map(async (path) => {
 				// TODO: return a lighter object without the full string content and embedding vector
-				return await db.vectorStore.where("node.parent").equals(link).toArray()
+				return db.vectorStore.where("node.parent").equals(path).toArray()
 			}),
 		)
 
@@ -96,21 +97,21 @@
 			return map
 		}, new Map<String, EmbeddedFileInfo>())
 
-		return workspace.links.map((link) => {
-			const embeddingInfo = embeddedFileMap.get(link)
+		return filePaths.map((path) => {
+			const embeddingInfo = embeddedFileMap.get(path)
 			if (embeddingInfo) {
-				if (embeddingInfo.path != link) {
+				if (embeddingInfo.path != path) {
 					console.warn(
-						`Mismatch between path of vector store entry and workspace link:\nPath from vector store entry: ${embeddingInfo.path}\nPath from workspace: ${link}`,
+						`Mismatch between path of vector store entry and workspace link:\nPath from vector store entry: ${embeddingInfo.path}\nPath from workspace: ${path}`,
 					)
 				}
 				return embeddingInfo
 			} else {
-				const file = $appStore.vault.getFileByPath(link)!
+				const file = $appStore.vault.getFileByPath(path)!
 				return {
 					name: file.basename,
 					parent: file.parent,
-					path: link,
+					path: path,
 					nodeCount: 0,
 					lastProcessed: undefined,
 				}
@@ -142,7 +143,7 @@
 		// Collect all linked files
 		// Note: we can't use `app.metadataCache.getFileCache(workspaceFile).links` because
 		// it doesn't contain the full path of the linked file
-		let linkedFilePaths: string[] = []
+		let linkedFilePaths: string[] = [workspaceFile.path]
 		if (workspaceFile.path in $appStore.metadataCache.resolvedLinks) {
 			const linksOfFile = $appStore.metadataCache.resolvedLinks[workspaceFile.path]
 			linkedFilePaths = Object.keys(linksOfFile)
@@ -172,10 +173,10 @@
 		}
 	}
 
-	const onLinkClick = (event: ComponentEvents<NoteLinks>["link-click"]) => {
+	const onLinkClick = (event: ComponentEvents<IndexedFiles>["link-click"]) => {
 		$appStore.workspace.openLinkText(event.detail, "", "tab")
 	}
-	const onLinkRebuild = async (event: ComponentEvents<NoteLinks>["link-rebuild"]) => {
+	const onLinkRebuild = async (event: ComponentEvents<IndexedFiles>["link-rebuild"]) => {
 		await vectorStore.deleteFiles(event.detail.path)
 		const file = $appStore.vault.getFileByPath(event.detail.path)
 		if (!file) {
@@ -192,7 +193,7 @@
 <TailwindCss />
 <div class="flex h-full w-full flex-col">
 	{#if isWorkspace}
-		<NoteLinks
+		<IndexedFiles
 			links={$links || []}
 			on:link-click={onLinkClick}
 			on:link-rebuild={onLinkRebuild}
