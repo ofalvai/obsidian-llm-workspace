@@ -14,8 +14,8 @@
 </script>
 
 <div>
-	<div class="linked-notes-header">
-		<div class="text-base font-medium">Linked notes</div>
+	<div class="flex justify-between items-center">
+		<div class="text-base font-medium">Indexed notes</div>
 		<button
 			class="clickable-icon"
 			on:click={() => dispatch("rebuild-all")}
@@ -34,11 +34,3 @@
 		<p>No linked notes yet</p>
 	{/if}
 </div>
-
-<style>
-	.linked-notes-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
-</style>
