@@ -18,7 +18,10 @@
 	{:else if message.role === "assistant"}
 		<ObsidianIcon iconId="sparkles" size="s" className="mr-2 flex-none relative top-1" />
 	{/if}
-	<ObsidianMarkdown source={message.content} className="grow select-text" />
+	<ObsidianMarkdown
+		source={message.content}
+		className={(message.role === "user" ? "text-accent font-medium" : "") + " grow select-text"}
+	/>
 </div>
 <div class="mt-1 flex w-full flex-row justify-end">
 	{#if message.role === "assistant"}

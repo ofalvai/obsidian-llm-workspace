@@ -58,7 +58,9 @@
 			paragraphSeparator: "\n\n",
 		})
 		embeddingClient = new OpenAIEmbeddingClient($settingsStore.openAIApiKey)
-		retriever = new EmbeddingVectorRetriever(vectorStore, embeddingClient, { limit: $settingsStore.retrievedNodeCount })
+		retriever = new EmbeddingVectorRetriever(vectorStore, embeddingClient, {
+			limit: $settingsStore.retrievedNodeCount,
+		})
 		synthesizer = new DumbResponseSynthesizer(
 			$llmClient,
 			completionOptions,

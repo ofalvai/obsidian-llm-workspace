@@ -2,6 +2,7 @@
 	import { createEventDispatcher } from "svelte"
 	import type { EmbeddedFileInfo } from "../types"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
+	import ObsidianMarkdown from "../obsidian/ObsidianMarkdown.svelte"
 
 	export let fileInfo: EmbeddedFileInfo
 
@@ -58,10 +59,16 @@
 		{#if fileInfo.parent && !fileInfo.parent.isRoot()}
 			<div class="link-parent">
 				<ObsidianIcon iconId="folder" size="m" className="relative top-1" />
-				{fileInfo.parent.name}
+				<span class="text-sm">{fileInfo.parent.name}</span>
+			</div>
+			<div>
+				<ObsidianIcon iconId="calendar-clock" size="m" className="relative top-1" />
+				<span class="text-sm">{label}</span>
 			</div>
 		{/if}
-		<button on:click={() => dispatch("link-rebuild", fileInfo)}>Re-index file</button>
+		<button class="mt-2" on:click={() => dispatch("link-rebuild", fileInfo)}
+			>Re-index file</button
+		>
 	</div>
 </div>
 
@@ -90,8 +97,9 @@
 	.link-details {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: 4px;
 		margin-bottom: 16px;
+		margin-left: 24px;
 		align-items: flex-start;
 		color: var(--text-muted);
 	}

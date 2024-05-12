@@ -16,6 +16,7 @@ module.exports = {
 		},
 		extend: {
 			colors: {
+				accent: "var(--text-accent)",
 				muted: "var(--text-muted)",
 				faint: "var(--text-faint)",
 			},
