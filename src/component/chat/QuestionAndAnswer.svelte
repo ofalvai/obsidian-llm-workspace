@@ -9,6 +9,7 @@
 	import { Notice } from "obsidian"
 	import Message from "./Message.svelte"
 	import UserInput from "./UserInput.svelte"
+	import Error from "../Error.svelte"
 
 	export let conversation: Conversation | null
 	export let displaySources = true
@@ -101,6 +102,9 @@
 						<Loading size="l" />
 					</div>
 				</div>
+			{/if}
+			{#if conversation.error}
+				<Error body={conversation.error} />
 			{/if}
 		</div>
 	{/if}

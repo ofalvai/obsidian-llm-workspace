@@ -6,4 +6,5 @@ export interface Conversation {
 	queryResponse: QueryResponse | null
 	additionalMessages: ChatMessage[]
 	isLoading: boolean
+	error: any | null
 }

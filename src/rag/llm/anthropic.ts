@@ -13,6 +13,8 @@ export class AnthropicChatCompletionClient implements ChatCompletionClient {
 	}
 
 	async createChatCompletion(messages: ChatMessage[], options: CompletionOptions): Promise<ChatMessage> {
+		if (this.apiKey === "") throw new Error("Anthropic API key is not set")
+		
 		if (messages.length == 0) {
 			throw new Error(
 				"At least one message is required and first message must be the system role",
@@ -34,6 +36,8 @@ export class AnthropicChatCompletionClient implements ChatCompletionClient {
 	}
 
 	async createJSONCompletion<T>(systemPrompt: string, userPrompt: string, options: CompletionOptions): Promise<T> {
+		if (this.apiKey === "") throw new Error("Anthropic API key is not set")
+		
 		const messages: ChatMessage[] = [
 			{ role: "system", content: systemPrompt },
 			{ role: "user", content: userPrompt },

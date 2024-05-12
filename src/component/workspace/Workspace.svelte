@@ -29,9 +29,12 @@
 	import IndexedFiles from "./IndexedFiles.svelte"
 	import Questions from "./Questions.svelte"
 	import type { EmbeddingClient } from "src/rag/llm/common"
+	import Error from "../Error.svelte"
 
 	export let workspaceFile: TFile
 	export let db: LlmDexie
+
+	let indexingError: any | null = null
 
 	let workspaceContext: string | null = null
 	const metadata = $appStore.metadataCache.getFileCache(workspaceFile)
@@ -166,20 +169,27 @@
 			return
 		}
 
-		await vectorStore.deleteFiles(...linkedFilePaths)
+		try {
+			indexingError = null
+			
+			await vectorStore.deleteFiles(...linkedFilePaths)
 
-		for (const path of linkedFilePaths) {
-			// TODO: test for non-markdown files
-			// TODO: batched iteration
-			const file = $appStore.vault.getFileByPath(path)
-			if (!file) {
-				continue
+			for (const path of linkedFilePaths) {
+				// TODO: test for non-markdown files
+				// TODO: batched iteration
+				const file = $appStore.vault.getFileByPath(path)
+				if (!file) {
+					continue
+				}
+				const text = await $appStore.vault.cachedRead(file)
+				for (const node of nodeParser.parse(text, file.path)) {
+					const embedding = await embeddingClient.embedNode(node)
+					await vectorStore.addNode(node, embedding, workspaceFile.path)
+				}
 			}
-			const text = await $appStore.vault.cachedRead(file)
-			for (const node of nodeParser.parse(text, file.path)) {
-				const embedding = await embeddingClient.embedNode(node)
-				await vectorStore.addNode(node, embedding, workspaceFile.path)
-			}
+		} catch (e) {
+			console.error("Failed to rebuild linked files", e)
+			indexingError = e
 		}
 	}
 
@@ -187,15 +197,21 @@
 		$appStore.workspace.openLinkText(event.detail, "", "tab")
 	}
 	const onLinkRebuild = async (event: ComponentEvents<IndexedFiles>["link-rebuild"]) => {
-		await vectorStore.deleteFiles(event.detail.path)
-		const file = $appStore.vault.getFileByPath(event.detail.path)
-		if (!file) {
-			return
-		}
-		const text = await $appStore.vault.cachedRead(file)
-		for (const node of nodeParser.parse(text, file.path)) {
-			const embedding = await embeddingClient.embedNode(node)
-			await vectorStore.addNode(node, embedding, workspaceFile.path)
+		indexingError = null
+		try {
+			await vectorStore.deleteFiles(event.detail.path)
+			const file = $appStore.vault.getFileByPath(event.detail.path)
+			if (!file) {
+				return
+			}
+			const text = await $appStore.vault.cachedRead(file)
+			for (const node of nodeParser.parse(text, file.path)) {
+				const embedding = await embeddingClient.embedNode(node)
+				await vectorStore.addNode(node, embedding, workspaceFile.path)
+			}
+		} catch (e) {
+			console.error("Failed to rebuild linked file", e)
+			indexingError = e
 		}
 	}
 </script>
@@ -209,6 +225,9 @@
 			on:link-rebuild={onLinkRebuild}
 			on:rebuild-all={rebuildAll}
 		/>
+		{#if indexingError}
+			<Error body={indexingError} />
+		{/if}
 		{#if !$conversation}
 			<Questions
 				questions={$workspaceData?.derivedQuestions ?? []}
