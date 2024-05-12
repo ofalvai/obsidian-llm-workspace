@@ -14,10 +14,6 @@ export interface RetrieverResult {
 	improvedQuery: string
 }
 
-const defaultRetrieverOptions: RetrieverOptions = {
-	limit: 10,
-}
-
 export class EmbeddingVectorRetriever implements Retriever {
 	private index: VectorStoreIndex
 	private embeddingClient: EmbeddingClient
@@ -26,11 +22,11 @@ export class EmbeddingVectorRetriever implements Retriever {
 	constructor(
 		index: VectorStoreIndex,
 		embeddingClient: EmbeddingClient,
-		options?: RetrieverOptions
+		options: RetrieverOptions
 	) {
 		this.index = index
 		this.embeddingClient = embeddingClient
-		this.options = options ?? defaultRetrieverOptions
+		this.options = options
 	}
 
 	async retrieve(query: string, workspaceFilePath: string): Promise<RetrieverResult> {

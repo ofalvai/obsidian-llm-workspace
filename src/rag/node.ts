@@ -1,4 +1,3 @@
-import { NODE_PARSER_CHUNK_SIZE } from "src/config/rag"
 import type { FilePath } from "src/utils/obsidian"
 
 export interface Node {
@@ -17,13 +16,6 @@ export class NodeParser {
 
 	constructor(config: NodeParserConfig) {
 		this.config = config
-	}
-
-	static defaultConfig(): NodeParserConfig {
-		return {
-			chunkSize: NODE_PARSER_CHUNK_SIZE,
-			paragraphSeparator: "\n\n",
-		}
 	}
 
 	parse(text: string, path: string): Node[] {

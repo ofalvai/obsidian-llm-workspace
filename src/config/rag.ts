@@ -1,2 +1,0 @@
-export const NODE_PARSER_CHUNK_SIZE = 1024
-
