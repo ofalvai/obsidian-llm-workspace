@@ -22,11 +22,11 @@ export const SELF_QUERY_EXAMPLES = [
 ]
 
 export const defaultSynthesisUserPrompt = (context: string, query: string) => {
-	return `Given the context information and not prior knowledge, answer the query.
-Context information is below.
----------------------
+	return `Given the context information and not prior knowledge, answer the user query.
+Context information is below. Each chunk of context is separated by \`---\`.
+<context>
 ${context}
----------------------
-Query: ${query}
+</context>
+User query: ${query}
 Answer:`
 }

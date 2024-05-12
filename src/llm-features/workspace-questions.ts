@@ -9,6 +9,7 @@ The context is a sample of documents about a specific research topic.
 For each question, you should consider the following:
 1. What is the main theme of the question? Pick a theme that is at most 3 words long. The theme should use plain language, no need to escape characters.
 2. What is an appropriate question to explore the provided documents? It should be a full sentence, ending with a question mark.
+Generate AT MOST 6 questions. If you can't think of any more questions, you can provide fewer.
 Response format: JSON with the following schema:
 {
 	"questions": [

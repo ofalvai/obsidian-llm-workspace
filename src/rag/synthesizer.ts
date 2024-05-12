@@ -51,11 +51,13 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 		improvedQuery: string,
 	): Promise<QueryResponse> {
 		let context = nodes
-			.reverse() // TODO: knowledge is better recalled towards the end of window?
+			.sort((a, b) => a.similarity - b.similarity) // put the most relevant nodes towards the end of context
 			.map((n) => `${n.node.parent}\n${n.node.content}`)
-			.join("\n\n")
+			.join("\n\n---\n\n")
 		if (this.workspaceContext) {
-			context += "\n\n" + this.workspaceContext
+			context += "\n\n---\n\n"
+			context += "High-level context provided by the user: "
+			context += this.workspaceContext
 		}
 		const userPrompt = defaultSynthesisUserPrompt(context, query)
 		const systemPrompt = this.systemPrompt

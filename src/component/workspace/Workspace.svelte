@@ -28,6 +28,7 @@
 	import type { EmbeddedFileInfo } from "../types"
 	import IndexedFiles from "./IndexedFiles.svelte"
 	import Questions from "./Questions.svelte"
+	import type { EmbeddingClient } from "src/rag/llm/common"
 
 	export let workspaceFile: TFile
 	export let db: LlmDexie
@@ -39,18 +40,25 @@
 		workspaceContext = readWorkspaceContext(metadata)
 	}
 
-	const nodeParser = new NodeParser(NodeParser.defaultConfig())
-	const embeddingClient = new OpenAIEmbeddingClient($settingsStore.openAIApiKey)
 	const vectorStore = new VectorStoreIndex(db)
-	const retriever = new EmbeddingVectorRetriever(vectorStore, embeddingClient)
 	const completionOptions = {
 		temperature: 0.1,
 		maxTokens: 512,
 	}
+	// TODO: refactor all of this into a derived store
+	let nodeParser: NodeParser
+	let embeddingClient: EmbeddingClient
+	let retriever: EmbeddingVectorRetriever
 	let synthesizer: ResponseSynthesizer
 	let queryEngine: QueryEngine
 	let conversation: ConversationStore
 	$: {
+		nodeParser = new NodeParser({
+			chunkSize: $settingsStore.chunkSize,
+			paragraphSeparator: "\n\n",
+		})
+		embeddingClient = new OpenAIEmbeddingClient($settingsStore.openAIApiKey)
+		retriever = new EmbeddingVectorRetriever(vectorStore, embeddingClient, { limit: $settingsStore.retrievedNodeCount })
 		synthesizer = new DumbResponseSynthesizer(
 			$llmClient,
 			completionOptions,
@@ -191,7 +199,7 @@
 </script>
 
 <TailwindCss />
-<div class="flex h-full w-full flex-col">
+<div class="flex h-full w-full flex-col pb-32">
 	{#if isWorkspace}
 		<IndexedFiles
 			links={$links || []}
