@@ -14,7 +14,7 @@
 </script>
 
 <div>
-	<div class="flex justify-between items-center">
+	<div class="flex items-center justify-between">
 		<div class="text-base font-medium">Indexed notes</div>
 		<button
 			class="clickable-icon"

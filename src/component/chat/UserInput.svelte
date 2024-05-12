@@ -29,7 +29,7 @@
 	<div class="flex flex-row gap-x-2">
 		<!-- svelte-ignore a11y-autofocus -->
 		<textarea
-			class="w-full resize-y bg-form-field"
+			class="text-normal w-full resize-y bg-secondary"
 			autofocus
 			rows="3"
 			on:keydown={(event) => {

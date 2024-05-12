@@ -33,7 +33,7 @@ Formatting rules:
 
 const MODELS = [
 	"gpt-3.5-turbo-0125",
-	"gpt-4-0125-preview",
+	"gpt-4-turbo-2024-04-09",
 	"claude-3-haiku-20240307",
 	"claude-3-sonnet-20240229",
 	"claude-3-opus-20240229",
@@ -170,7 +170,7 @@ export class LlmSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Chunk size")
 			.setDesc(
-				"Notes are chunked into smaller parts before indexing and during search. This setting controls the maximum size of each chunk (in characters).",
+				"Notes are chunked into smaller parts before indexing and during retrieval. This setting controls the maximum size of a chunk (in characters).",
 			)
 			.addText((text) => {
 				text.setPlaceholder("Number of characters")
