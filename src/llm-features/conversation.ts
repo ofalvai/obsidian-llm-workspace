@@ -26,6 +26,7 @@ export const conversationStore = (
 				queryResponse: null,
 				additionalMessages: [],
 				isLoading: true,
+				error: null,
 			}
 			store.set(conversation)
 			try {
@@ -36,6 +37,7 @@ export const conversationStore = (
 			} catch (e) {
 				console.error(e)
 				conversation.isLoading = false
+				conversation.error = e
 				store.set(conversation)
 			}
 		} else {
@@ -72,6 +74,7 @@ export const conversationStore = (
 			} catch (e) {
 				console.error(e)
 				conversation.isLoading = false
+				conversation.error = e
 				store.set(conversation)
 			}
 		}

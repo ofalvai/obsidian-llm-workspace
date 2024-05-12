@@ -13,14 +13,18 @@ import {
 
 export class OpenAIChatCompletionClient implements ChatCompletionClient {
 	private client: OpenAI
+	private apiKey: string
 	private model: string
 
-	constructor(apiKey: string, model: string) {
+	constructor(apiKey: string, model: string) {		
 		this.client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
+		this.apiKey = apiKey	
 		this.model = model
 	}
 
 	async createChatCompletion(messages: ChatMessage[], options: CompletionOptions): Promise<ChatMessage> {
+		if (this.apiKey === "") throw new Error("OpenAI API key is not set")
+
 		const response = await this.client.chat.completions.create({
 			model: this.model,
 			messages: messages.map((message) => {
@@ -40,6 +44,8 @@ export class OpenAIChatCompletionClient implements ChatCompletionClient {
 	}
 
 	async createJSONCompletion<T>(systemPrompt: string, userPrompt: string, options: CompletionOptions): Promise<T> {
+		if (this.apiKey === "") throw new Error("OpenAI API key is not set")
+
 		const response = await this.client.chat.completions.create({
 			model: this.model,
 			messages: [
@@ -69,12 +75,16 @@ export class OpenAIChatCompletionClient implements ChatCompletionClient {
 
 export class OpenAIEmbeddingClient implements EmbeddingClient {
 	private client: OpenAI
+	private apiKey: string
 
 	constructor(apiKey: string) {
 		this.client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
+		this.apiKey = apiKey
 	}
 
 	async embedNode(node: Node): Promise<number[]> {
+		if (this.apiKey === "") throw new Error("OpenAI API key is not set. Note embeddings always use the OpenAI API and need an API key regardless of the LLM setting.")
+
 		const response = await this.client.embeddings.create({
 			input: node.content,
 			model: EMBEDDING_MODEL,
@@ -84,6 +94,8 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 	}
 
 	async embedQuery(query: string): Promise<QueryEmbedding> {
+		if (this.apiKey === "") throw new Error("OpenAI API key is not set. Embeddings always use the OpenAI API and need an API key regardless of the LLM setting.")
+
 		const improvedQuery = await this.improveQuery(query)
 		const response = await this.client.embeddings.create({
 			input: improvedQuery,

@@ -19,6 +19,8 @@ module.exports = {
 				accent: "var(--text-accent)",
 				muted: "var(--text-muted)",
 				faint: "var(--text-faint)",
+				error: "var(--text-error)",
+				"on-accent": "var(--text-on-accent)",
 			},
 			fontSize: {
 				xs: ["var(--font-ui-smaller)", { lineHeight: "var(--line-height-tight)" }],
@@ -61,6 +63,7 @@ module.exports = {
 		"minWidth",
 		"maxHeight",
 		"maxWidth",
+		"opacity",
 		"padding",
 		"position",
 		"resize",
