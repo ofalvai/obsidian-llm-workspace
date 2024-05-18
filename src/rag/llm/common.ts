@@ -12,6 +12,28 @@ export interface ChatMessage {
 	role: Role
 }
 
+export interface ChatStartEvent {
+	type: "start"
+	// Placeholder for now, we could add non-content fields here
+}
+
+export interface ChatDeltaEvent {
+	type: "delta"
+	content: string
+}
+
+export interface ChatStopEvent {
+	type: "stop"
+	usage?: Usage
+}
+
+export interface Usage {
+	inputTokens: number
+	outputTokens: number
+}
+
+export type ChatStreamEvent = ChatStartEvent | ChatDeltaEvent | ChatStopEvent
+
 export interface CompletionOptions {
 	temperature: number
 	maxTokens: number
@@ -20,6 +42,10 @@ export interface CompletionOptions {
 export interface ChatCompletionClient {
 	createChatCompletion(messages: ChatMessage[], options: CompletionOptions): Promise<ChatMessage>
 	createJSONCompletion<T>(systemPrompt: string, userPrompt: string, options: CompletionOptions): Promise<T>
+}
+
+export type StreamingChatCompletionClient = ChatCompletionClient & {
+	createStreamingChatCompletion: (messages: ChatMessage[], options: CompletionOptions) => AsyncGenerator<ChatStreamEvent>
 }
 
 export interface QueryEmbedding {

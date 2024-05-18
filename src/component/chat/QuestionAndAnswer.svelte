@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Conversation } from "src/rag/conversation"
-	import type { DebugInfo } from "src/rag/synthesizer"
+	import type { QueryResponse } from "src/rag/synthesizer"
 	import { createEventDispatcher } from "svelte"
 	import ObsidianMarkdown from "../obsidian/ObsidianMarkdown.svelte"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
@@ -17,12 +17,12 @@
 	const dispatch = createEventDispatcher<{
 		"message-submit": string
 		"source-click": string
-		"debug-click": DebugInfo
+		"debug-click": QueryResponse
 		"new-conversation": void
 	}>()
 	const onDebugClick = () => {
 		if (conversation?.queryResponse?.debugInfo) {
-			dispatch("debug-click", conversation.queryResponse.debugInfo)
+			dispatch("debug-click", conversation.queryResponse)
 		}
 	}
 	const copyToClipboard = (text: string) => {
@@ -44,13 +44,13 @@
 				</div>
 			{/if}
 			{#if conversation.queryResponse}
-				{#if conversation.queryResponse.debugInfo.originalQuery != conversation.queryResponse.debugInfo.improvedQuery}
+				{#if conversation.queryResponse.debugInfo?.originalQuery != conversation.queryResponse.debugInfo?.improvedQuery}
 					<div class="flex flex-row items-center">
 						<ObsidianIcon size="s" iconId="target" className="mr-2" />
 						<div aria-label="Improved query" data-tooltip-delay="300">
 							<ObsidianMarkdown
 								className="grow select-text text-faint"
-								source={conversation.queryResponse.debugInfo.improvedQuery}
+								source={conversation.queryResponse.debugInfo?.improvedQuery ?? ""}
 							/>
 						</div>
 					</div>

@@ -171,7 +171,7 @@
 
 		try {
 			indexingError = null
-			
+
 			await vectorStore.deleteFiles(...linkedFilePaths)
 
 			for (const path of linkedFilePaths) {

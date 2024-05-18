@@ -1,6 +1,6 @@
 import { get, writable, type Readable } from "svelte/store"
 import type { Conversation } from "../rag/conversation"
-import type { ChatCompletionClient, ChatMessage, CompletionOptions } from "../rag/llm/common"
+import type { ChatMessage, CompletionOptions, StreamingChatCompletionClient } from "../rag/llm/common"
 import type { QueryEngine } from "../rag/query-engine"
 
 export type ConversationStore = Readable<Conversation | null> & {
@@ -10,7 +10,7 @@ export type ConversationStore = Readable<Conversation | null> & {
 
 export const conversationStore = (
 	queryEngine: QueryEngine,
-	chatClient: ChatCompletionClient,
+	chatClient: StreamingChatCompletionClient,
 	completionOptions: CompletionOptions,
 ): ConversationStore => {
 	const store = writable<Conversation | null>(null)
@@ -30,8 +30,11 @@ export const conversationStore = (
 			}
 			store.set(conversation)
 			try {
-				const response = await queryEngine.query(newMessage)
-				conversation.queryResponse = response
+				for await (const update of queryEngine.query(newMessage)) {
+					conversation.queryResponse = update
+					conversation.isLoading = true
+					store.set(conversation)
+				}
 				conversation.isLoading = false
 				store.set(conversation)
 			} catch (e) {
@@ -51,11 +54,11 @@ export const conversationStore = (
 			const messages: ChatMessage[] = [
 				{
 					role: "system",
-					content: conversation.queryResponse.debugInfo.systemPrompt,
+					content: conversation.queryResponse.systemPrompt,
 				},
 				{
 					role: "user",
-					content: conversation.queryResponse.debugInfo.userPrompt,
+					content: conversation.queryResponse.userPrompt,
 				},
 				{
 					role: "assistant",
@@ -64,13 +67,27 @@ export const conversationStore = (
 				...conversation.additionalMessages,
 			]
 			try {
-				const response = await chatClient.createChatCompletion(messages, completionOptions)
-				conversation.additionalMessages.push({
-					role: response.role,
-					content: response.content,
-				})
-				conversation.isLoading = false
-				store.set(conversation)
+				const stream = chatClient.createStreamingChatCompletion(messages, completionOptions)
+				for await (const event of stream) {
+					switch (event.type) {
+						case "start":
+							conversation.isLoading = true
+							conversation.additionalMessages.push({
+								role: "assistant",
+								content: "",
+							})
+							break
+						case "delta":
+							conversation.isLoading = true
+							if (conversation.additionalMessages.length > 0) {
+								conversation.additionalMessages.last()!.content += event.content
+							}
+							break
+						case "stop":
+							conversation.isLoading = false
+					}
+					store.set(conversation)
+				}
 			} catch (e) {
 				console.error(e)
 				conversation.isLoading = false
