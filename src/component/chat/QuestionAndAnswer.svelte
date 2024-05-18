@@ -31,7 +31,7 @@
 	}
 </script>
 
-<div class="relative grow pb-32">
+<div class="conversation-scroller relative grow pb-32">
 	{#if conversation}
 		<div class="grow">
 			{#if conversation.initialUserQuery}
@@ -108,6 +108,7 @@
 			{/if}
 		</div>
 	{/if}
+	<div id="scroll-anchor"></div>
 	<UserInput
 		disabled={conversation?.isLoading ?? false}
 		isConversationActive={conversation != null}
@@ -115,3 +116,15 @@
 		on:new-conversation={(e) => dispatch("new-conversation")}
 	/>
 </div>
+
+<style>
+	/* https://css-tricks.com/books/greatest-css-tricks/pin-scrolling-to-bottom/ */
+	.conversation-scroller * {
+		/* height: 100.001vh; */
+		overflow-anchor: none;
+	}
+	#scroll-anchor {
+		overflow-anchor: auto;
+		height: 1px;
+	}
+</style>
