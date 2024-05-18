@@ -1,22 +1,27 @@
 import { defaultSynthesisUserPrompt } from "src/config/prompts"
-import type { ChatCompletionClient, CompletionOptions } from "./llm/common"
+import type { CompletionOptions, StreamingChatCompletionClient } from "./llm/common"
 import type { NodeSimilarity } from "./storage"
 
 export interface QueryResponse {
 	text: string
+
 	sources: NodeSimilarity[]
-	debugInfo: DebugInfo
+
+	systemPrompt: string
+	userPrompt: string
+
+	// Debug info is not present while the response is being streamed
+	debugInfo?: DebugInfo
 }
 
-// TODO: add inpput/output token usage
 // TODO: add response string
 // TODO: add response time
 export interface DebugInfo {
-	systemPrompt: string
-	userPrompt: string
 	originalQuery: string
 	improvedQuery: string
 	createdAt: number
+	inputTokens?: number
+	outputTokens?: number
 }
 
 export interface ResponseSynthesizer {
@@ -24,17 +29,17 @@ export interface ResponseSynthesizer {
 		query: string,
 		nodes: NodeSimilarity[],
 		improvedQuery: string,
-	): Promise<QueryResponse>
+	): AsyncGenerator<QueryResponse>
 }
 
 export class DumbResponseSynthesizer implements ResponseSynthesizer {
-	private completionClient: ChatCompletionClient
+	private completionClient: StreamingChatCompletionClient
 	private completionOptions: CompletionOptions
 	private systemPrompt: string
 	private workspaceContext: string | null
 
 	constructor(
-		completionClient: ChatCompletionClient,
+		completionClient: StreamingChatCompletionClient,
 		completionOptions: CompletionOptions,
 		systemPrompt: string,
 		workspaceContext: string | null = null,
@@ -45,11 +50,11 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 		this.workspaceContext = workspaceContext
 	}
 
-	async synthesize(
+	async *synthesize(
 		query: string,
 		nodes: NodeSimilarity[],
 		improvedQuery: string,
-	): Promise<QueryResponse> {
+	): AsyncGenerator<QueryResponse> {
 		let context = nodes
 			.sort((a, b) => a.similarity - b.similarity) // put the most relevant nodes towards the end of context
 			.map((n) => `${n.node.parent}\n${n.node.content}`)
@@ -61,22 +66,53 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 		}
 		const userPrompt = defaultSynthesisUserPrompt(context, query)
 		const systemPrompt = this.systemPrompt
-		const result = await this.completionClient.createChatCompletion([
-			{ role: "system", content: systemPrompt },
-			{ role: "user", content: userPrompt },
-		], this.completionOptions)
 
-		const response: QueryResponse = {
-			text: result.content,
-			sources: nodes,
-			debugInfo: {
-				systemPrompt: systemPrompt,
-				userPrompt: userPrompt,
-				originalQuery: query,
-				improvedQuery: improvedQuery,
-				createdAt: Date.now(),
-			},
+		const stream = this.completionClient.createStreamingChatCompletion(
+			[
+				{ role: "system", content: systemPrompt },
+				{ role: "user", content: userPrompt },
+			],
+			this.completionOptions,
+		)
+
+		let aggregatedText = ""
+		for await (const event of stream) {
+			switch (event.type) {
+				case "start": {
+					yield {
+						text: aggregatedText,
+						sources: nodes,
+						systemPrompt,
+						userPrompt,
+					}
+					break
+				}
+				case "delta": {
+					aggregatedText += event.content
+					yield {
+						text: aggregatedText,
+						sources: nodes,
+						systemPrompt,
+						userPrompt,
+					}
+					break
+				}
+				case "stop": {
+					yield {
+						text: aggregatedText,
+						sources: nodes,
+						systemPrompt,
+						userPrompt,
+						debugInfo: {
+							originalQuery: query,
+							improvedQuery: improvedQuery,
+							createdAt: Date.now(),
+							inputTokens: event.usage?.inputTokens,
+							outputTokens: event.usage?.outputTokens,
+						},
+					}
+				}
+			}
 		}
-		return response
 	}
 }

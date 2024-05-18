@@ -34,6 +34,8 @@ const commonOptions = {
 	entryPoints: ["src/main.ts"],
 	bundle: true,
 	external: [
+		"node:https",
+		"node:stream",
 		"obsidian",
 		"electron",
 		"@codemirror/autocomplete",

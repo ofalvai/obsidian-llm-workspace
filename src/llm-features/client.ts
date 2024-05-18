@@ -1,11 +1,11 @@
 import { derived, type Writable } from "svelte/store"
 import type { LlmPluginSettings } from "../config/settings"
 import { AnthropicChatCompletionClient } from "../rag/llm/anthropic"
-import type { ChatCompletionClient } from "../rag/llm/common"
+import type { StreamingChatCompletionClient } from "../rag/llm/common"
 import { OpenAIChatCompletionClient } from "../rag/llm/openai"
 import { settingsStore } from "../utils/obsidian"
 
-export const llmClient = derived<Writable<LlmPluginSettings>, ChatCompletionClient>(
+export const llmClient = derived<Writable<LlmPluginSettings>, StreamingChatCompletionClient>(
 	settingsStore,
 	($settingsStore) => {
 		const model = $settingsStore.questionAndAnswerModel

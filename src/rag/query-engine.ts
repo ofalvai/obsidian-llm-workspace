@@ -2,7 +2,7 @@ import type { Retriever } from "./retriever"
 import type { QueryResponse, ResponseSynthesizer } from "./synthesizer"
 
 export interface QueryEngine {
-	query(query: string): Promise<QueryResponse>
+	query(query: string): AsyncGenerator<QueryResponse>
 }
 
 export class RetrieverQueryEngine {
@@ -16,9 +16,9 @@ export class RetrieverQueryEngine {
 		this.workspaceFilePath = workspaceFilePath
 	}
 
-	async query(query: string): Promise<QueryResponse> {
+	async *query(query: string): AsyncGenerator<QueryResponse> {
 		const result = await this.retriever.retrieve(query, this.workspaceFilePath)
-		return this.synthesizer.synthesize(query, result.nodes, result.improvedQuery)
+		yield *this.synthesizer.synthesize(query, result.nodes, result.improvedQuery)
 	}
 }
 
@@ -34,8 +34,7 @@ export class SingleNoteQueryEngine {
 		this.notePath = notePath
 	}
 
-
-	async query(query: string): Promise<QueryResponse> {
+	async *query(query: string): AsyncGenerator<QueryResponse> {
 		const node = {
 			node: {
 				content: this.content,
@@ -44,6 +43,6 @@ export class SingleNoteQueryEngine {
 			},
 			similarity: 1,
 		}
-		return this.synthesizer.synthesize(query, [node], query)
+		yield *this.synthesizer.synthesize(query, [node], query)
 	}
 }
