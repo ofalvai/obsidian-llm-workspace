@@ -37,18 +37,24 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 					content: message.content,
 				}
 			}),
+			stream_options: { include_usage: true },
 			max_tokens: options.maxTokens,
 			temperature: options.temperature,
-
 		})
 
+		let inputTokens = 0
+		let outputTokens = 0
 		yield { type: "start" }
 		for await (const chunk of stream) {
-			// Usage info is not yet available when streaming:
-			// https://github.com/openai/openai-node/issues/506
-			yield { content: chunk.choices[0].delta.content ?? "", type: "delta" }
+			if (chunk.usage) {
+				inputTokens = chunk.usage.prompt_tokens
+				outputTokens = chunk.usage.completion_tokens
+			}
+			if (chunk.choices.length > 0) {
+				yield { content: chunk.choices[0].delta.content ?? "", type: "delta" }
+			}
 		}
-		yield { type: "stop" }
+		yield { type: "stop", usage: { inputTokens, outputTokens } }
 	}
 
 	async createChatCompletion(
