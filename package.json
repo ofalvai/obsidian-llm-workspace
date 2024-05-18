@@ -18,7 +18,7 @@
 		"openai": "^4.47.1"
 	},
 	"devDependencies": {
-		"@stylistic/eslint-plugin-js": "^1.5.1",
+		"@stylistic/eslint-plugin-js": "^2.0.0",
 		"@tsconfig/svelte": "^5.0.2",
 		"@types/node": "^16.11.6",
 		"@typescript-eslint/eslint-plugin": "7.9.0",
