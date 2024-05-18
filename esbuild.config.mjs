@@ -1,6 +1,5 @@
 import esbuild from "esbuild"
 import process from "process"
-import builtins from "builtin-modules"
 import esbuildSvelte from "esbuild-svelte"
 import sveltePreprocess from "svelte-preprocess"
 import fs from 'node:fs'
@@ -36,6 +35,7 @@ const commonOptions = {
 	external: [
 		"node:https",
 		"node:stream",
+		"node:path",
 		"obsidian",
 		"electron",
 		"@codemirror/autocomplete",
@@ -49,7 +49,6 @@ const commonOptions = {
 		"@lezer/common",
 		"@lezer/highlight",
 		"@lezer/lr",
-		...builtins,
 	],
 	format: "cjs",
 	target: "esnext",
