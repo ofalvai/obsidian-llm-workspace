@@ -14,17 +14,17 @@
 	"author": "",
 	"license": "MIT",
 	"dependencies": {
-		"dexie": "3.2.6",
+		"dexie": "4.0.4",
 		"openai": "^4.47.1"
 	},
 	"devDependencies": {
 		"@stylistic/eslint-plugin-js": "^1.5.1",
 		"@tsconfig/svelte": "^5.0.2",
 		"@types/node": "^16.11.6",
-		"@typescript-eslint/eslint-plugin": "7.2.0",
-		"@typescript-eslint/parser": "7.2.0",
+		"@typescript-eslint/eslint-plugin": "7.9.0",
+		"@typescript-eslint/parser": "7.9.0",
 		"builtin-modules": "3.3.0",
-		"esbuild": "0.20.2",
+		"esbuild": "0.21.3",
 		"esbuild-svelte": "^0.8.0",
 		"obsidian": "1.5.7-1",
 		"postcss": "^8.4.35",
