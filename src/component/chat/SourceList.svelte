@@ -11,7 +11,7 @@
 
 	import { createEventDispatcher } from "svelte"
 
-	import path from "path"
+	import path from "node:path"
 
 	export let queryResponse: QueryResponse
 
