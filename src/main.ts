@@ -27,6 +27,8 @@ export default class LlmPlugin extends Plugin {
 		this.addSettingTab(new LlmSettingTab(this.app, this))
 
 		this.registerCommands()
+
+		this.registerMenuEntries()
 	}
 
 	onunload() {
@@ -56,14 +58,8 @@ export default class LlmPlugin extends Plugin {
 		workspace.revealLeaf(leaf)
 	}
 
-	async launchWorkspaceView() {
+	async launchWorkspaceView(notePath: string) {
 		const { workspace } = this.app
-
-		const activeFile = workspace.getActiveFile()
-		if (!activeFile) {
-			new Notice("Open a note first and try again")
-			return
-		}
 
 		let leaf: WorkspaceLeaf | null = null
 		const workspaceLeaves = workspace.getLeavesOfType(VIEW_TYPE_WORKSPACE)
@@ -81,7 +77,7 @@ export default class LlmPlugin extends Plugin {
 			type: VIEW_TYPE_WORKSPACE,
 			active: true,
 			state: {
-				filePath: activeFile.path,
+				filePath: notePath,
 			},
 		})
 
@@ -89,14 +85,8 @@ export default class LlmPlugin extends Plugin {
 		workspace.revealLeaf(leaf)
 	}
 
-	async launchNoteChatView() {
+	async launchNoteChatView(notePath: string) {
 		const { workspace } = this.app
-
-		const activeFile = workspace.getActiveFile()
-		if (!activeFile) {
-			new Notice("Open a note first and try again")
-			return
-		}
 
 		let leaf: WorkspaceLeaf | null = null
 		const chatViewLeaves = workspace.getLeavesOfType(VIEW_TYPE_NOTE_CHAT)
@@ -114,7 +104,7 @@ export default class LlmPlugin extends Plugin {
 			type: VIEW_TYPE_NOTE_CHAT,
 			active: true,
 			state: {
-				filePath: activeFile.path,
+				filePath: notePath,
 			},
 		})
 
@@ -156,14 +146,49 @@ export default class LlmPlugin extends Plugin {
 
 		this.addCommand({
 			id: "activate-workspace-view",
-			name: "Open LLM workspace",
-			callback: () => this.launchWorkspaceView(),
+			name: "Open active note as LLM workspace",
+			callback: () => {
+				const activeFile = this.app.workspace.getActiveFile()
+				if (!activeFile) {
+					new Notice("Open a note first and try again")
+					return
+				}
+				this.launchWorkspaceView(activeFile.path)
+			},
 		})
 
 		this.addCommand({
 			id: "activate-note-chat-view",
-			name: "Chat with current note",
-			callback: () => this.launchNoteChatView(),
+			name: "Chat with active note",
+			callback: () => {
+				const activeFile = this.app.workspace.getActiveFile()
+				if (!activeFile) {
+					new Notice("Open a note first and try again")
+					return
+				}
+				this.launchNoteChatView(activeFile.path)
+			},
 		})
+	}
+
+	registerMenuEntries() {
+		this.registerEvent(
+			this.app.workspace.on("file-menu", (menu, editor, view) => {
+				menu.addItem((item) => {
+					item.setTitle("Chat with note")
+					item.setIcon("message-square")
+					item.onClick(() => {
+						this.launchNoteChatView(editor.path)
+					})
+				})
+				menu.addItem((item) => {
+					item.setTitle("Open as LLM workspace")
+					item.setIcon("library-big")
+					item.onClick(() => {
+						this.launchWorkspaceView(editor.path)
+					})
+				})
+			}),
+		)
 	}
 }
