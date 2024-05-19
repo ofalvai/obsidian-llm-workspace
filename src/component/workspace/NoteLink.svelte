@@ -2,7 +2,6 @@
 	import { createEventDispatcher } from "svelte"
 	import type { EmbeddedFileInfo } from "../types"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
-	import ObsidianMarkdown from "../obsidian/ObsidianMarkdown.svelte"
 
 	export let fileInfo: EmbeddedFileInfo
 
@@ -13,19 +12,28 @@
 
 	let isCollapsed = true
 
+	let lastProcessedLabel = ""
+	setInterval(
+		() => {
+			if (isCollapsed) return
+			lastProcessedLabel = fileInfo.lastProcessed ? window.moment(fileInfo.lastProcessed).fromNow() : ""
+		},
+		60_000 // 1 minute
+	)
+
 	let label = ""
-	switch (fileInfo.nodeCount) {
-		case 0:
-			label = "Not indexed yet"
-			break
-		case 1:
-			label = "Indexed as 1 node "
-			// TODO: it should periodically re-render to update the timestamp
-			label += window.moment(fileInfo.lastProcessed).fromNow()
-			break
-		default:
-			label = `Indexed as ${fileInfo.nodeCount} nodes `
-			label += window.moment(fileInfo.lastProcessed).fromNow()
+	$: {
+		lastProcessedLabel = fileInfo.lastProcessed ? window.moment(fileInfo.lastProcessed).fromNow() : ""
+		switch (fileInfo.nodeCount) {
+			case 0:
+				label = "Not indexed yet"
+				break
+			case 1:
+				label = `Indexed as 1 node ${lastProcessedLabel}`
+				break
+			default:
+				label = `Indexed as ${fileInfo.nodeCount} nodes ${lastProcessedLabel}`
+		}
 	}
 </script>
 
@@ -61,11 +69,11 @@
 				<ObsidianIcon iconId="folder" size="m" className="relative top-1" />
 				<span class="text-sm">{fileInfo.parent.name}</span>
 			</div>
-			<div>
-				<ObsidianIcon iconId="calendar-clock" size="m" className="relative top-1" />
-				<span class="text-sm">{label}</span>
-			</div>
-		{/if}
+			{/if}
+		<div>
+			<ObsidianIcon iconId="calendar-clock" size="m" className="relative top-1" />
+			<span class="text-sm">{label}</span>
+		</div>
 		<button class="mt-2" on:click={() => dispatch("link-rebuild", fileInfo)}
 			>Re-index file</button
 		>

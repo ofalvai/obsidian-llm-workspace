@@ -1,3 +1,7 @@
+<script context="module" lang="ts">
+	const MAX_FILES_TO_DISPLAY = 10
+</script>
+
 <script lang="ts">
 	import NoteLink from "./NoteLink.svelte"
 	import { createEventDispatcher } from "svelte"
@@ -11,6 +15,9 @@
 		"link-rebuild": EmbeddedFileInfo
 		"rebuild-all": void
 	}>()
+
+	let collapsed = true
+	$: displayedLinks = collapsed ? links.slice(0, MAX_FILES_TO_DISPLAY) : links
 </script>
 
 <div>
@@ -26,11 +33,13 @@
 		</button>
 	</div>
 	<div class="mt-2">
-		{#each links as link (link.path)}
+		{#each displayedLinks as link (link.path)}
 			<NoteLink fileInfo={link} on:link-click on:link-rebuild />
 		{/each}
+		{#if links.length > MAX_FILES_TO_DISPLAY}
+			<button class="clickable-text" on:click={() => (collapsed = !collapsed)}>
+				{collapsed ? "Show more" : "Show less"}
+			</button>
+		{/if}
 	</div>
-	{#if links.length === 0}
-		<p>No linked notes yet</p>
-	{/if}
 </div>

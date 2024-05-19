@@ -123,7 +123,8 @@ export class WorkspaceView extends ItemView {
 					return this.app.metadataCache.getFirstLinkpathDest(link.link, file.path)
 				})
 				?.filter((l): l is Exclude<typeof l, null> => l !== null)
-				?.map((l) => l.path) ?? []
+				?.map((l) => l.path)
+				?.unique() ?? []
 
 		await this.db.workspace.put({
 			workspaceFile: file.path,
