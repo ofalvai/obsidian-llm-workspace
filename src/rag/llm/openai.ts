@@ -22,6 +22,11 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 		this.apiKey = apiKey
 		this.model = model
 	}
+
+	get displayName(): string {
+		return `OpenAI ${this.model}`
+	}
+
 	async *createStreamingChatCompletion(
 		messages: ChatMessage[],
 		options: CompletionOptions,

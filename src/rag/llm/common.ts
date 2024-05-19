@@ -40,6 +40,7 @@ export interface CompletionOptions {
 }
 
 export interface ChatCompletionClient {
+	get displayName(): string
 	createChatCompletion(messages: ChatMessage[], options: CompletionOptions): Promise<ChatMessage>
 	createJSONCompletion<T>(systemPrompt: string, userPrompt: string, options: CompletionOptions): Promise<T>
 }

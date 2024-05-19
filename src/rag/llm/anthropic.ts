@@ -19,6 +19,10 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 		this.model = model
 	}
 
+	get displayName(): string {
+		return `Anthropic ${this.model}`
+	}
+
 	async *createStreamingChatCompletion(
 		messages: ChatMessage[],
 		options: CompletionOptions,

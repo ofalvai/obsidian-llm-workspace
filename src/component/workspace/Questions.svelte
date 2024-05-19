@@ -14,7 +14,7 @@
 </script>
 
 <div class="mb-4">
-	<div class="align-center mb-1 mt-4 flex flex-row justify-between">
+	<div class="align-center mb-3 mt-4 flex flex-row justify-between">
 		<div class="font-medium">Explore</div>
 		<button
 			class="clickable-icon"

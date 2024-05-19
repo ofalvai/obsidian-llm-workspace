@@ -38,7 +38,6 @@
 					onSubmit()
 				}
 			}}
-			{disabled}
 			placeholder={(isConversationActive ? "Continue conversation..." : "Ask a question...") +
 				"\n" +
 				keyboardHint}

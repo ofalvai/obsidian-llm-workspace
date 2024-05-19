@@ -107,6 +107,8 @@
 				<Error body={conversation.error} />
 			{/if}
 		</div>
+	{:else}
+		<slot name="empty" />
 	{/if}
 	<div id="scroll-anchor"></div>
 	<UserInput

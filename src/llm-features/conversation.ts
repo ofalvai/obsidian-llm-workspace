@@ -1,6 +1,10 @@
 import { get, writable, type Readable } from "svelte/store"
 import type { Conversation } from "../rag/conversation"
-import type { ChatMessage, CompletionOptions, StreamingChatCompletionClient } from "../rag/llm/common"
+import type {
+	ChatMessage,
+	CompletionOptions,
+	StreamingChatCompletionClient,
+} from "../rag/llm/common"
 import type { QueryEngine } from "../rag/query-engine"
 
 export type ConversationStore = Readable<Conversation | null> & {
@@ -79,7 +83,10 @@ export const conversationStore = (
 							break
 						case "delta":
 							conversation.isLoading = true
-							if (conversation.additionalMessages.length > 0) {
+							if (
+								conversation.additionalMessages.length > 0 &&
+								conversation.additionalMessages.last()!.role === "assistant"
+							) {
 								conversation.additionalMessages.last()!.content += event.content
 							}
 							break

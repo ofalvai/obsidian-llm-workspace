@@ -30,6 +30,7 @@
 	import Questions from "./Questions.svelte"
 	import type { EmbeddingClient } from "src/rag/llm/common"
 	import Error from "../Error.svelte"
+	import ConfigValue from "../chat/ConfigValue.svelte"
 
 	export let workspaceFile: TFile
 	export let db: LlmDexie
@@ -228,14 +229,6 @@
 		{#if indexingError}
 			<Error body={indexingError} />
 		{/if}
-		{#if !$conversation}
-			<Questions
-				questions={$workspaceData?.derivedQuestions ?? []}
-				isLoading={$isLoadingQuestions}
-				on:regenerate={buildQuestions}
-				on:question-select={async (e) => selectQuestion(e.detail)}
-			/>
-		{/if}
 		<QuestionAndAnswer
 			conversation={$conversation}
 			on:message-submit={async (e) => {
@@ -244,7 +237,30 @@
 			on:source-click={onLinkClick}
 			on:debug-click={(e) => writeDebugInfo($appStore, e.detail)}
 			on:new-conversation={conversation.resetConversation}
-		/>
+		>
+			<div slot="empty">
+				<Questions
+					questions={$workspaceData?.derivedQuestions ?? []}
+					isLoading={$isLoadingQuestions}
+					on:regenerate={buildQuestions}
+					on:question-select={async (e) => selectQuestion(e.detail)}
+				/>
+				<div>
+					<div class="font-medium">Configuration</div>
+					<ConfigValue iconId="bot" label="LLM" value={$llmClient.displayName} />
+					<ConfigValue
+						iconId="separator-horizontal"
+						label="Chunk size"
+						value="{$settingsStore.chunkSize} characters"
+					/>
+					<ConfigValue
+						iconId="files"
+						label="Number of chunks in context"
+						value={$settingsStore.retrievedNodeCount.toString()}
+					/>
+				</div>
+			</div>
+		</QuestionAndAnswer>
 	{:else}
 		<div>
 			<h4>Not a workspace yet</h4>

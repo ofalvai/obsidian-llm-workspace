@@ -9,6 +9,7 @@
 	import { readable } from "svelte/store"
 	import QuestionAndAnswer from "./chat/QuestionAndAnswer.svelte"
 	import TailwindCss from "./TailwindCSS.svelte"
+	import ConfigValue from "./chat/ConfigValue.svelte"
 
 	export let file: TFile
 
@@ -18,6 +19,7 @@
 			set(content)
 		})
 	})
+	// TODO: make this configurable
 	const completionOptions = {
 		temperature: 0.1,
 		maxTokens: 512,
@@ -44,5 +46,15 @@
 		on:message-submit={async (e) => conversation.submitMessage(e.detail)}
 		on:new-conversation={conversation.resetConversation}
 		on:debug-click={(e) => writeDebugInfo($appStore, e.detail)}
-	/>
+	>
+		<div slot="empty">
+			<div class="font-medium">Configuration</div>
+			<ConfigValue
+				iconId="file-text"
+				label="Conversation grounded in"
+				value={file.basename}
+			/>
+			<ConfigValue iconId="bot" label="LLM" value={$llmClient.displayName} />
+		</div>
+	</QuestionAndAnswer>
 </div>
