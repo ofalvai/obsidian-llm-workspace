@@ -1,8 +1,9 @@
+import { ItemView, WorkspaceLeaf, type ViewStateResult } from "obsidian"
+import Workspace from "src/component/workspace/Workspace.svelte"
 import type { LlmPluginSettings } from "src/config/settings"
-import { ItemView, Notice, TFile, WorkspaceLeaf, type ViewStateResult } from "obsidian"
 import { LlmDexie } from "src/storage/db"
 import { addWorkspaceProperty, appStore, settingsStore, viewStore } from "src/utils/obsidian"
-import Workspace from "src/component/workspace/Workspace.svelte"
+import { mount, unmount } from "svelte"
 
 export const VIEW_TYPE_WORKSPACE = "llm-workspace-view"
 
@@ -57,7 +58,7 @@ export class WorkspaceView extends ItemView {
 	}
 
 	async onClose() {
-		this.component?.$destroy()
+		unmount(this.component)
 	}
 
 	async setState(state: WorkspaceViewState, result: ViewStateResult): Promise<void> {
@@ -86,7 +87,7 @@ export class WorkspaceView extends ItemView {
 			return
 		}
 
-		this.component = new Workspace({
+		this.component = mount(Workspace, {
 			target: this.contentEl,
 			props: {
 				workspaceFile: file,
