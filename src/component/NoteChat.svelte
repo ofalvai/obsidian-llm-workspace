@@ -10,19 +10,29 @@
 	import QuestionAndAnswer from "./chat/QuestionAndAnswer.svelte"
 	import TailwindCss from "./TailwindCSS.svelte"
 	import ConfigValue from "./chat/ConfigValue.svelte"
+	import ConversationStyle from "./chat/ConversationStyle.svelte"
+	import type { CompletionOptions, Temperature } from "src/rag/llm/common"
 
 	export let file: TFile
 
-	// TODO: make note content reactive
 	const noteContent = readable("", (set) => {
 		$appStore.vault.cachedRead(file).then((content) => {
 			set(content)
 		})
+		$appStore.vault.on("modify", (modifiedFile) => {
+			if (modifiedFile.path === file.path) {
+				$appStore.vault.cachedRead(file).then((content) => {
+					set(content)
+				})
+			}
+		})
 	})
-	// TODO: make this configurable
-	const completionOptions = {
-		temperature: 0.1,
+	const completionOptions: CompletionOptions = {
+		temperature: "balanced",
 		maxTokens: 512,
+	}
+	const setTemperature = (t: Temperature) => {
+		completionOptions.temperature = t
 	}
 	let synthesizer: ResponseSynthesizer
 	let queryEngine: QueryEngine
@@ -55,6 +65,10 @@
 				value={file.basename}
 			/>
 			<ConfigValue iconId="bot" label="LLM" value={$llmClient.displayName} />
+			<ConversationStyle
+				temperature={completionOptions.temperature}
+				on:change={(e) => setTemperature(e.detail)}
+			/>
 		</div>
 	</QuestionAndAnswer>
 </div>

@@ -1,4 +1,4 @@
-import type { ChatCompletionClient } from "src/rag/llm/common"
+import type { ChatCompletionClient, CompletionOptions } from "src/rag/llm/common"
 
 const summaryPrompt = `Summarize the following note in two sentences. Use simple language.
 Do not add any context or prefix (such as 'The note outlines...'), just respond with the summary.
@@ -20,8 +20,8 @@ Don't forget to encode special characters according to the JSON format specifica
 `
 
 export async function noteSummary(note: string, client: ChatCompletionClient): Promise<string> {
-	const options = {
-		temperature: 0.1,
+	const options: CompletionOptions = {
+		temperature: "precise",
 		maxTokens: 512,
 	}
 	const completion = await client.createChatCompletion(
@@ -39,8 +39,8 @@ export async function extractKeyTopics(
 	note: string,
 	client: ChatCompletionClient,
 ): Promise<string[]> {
-	const options = {
-		temperature: 0.1,
+	const options: CompletionOptions = {
+		temperature: "precise",
 		maxTokens: 1024,
 	}
 

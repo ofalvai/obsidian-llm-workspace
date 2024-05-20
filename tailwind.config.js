@@ -13,6 +13,10 @@ module.exports = {
 			success: "var(--background-modifier-success)",
 			"form-field": "var(--background-modifier-form-field)",
 			hover: "var(--background-modifier-hover)",
+			interactive: "var(--interactive-normal)",
+			"interactive-hover": "var(--interactive-hover)",
+			"interactive-accent": "var(--interactive-accent)",
+			"interactive-accent-hover": "var(--interactive-accent-hover)",
 		},
 		extend: {
 			colors: {
@@ -37,6 +41,7 @@ module.exports = {
 		"alignSelf",
 		"backgroundColor",
 		"borderRadius",
+		"boxShadow",
 		"cursor",
 		"display",
 		"flex",

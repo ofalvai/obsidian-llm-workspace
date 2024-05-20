@@ -4,9 +4,63 @@ import {
 	type ChatStreamEvent,
 	type CompletionOptions,
 	type StreamingChatCompletionClient,
+	type Temperature,
 } from "./common"
 import { iterSSEMessages } from "../../utils/sse"
 import { nodeStreamingFetch } from "src/utils/node"
+
+interface Message {
+	id: string
+	model: string
+	content: MessageContent[]
+	usage: Usage
+}
+
+interface MessageContent {
+	text: string
+	type: "text"
+}
+
+interface Usage {
+	input_tokens?: number
+	output_tokens?: number
+}
+
+type StreamEvent =
+	| MessageStartEvent
+	| ContentBlockStartEvent
+	| ContentBlockDeltaEvent
+	| MessageDelta
+	| MessageStopEvent
+
+interface MessageStartEvent {
+	type: "message_start"
+	message: Message
+}
+
+interface ContentBlockStartEvent {
+	type: "content_block_start"
+	// Ignoring rest of the fields because text seems to be always empty
+}
+
+interface ContentBlockDeltaEvent {
+	type: "content_block_delta"
+	delta: ContentDelta
+}
+
+interface ContentDelta {
+	type: string
+	text: string
+}
+
+interface MessageDelta {
+	type: "message_delta"
+	usage: Usage
+}
+
+interface MessageStopEvent {
+	type: "message_stop"
+}
 
 // We are using the REST API directly because the Anthropic SDK refuses to run
 // in the browser context: https://github.com/anthropics/anthropic-sdk-typescript/issues/28
@@ -49,7 +103,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 			body: JSON.stringify({
 				stream: true,
 				model: this.model,
-				temperature: options.temperature,
+				temperature: temperature(options.temperature),
 				max_tokens: options.maxTokens,
 				system: messages[0].content,
 				messages: messages.slice(1).map((message) => {
@@ -91,6 +145,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 					yield {
 						type: "stop",
 						usage: { inputTokens: inputTokenCount, outputTokens: outputTokenCount },
+						temeperature: temperature(options.temperature),
 					}
 					break
 			}
@@ -165,7 +220,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 			body: JSON.stringify({
 				stream: stream,
 				model: this.model,
-				temperature: options.temperature,
+				temperature: temperature(options.temperature),
 				max_tokens: options.maxTokens,
 				system: messages[0].content,
 				messages: messages.slice(1).map((message) => {
@@ -184,55 +239,13 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 	}
 }
 
-interface Message {
-	id: string
-	model: string
-	content: MessageContent[]
-	usage: Usage
-}
-
-interface MessageContent {
-	text: string
-	type: "text"
-}
-
-interface Usage {
-	input_tokens?: number
-	output_tokens?: number
-}
-
-type StreamEvent =
-	| MessageStartEvent
-	| ContentBlockStartEvent
-	| ContentBlockDeltaEvent
-	| MessageDelta
-	| MessageStopEvent
-
-interface MessageStartEvent {
-	type: "message_start"
-	message: Message
-}
-
-interface ContentBlockStartEvent {
-	type: "content_block_start"
-	// Ignoring rest of the fields because text seems to be always empty
-}
-
-interface ContentBlockDeltaEvent {
-	type: "content_block_delta"
-	delta: ContentDelta
-}
-
-interface ContentDelta {
-	type: string
-	text: string
-}
-
-interface MessageDelta {
-	type: "message_delta"
-	usage: Usage
-}
-
-interface MessageStopEvent {
-	type: "message_stop"
+function temperature(t: Temperature): number {
+	switch (t) {
+		case "balanced":
+			return 0.5
+		case "creative":
+			return 0.9
+		case "precise":
+			return 0.1
+	}
 }

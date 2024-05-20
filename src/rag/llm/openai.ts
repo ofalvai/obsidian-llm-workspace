@@ -10,6 +10,7 @@ import {
 	type EmbeddingClient,
 	type QueryEmbedding,
 	type StreamingChatCompletionClient,
+	type Temperature,
 } from "./common"
 
 export class OpenAIChatCompletionClient implements StreamingChatCompletionClient {
@@ -44,7 +45,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 			}),
 			stream_options: { include_usage: true },
 			max_tokens: options.maxTokens,
-			temperature: options.temperature,
+			temperature: temperature(options.temperature),
 		})
 
 		let inputTokens = 0
@@ -59,7 +60,11 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 				yield { content: chunk.choices[0].delta.content ?? "", type: "delta" }
 			}
 		}
-		yield { type: "stop", usage: { inputTokens, outputTokens } }
+		yield {
+			type: "stop",
+			usage: { inputTokens, outputTokens },
+			temeperature: temperature(options.temperature),
+		}
 	}
 
 	async createChatCompletion(
@@ -77,7 +82,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 				}
 			}),
 			max_tokens: options.maxTokens,
-			temperature: options.temperature,
+			temperature: temperature(options.temperature),
 		})
 
 		return {
@@ -107,7 +112,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 			],
 			response_format: { type: "json_object" },
 			max_tokens: options.maxTokens,
-			temperature: options.temperature,
+			temperature: temperature(options.temperature),
 		})
 
 		try {
@@ -117,6 +122,17 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 				`LLM response could not be parsed to JSON schema: ${error}\nResponse: ${response.choices[0].message.content}`,
 			)
 		}
+	}
+}
+
+function temperature(t: Temperature): number {
+	switch (t) {
+		case "balanced":
+			return 0.5
+		case "creative":
+			return 1
+		case "precise":
+			return 0.2
 	}
 }
 

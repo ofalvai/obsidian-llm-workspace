@@ -16,14 +16,18 @@
 	setInterval(
 		() => {
 			if (isCollapsed) return
-			lastProcessedLabel = fileInfo.lastProcessed ? window.moment(fileInfo.lastProcessed).fromNow() : ""
+			lastProcessedLabel = fileInfo.lastProcessed
+				? window.moment(fileInfo.lastProcessed).fromNow()
+				: ""
 		},
-		60_000 // 1 minute
+		60_000, // 1 minute
 	)
 
 	let label = ""
 	$: {
-		lastProcessedLabel = fileInfo.lastProcessed ? window.moment(fileInfo.lastProcessed).fromNow() : ""
+		lastProcessedLabel = fileInfo.lastProcessed
+			? window.moment(fileInfo.lastProcessed).fromNow()
+			: ""
 		switch (fileInfo.nodeCount) {
 			case 0:
 				label = "Not indexed yet"
@@ -69,7 +73,7 @@
 				<ObsidianIcon iconId="folder" size="m" className="relative top-1" />
 				<span class="text-sm">{fileInfo.parent.name}</span>
 			</div>
-			{/if}
+		{/if}
 		<div>
 			<ObsidianIcon iconId="calendar-clock" size="m" className="relative top-1" />
 			<span class="text-sm">{label}</span>

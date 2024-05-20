@@ -28,9 +28,10 @@
 	import type { EmbeddedFileInfo } from "../types"
 	import IndexedFiles from "./IndexedFiles.svelte"
 	import Questions from "./Questions.svelte"
-	import type { EmbeddingClient } from "src/rag/llm/common"
+	import type { CompletionOptions, EmbeddingClient, Temperature } from "src/rag/llm/common"
 	import Error from "../Error.svelte"
 	import ConfigValue from "../chat/ConfigValue.svelte"
+	import ConversationStyle from "../chat/ConversationStyle.svelte"
 
 	export let workspaceFile: TFile
 	export let db: LlmDexie
@@ -45,9 +46,12 @@
 	}
 
 	const vectorStore = new VectorStoreIndex(db)
-	const completionOptions = {
-		temperature: 0.1,
+	const completionOptions: CompletionOptions = {
+		temperature: "balanced",
 		maxTokens: 512,
+	}
+	const setTemperature = (t: Temperature) => {
+		completionOptions.temperature = t
 	}
 	// TODO: refactor all of this into a derived store
 	let nodeParser: NodeParser
@@ -257,6 +261,10 @@
 						iconId="files"
 						label="Number of chunks in context"
 						value={$settingsStore.retrievedNodeCount.toString()}
+					/>
+					<ConversationStyle
+						temperature={completionOptions.temperature}
+						on:change={(e) => setTemperature(e.detail)}
 					/>
 				</div>
 			</div>

@@ -22,6 +22,7 @@ export interface DebugInfo {
 	createdAt: number
 	inputTokens?: number
 	outputTokens?: number
+	temperature: number
 }
 
 export interface ResponseSynthesizer {
@@ -109,6 +110,7 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 							createdAt: Date.now(),
 							inputTokens: event.usage?.inputTokens,
 							outputTokens: event.usage?.outputTokens,
+							temperature: event.temeperature,
 						},
 					}
 				}

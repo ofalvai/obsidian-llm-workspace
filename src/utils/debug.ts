@@ -29,6 +29,7 @@ function debugInfoToMarkdown(response: QueryResponse): string {
 **Query used for embedding**: ${response.debugInfo.improvedQuery}
 **Input token count**: ${response.debugInfo.inputTokens ?? "N/A"}
 **Output token count**: ${response.debugInfo.outputTokens ?? "N/A"}
+**Temperature**: ${response.debugInfo.temperature}
 
 #### System Prompt
 

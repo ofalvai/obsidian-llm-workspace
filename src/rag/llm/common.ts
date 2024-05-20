@@ -25,6 +25,8 @@ export interface ChatDeltaEvent {
 export interface ChatStopEvent {
 	type: "stop"
 	usage?: Usage
+	// Implementation-specific temp number for debugging purposes
+	temeperature: number
 }
 
 export interface Usage {
@@ -34,19 +36,29 @@ export interface Usage {
 
 export type ChatStreamEvent = ChatStartEvent | ChatDeltaEvent | ChatStopEvent
 
+// Temperature is defined as an enum and then mapped to provider-specific values
+export type Temperature = "balanced" | "creative" | "precise"
+
 export interface CompletionOptions {
-	temperature: number
+	temperature: Temperature
 	maxTokens: number
 }
 
 export interface ChatCompletionClient {
 	get displayName(): string
 	createChatCompletion(messages: ChatMessage[], options: CompletionOptions): Promise<ChatMessage>
-	createJSONCompletion<T>(systemPrompt: string, userPrompt: string, options: CompletionOptions): Promise<T>
+	createJSONCompletion<T>(
+		systemPrompt: string,
+		userPrompt: string,
+		options: CompletionOptions,
+	): Promise<T>
 }
 
 export type StreamingChatCompletionClient = ChatCompletionClient & {
-	createStreamingChatCompletion: (messages: ChatMessage[], options: CompletionOptions) => AsyncGenerator<ChatStreamEvent>
+	createStreamingChatCompletion: (
+		messages: ChatMessage[],
+		options: CompletionOptions,
+	) => AsyncGenerator<ChatStreamEvent>
 }
 
 export interface QueryEmbedding {

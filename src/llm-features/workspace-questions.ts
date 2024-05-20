@@ -1,6 +1,6 @@
 import type { Vault, Workspace } from "obsidian"
 import type { EmbeddedFileInfo } from "src/component/types"
-import type { ChatCompletionClient } from "src/rag/llm/common"
+import type { ChatCompletionClient, CompletionOptions } from "src/rag/llm/common"
 
 const fileCount = 10
 const fileTruncateLimit = 1000 // characters, not tokens
@@ -43,8 +43,8 @@ export async function workspaceQuestions(
 ): Promise<WorkspaceQuestion[]> {
 	const context = await sample(files, vault)
 
-	const options = {
-		temperature: 0.5,
+	const options: CompletionOptions = {
+		temperature: "creative",
 		maxTokens: 1024,
 	}
 	const result = await client.createJSONCompletion<WorkspaceQuestionHolder>(

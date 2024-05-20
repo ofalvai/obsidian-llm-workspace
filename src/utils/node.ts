@@ -18,6 +18,13 @@ export async function nodeStreamingFetch(url: string, options: any = {}): Promis
 
 		const req = request(url, requestOptions, (res: IncomingMessage) => {
 			if (res.statusCode !== 200) {
+				var body = ""
+				res.on("readable", () => {
+					body += res.read()
+				})
+				res.on("end", () => {
+					console.error("Failed request's response body", body)
+				})
 				reject(new Error(`Unexpected status code: ${res.statusCode}`))
 				return
 			}

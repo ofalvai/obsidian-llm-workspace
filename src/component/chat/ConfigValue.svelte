@@ -7,7 +7,7 @@
 </script>
 
 <div class="my-2 flex flex-row">
-	<div class="">
+	<div>
 		<ObsidianIcon {iconId} size="s" />
 	</div>
 	<div class="ml-1 mr-1 text-sm text-muted">{label}:</div>
