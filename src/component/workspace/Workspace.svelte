@@ -198,14 +198,14 @@
 		}
 	}
 
-	const onLinkClick = (event: ComponentEvents<IndexedFiles>["link-click"]) => {
-		$appStore.workspace.openLinkText(event.detail, "", "tab")
+	const onLinkClick = (path: string) => {
+		$appStore.workspace.openLinkText(path, "", "tab")
 	}
-	const onLinkRebuild = async (event: ComponentEvents<IndexedFiles>["link-rebuild"]) => {
+	const onLinkRebuild = async (fileInfo: EmbeddedFileInfo) => {
 		indexingError = null
 		try {
-			await vectorStore.deleteFiles(event.detail.path)
-			const file = $appStore.vault.getFileByPath(event.detail.path)
+			await vectorStore.deleteFiles(fileInfo.path)
+			const file = $appStore.vault.getFileByPath(fileInfo.path)
 			if (!file) {
 				return
 			}
@@ -226,9 +226,9 @@
 	{#if isWorkspace}
 		<IndexedFiles
 			links={$links || []}
-			on:link-click={onLinkClick}
-			on:link-rebuild={onLinkRebuild}
-			on:rebuild-all={rebuildAll}
+			onLinkClick={onLinkClick}
+			onLinkRebuild={onLinkRebuild}
+			onRebuildAll={rebuildAll}
 		/>
 		{#if indexingError}
 			<Error body={indexingError} />
@@ -238,7 +238,7 @@
 			on:message-submit={async (e) => {
 				conversation.submitMessage(e.detail)
 			}}
-			on:source-click={onLinkClick}
+			on:source-click={(e) => onLinkClick(e.detail)}
 			on:debug-click={(e) => writeDebugInfo($appStore, e.detail)}
 			on:new-conversation={conversation.resetConversation}
 		>

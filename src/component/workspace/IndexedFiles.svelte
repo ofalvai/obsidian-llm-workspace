@@ -4,7 +4,6 @@
 
 <script lang="ts">
 	import NoteLink from "./NoteLink.svelte"
-	import { createEventDispatcher } from "svelte"
 	import type { EmbeddedFileInfo } from "../types"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 
@@ -40,8 +39,8 @@
 		{#each displayedLinks as link (link.path)}
 			<NoteLink
 				fileInfo={link}
-				on:link-click={(e) => onLinkClick(e.detail)}
-				on:link-rebuild={(e) => onLinkRebuild(e.detail)}
+				onLinkClick={(path) => onLinkClick(path)}
+				onLinkRebuild={(fileInfo) => onLinkRebuild(fileInfo)}
 			/>
 		{/each}
 		{#if links.length > MAX_FILES_TO_DISPLAY}
