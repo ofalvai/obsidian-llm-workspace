@@ -1,4 +1,4 @@
-import Dexie, { type Table } from "dexie"
+import { Dexie, type Table } from "dexie"
 import type { WorkspaceQuestion } from "src/llm-features/workspace-questions"
 import type { Node } from "src/rag/node"
 import type { FilePath } from "src/utils/obsidian"

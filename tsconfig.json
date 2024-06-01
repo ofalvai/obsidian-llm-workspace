@@ -1,20 +1,33 @@
 {
-	"extends": "@tsconfig/svelte/tsconfig.json",
 	"compilerOptions": {
-		"types": ["svelte", "node"],
-		"allowSyntheticDefaultImports": true,
-		"baseUrl": ".",
-		"inlineSources": true,
-		"module": "ESNext",
-		"target": "ES6",
 		"allowJs": true,
-		"noImplicitAny": true,
-		"moduleResolution": "node",
-		"importHelpers": true,
-		"isolatedModules": true,
-		"strictNullChecks": true,
+		"allowSyntheticDefaultImports": true,
+		"allowUnreachableCode": false,
+		"baseUrl": ".",
 		"esModuleInterop": true,
-		"lib": ["DOM", "ES5", "ES6", "ES7"],
+		"importHelpers": true,
+		"inlineSources": true,
+		"isolatedModules": true,
+		"lib": [
+			"DOM",
+			"ES5",
+			"ES2015",
+			"ES2016",
+			"ES2017"
+		],
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"noImplicitAny": true,
+		"strictNullChecks": true,
+		"target": "ES2017",
+		"types": [
+			"svelte",
+			"node"
+		]
 	},
-	"include": ["**/*.ts", "**/*.tsx"]
+	"extends": "@tsconfig/svelte/tsconfig.json",
+	"include": [
+		"**/*.ts",
+		"**/*.tsx"
+	]
 }

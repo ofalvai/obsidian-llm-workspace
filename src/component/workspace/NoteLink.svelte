@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher } from "svelte"
+	import { createEventDispatcher, onMount } from "svelte"
 	import type { EmbeddedFileInfo } from "../types"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 
@@ -13,15 +13,18 @@
 	let isCollapsed = true
 
 	let lastProcessedLabel = ""
-	setInterval(
-		() => {
-			if (isCollapsed) return
-			lastProcessedLabel = fileInfo.lastProcessed
-				? window.moment(fileInfo.lastProcessed).fromNow()
-				: ""
-		},
-		60_000, // 1 minute
-	)
+	onMount(() => {
+		const id = setInterval(
+			() => {
+				if (isCollapsed) return
+				lastProcessedLabel = fileInfo.lastProcessed
+					? window.moment(fileInfo.lastProcessed).fromNow()
+					: ""
+			},
+			60_000, // 1 minute
+		)
+		return () => clearInterval(id)
+	})
 
 	let label = ""
 	$: {

@@ -14,7 +14,7 @@
 	"author": "",
 	"license": "MIT",
 	"dependencies": {
-		"dexie": "4.0.4",
+		"dexie": "4.0.7",
 		"openai": "^4.47.1"
 	},
 	"devDependencies": {
