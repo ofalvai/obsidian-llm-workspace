@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       dexie:
-        specifier: 4.0.4
-        version: 4.0.4
+        specifier: 4.0.7
+        version: 4.0.7
       openai:
         specifier: ^4.47.1
         version: 4.47.1
@@ -541,8 +541,8 @@ packages:
     resolution: {integrity: sha512-reYkTUJAZb9gUuZ2RvVCNhVHdg62RHnJ7WJl8ftMi4diZ6NWlciOzQN88pUhSELEwflJht4oQDv0F0BMlwaYtA==}
     engines: {node: '>=8'}
 
-  dexie@4.0.4:
-    resolution: {integrity: sha512-wFzwWSUdi+MC3jiFeQcCp9nInR7EaX8edzYY+4wmiITkQAiSnHpe4Wo2o5Ce5tJZe2nqt7mLW91MsW4GYx3ziQ==}
+  dexie@4.0.7:
+    resolution: {integrity: sha512-M+Lo6rk4pekIfrc2T0o2tvVJwL6EAAM/B78DNfb8aaxFVoI1f8/rz5KTxuAnApkwqTSuxx7T5t0RKH7qprapGg==}
 
   didyoumean@1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
@@ -1784,7 +1784,7 @@ snapshots:
 
   detect-indent@6.1.0: {}
 
-  dexie@4.0.4: {}
+  dexie@4.0.7: {}
 
   didyoumean@1.2.2: {}
 
