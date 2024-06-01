@@ -1,15 +1,17 @@
 <script lang="ts">
 	import type { ChatMessage } from "src/rag/llm/common"
-	import { createEventDispatcher } from "svelte"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 	import ObsidianMarkdown from "../obsidian/ObsidianMarkdown.svelte"
 
-	export let message: ChatMessage
-
-	const dispatch = createEventDispatcher<{
-		copy: string
-		edit: string
-	}>()
+	let {
+		message,
+		onCopy,
+		onEdit,
+	}: {
+		message: ChatMessage
+		onCopy: (msg: string) => void
+		onEdit: (msg: string) => void
+	} = $props()
 </script>
 
 <div class="flex flex-row items-baseline">
@@ -27,7 +29,7 @@
 	{#if message.role === "assistant"}
 		<button
 			class="clickable-icon"
-			on:click={() => dispatch("copy", message.content)}
+			onclick={() => onCopy(message.content)}
 			aria-label="Copy response"
 			data-tooltip-delay="300"
 		>

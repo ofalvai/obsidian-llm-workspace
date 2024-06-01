@@ -92,12 +92,16 @@
 				{#if displaySources}
 					<SourceList
 						queryResponse={conversation.queryResponse}
-						on:source-click={(e) => onSourceClick(e.detail)}
+						onClick={onSourceClick}
 					/>
 				{/if}
 			{/if}
 			{#each conversation.additionalMessages as msg}
-				<Message message={msg} on:copy={(e) => copyToClipboard(e.detail)} />
+				<Message
+					message={msg}
+					onCopy={(msg) => copyToClipboard(msg)}
+					onEdit={(msg) => {}}
+				/>
 			{/each}
 			{#if conversation.isLoading}
 				<div class="flex flex-row items-baseline">
@@ -122,8 +126,8 @@
 	<UserInput
 		disabled={conversation?.isLoading ?? false}
 		isConversationActive={conversation != null}
-		on:submit={(e) => onMessageSubmit(e.detail)}
-		on:new-conversation={() => onNewConversation()}
+		onSubmit={(input) => onMessageSubmit(input)}
+		{onNewConversation}
 	/>
 </div>
 

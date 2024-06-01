@@ -265,7 +265,7 @@
 					/>
 					<ConversationStyle
 						temperature={completionOptions.temperature}
-						on:change={(e) => setTemperature(e.detail)}
+						onChange={(t) => setTemperature(t)}
 					/>
 				</div>
 			</div>

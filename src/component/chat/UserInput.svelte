@@ -1,48 +1,52 @@
 <script lang="ts">
-	import { createEventDispatcher } from "svelte"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 
-	export let disabled: boolean
-	export let isConversationActive: boolean
+	let {
+		disabled,
+		isConversationActive,
+		onSubmit,
+		onNewConversation,
+	}: {
+		disabled: boolean
+		isConversationActive: boolean
+		onSubmit: (input: string) => void
+		onNewConversation: () => void
+	} = $props()
 
+	// TODO: Platform-specific keyboard hint
 	const keyboardHint = "Press ⏎ to send message, ⇧ + ⏎ for new line."
 
-	const dispatch = createEventDispatcher<{
-		submit: string
-		"new-conversation": void
-	}>()
+	let query = $state("")
 
-	let query = ""
-
-	const onSubmit = () => {
-		if (!query) return
-		dispatch("submit", query)
+	const _onSubmit = (e: SubmitEvent) => {
+		e.preventDefault()
+		onSubmit(query)
 		query = ""
 	}
-	const onNewConversation = () => {
+	const _onNewConversation = () => {
 		query = ""
-		dispatch("new-conversation")
+		onNewConversation()
 	}
 </script>
 
-<form class="fixed bottom-11 left-4 right-4" on:submit|preventDefault={onSubmit}>
+<form class="fixed bottom-11 left-4 right-4" onsubmit={_onSubmit}>
 	<div class="flex flex-row gap-x-2">
-		<!-- svelte-ignore a11y-autofocus -->
+		<!-- svelte-ignore a11y_autofocus -->
 		<textarea
 			class="text-normal w-full resize-y bg-secondary"
 			autofocus
 			rows="3"
-			on:keydown={(event) => {
+			onkeydown={(event) => {
 				if (event.key === "Enter" && !event.shiftKey) {
 					event.preventDefault()
-					onSubmit()
+					_onSubmit(new SubmitEvent("submit"))
 				}
 			}}
 			placeholder={(isConversationActive ? "Continue conversation..." : "Ask a question...") +
 				"\n" +
 				keyboardHint}
 			bind:value={query}
-		/>
+		></textarea>
 		<div class="flex flex-col justify-center gap-y-2">
 			<button
 				class={"clickable-icon"}
@@ -55,7 +59,7 @@
 			{#if isConversationActive}
 				<button
 					class="clickable-icon"
-					on:click|preventDefault={onNewConversation}
+					onclick={_onNewConversation}
 					aria-label="New conversation"
 				>
 					<ObsidianIcon iconId="plus" />
