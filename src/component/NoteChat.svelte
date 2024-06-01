@@ -53,9 +53,10 @@
 	<QuestionAndAnswer
 		conversation={$conversation}
 		displaySources={false}
-		on:message-submit={async (e) => conversation.submitMessage(e.detail)}
-		on:new-conversation={conversation.resetConversation}
-		on:debug-click={(e) => writeDebugInfo($appStore, e.detail)}
+		onMessageSubmit={async (msg) => conversation.submitMessage(msg)}
+		onNewConversation={conversation.resetConversation}
+		onDebugClick={(resp) => writeDebugInfo($appStore, resp)}
+		onSourceClick={() => {}}
 	>
 		<div slot="empty">
 			<div class="font-medium">Configuration</div>

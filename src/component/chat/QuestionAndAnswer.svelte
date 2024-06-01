@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Conversation } from "src/rag/conversation"
 	import type { QueryResponse } from "src/rag/synthesizer"
-	import { createEventDispatcher } from "svelte"
 	import ObsidianMarkdown from "../obsidian/ObsidianMarkdown.svelte"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 	import SourceList from "./SourceList.svelte"
@@ -11,20 +10,22 @@
 	import UserInput from "./UserInput.svelte"
 	import Error from "../Error.svelte"
 
-	export let conversation: Conversation | null
-	export let displaySources = true
+	let {
+		conversation,
+		displaySources,
+		onMessageSubmit,
+		onSourceClick,
+		onDebugClick,
+		onNewConversation,
+	}: {
+		conversation: Conversation | null
+		displaySources: boolean
+		onMessageSubmit: (msg: string) => void
+		onSourceClick: (path: string) => void
+		onDebugClick: (response: QueryResponse) => void
+		onNewConversation: () => void
+	} = $props()
 
-	const dispatch = createEventDispatcher<{
-		"message-submit": string
-		"source-click": string
-		"debug-click": QueryResponse
-		"new-conversation": void
-	}>()
-	const onDebugClick = () => {
-		if (conversation?.queryResponse?.debugInfo) {
-			dispatch("debug-click", conversation.queryResponse)
-		}
-	}
 	const copyToClipboard = (text: string) => {
 		navigator.clipboard.writeText(text)
 		new Notice("Copied to clipboard", 1000)
@@ -69,7 +70,7 @@
 				<div class="mb-1 flex w-full flex-row justify-end">
 					<button
 						class="clickable-icon"
-						on:click={() => copyToClipboard(conversation?.queryResponse?.text ?? "")}
+						onclick={() => copyToClipboard(conversation?.queryResponse?.text ?? "")}
 						aria-label="Copy response"
 						data-tooltip-delay="300"
 					>
@@ -77,7 +78,11 @@
 					</button>
 					<button
 						class="clickable-icon"
-						on:click={onDebugClick}
+						onclick={() => {
+							if (conversation?.queryResponse?.debugInfo) {
+								onDebugClick(conversation.queryResponse)
+							}
+						}}
 						aria-label="Debug response"
 						data-tooltip-delay="300"
 					>
@@ -85,7 +90,10 @@
 					</button>
 				</div>
 				{#if displaySources}
-					<SourceList queryResponse={conversation.queryResponse} on:source-click />
+					<SourceList
+						queryResponse={conversation.queryResponse}
+						on:source-click={(e) => onSourceClick(e.detail)}
+					/>
 				{/if}
 			{/if}
 			{#each conversation.additionalMessages as msg}
@@ -114,8 +122,8 @@
 	<UserInput
 		disabled={conversation?.isLoading ?? false}
 		isConversationActive={conversation != null}
-		on:submit={(e) => dispatch("message-submit", e.detail)}
-		on:new-conversation={(e) => dispatch("new-conversation")}
+		on:submit={(e) => onMessageSubmit(e.detail)}
+		on:new-conversation={() => onNewConversation()}
 	/>
 </div>
 

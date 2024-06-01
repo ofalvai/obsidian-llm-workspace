@@ -226,8 +226,8 @@
 	{#if isWorkspace}
 		<IndexedFiles
 			links={$links || []}
-			onLinkClick={onLinkClick}
-			onLinkRebuild={onLinkRebuild}
+			{onLinkClick}
+			{onLinkRebuild}
 			onRebuildAll={rebuildAll}
 		/>
 		{#if indexingError}
@@ -235,12 +235,13 @@
 		{/if}
 		<QuestionAndAnswer
 			conversation={$conversation}
-			on:message-submit={async (e) => {
-				conversation.submitMessage(e.detail)
+			displaySources={true}
+			onMessageSubmit={async (msg) => {
+				conversation.submitMessage(msg)
 			}}
-			on:source-click={(e) => onLinkClick(e.detail)}
-			on:debug-click={(e) => writeDebugInfo($appStore, e.detail)}
-			on:new-conversation={conversation.resetConversation}
+			onSourceClick={(path) => onLinkClick(path)}
+			onDebugClick={(resp) => writeDebugInfo($appStore, resp)}
+			onNewConversation={conversation.resetConversation}
 		>
 			<div slot="empty">
 				<Questions
