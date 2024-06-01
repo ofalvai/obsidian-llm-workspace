@@ -1,7 +1,6 @@
 import { COMPLETION_MODEL, COMPLETION_TEMPERATURE, EMBEDDING_MODEL } from "src/config/openai"
 import { SELF_QUERY_EXAMPLES, SELF_QUERY_PROMPT } from "src/config/prompts"
 import OpenAI from "openai"
-import type { ChatCompletionMessageParam } from "openai/resources"
 import type { Node } from "../node"
 import {
 	type ChatMessage,
@@ -12,6 +11,7 @@ import {
 	type StreamingChatCompletionClient,
 	type Temperature,
 } from "./common"
+import type { ChatCompletionMessageParam } from "openai/resources/index.mjs"
 
 export class OpenAIChatCompletionClient implements StreamingChatCompletionClient {
 	private client: OpenAI
