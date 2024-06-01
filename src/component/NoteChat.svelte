@@ -13,7 +13,7 @@
 	import ConversationStyle from "./chat/ConversationStyle.svelte"
 	import type { CompletionOptions, Temperature } from "src/rag/llm/common"
 
-	export let file: TFile
+	let { file }: { file: TFile } = $props()
 
 	const noteContent = readable("", (set) => {
 		$appStore.vault.cachedRead(file).then((content) => {
@@ -34,18 +34,15 @@
 	const setTemperature = (t: Temperature) => {
 		completionOptions.temperature = t
 	}
-	let synthesizer: ResponseSynthesizer
-	let queryEngine: QueryEngine
-	let conversation: ReturnType<typeof conversationStore>
-	$: {
-		synthesizer = new DumbResponseSynthesizer(
-			$llmClient,
-			completionOptions,
-			$settingsStore.systemPrompt,
-		)
-		queryEngine = new SingleNoteQueryEngine(synthesizer, $noteContent, file.path)
-		conversation = conversationStore(queryEngine, $llmClient, completionOptions)
-	}
+	let synthesizer: ResponseSynthesizer = $derived(
+		new DumbResponseSynthesizer($llmClient, completionOptions, $settingsStore.systemPrompt),
+	)
+	let queryEngine: QueryEngine = $derived(
+		new SingleNoteQueryEngine(synthesizer, $noteContent, file.path),
+	)
+	let conversation: ReturnType<typeof conversationStore> = $derived(
+		conversationStore(queryEngine, $llmClient, completionOptions),
+	)
 </script>
 
 <TailwindCss />

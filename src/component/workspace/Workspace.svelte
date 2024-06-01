@@ -247,8 +247,8 @@
 				<Questions
 					questions={$workspaceData?.derivedQuestions ?? []}
 					isLoading={$isLoadingQuestions}
-					on:regenerate={buildQuestions}
-					on:question-select={async (e) => selectQuestion(e.detail)}
+					onRegenerate={buildQuestions}
+					onQuestionSelect={async (q) => selectQuestion(q)}
 				/>
 				<div>
 					<div class="font-medium">Configuration</div>
