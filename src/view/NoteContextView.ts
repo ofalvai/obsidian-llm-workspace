@@ -12,7 +12,7 @@ export class NoteContextView extends ItemView {
 
 	db: LlmDexie;
 
-	component!: NoteContext
+	component!: Record<string, any>;
 
 	constructor(leaf: WorkspaceLeaf, settings: LlmPluginSettings, db: LlmDexie) {
 		super(leaf);

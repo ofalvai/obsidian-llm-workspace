@@ -20,7 +20,7 @@ export class WorkspaceView extends ItemView {
 
 	filePath?: string
 
-	component!: Workspace
+	component!: Record<string, any>
 	viewTitle = "LLM Workspace"
 	navigation = false
 

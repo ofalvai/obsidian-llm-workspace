@@ -20,7 +20,7 @@ export class NoteChatView extends ItemView {
 
 	filePath?: string
 
-	component!: NoteChat
+	component!: Record<string, any>
 	viewTitle = "LLM note chat"
 	navigation = false
 
