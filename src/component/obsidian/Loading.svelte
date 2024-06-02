@@ -1,6 +1,6 @@
 <script lang="ts">
 	let {
-		size = "m",
+		size,
 	}: {
 		// https://docs.obsidian.md/Reference/CSS+variables/Foundations/Icons#Icon%20sizes
 		size: "xs" | "s" | "m" | "l" | "xl"
