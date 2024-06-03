@@ -1,70 +1,62 @@
 <script lang="ts">
-	import { liveQuery, type Observable } from "dexie"
+	import { liveQuery } from "dexie"
 	import { TFile } from "obsidian"
-	import { extractKeyTopics, noteSummary } from "src/llm-features/note-context"
 	import { llmClient } from "src/llm-features/client"
-	import type { LlmDexie, NoteDerivedData } from "src/storage/db"
+	import { extractKeyTopics, noteSummary } from "src/llm-features/note-context"
+	import type { LlmDexie } from "src/storage/db"
 	import { appStore, settingsStore } from "src/utils/obsidian"
-	import { derived, readable, writable } from "svelte/store"
-	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
 	import TailwindCss from "./TailwindCSS.svelte"
-	import type { KeyTopic } from "./types"
+	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
 
-	export let db: LlmDexie
+	let { db }: { db: LlmDexie } = $props()
 
 	let element: HTMLElement | undefined
 
-	const openFile = readable($appStore.workspace.getActiveFile(), (set) => {
+	let openFile = $state($appStore.workspace.getActiveFile())
+	$effect(() => {
 		const onOpen = (f: TFile | null) => {
-			set(f)
+			openFile = f
 		}
 		$appStore.workspace.on("file-open", onOpen)
 		return () => $appStore.workspace.off("file-open", onOpen)
 	})
 
-	let noteContextEnabled = derived(
-		[openFile, settingsStore],
-		([$openFile, $settingsStore], set) => {
-			if (!$openFile) {
-				set(false)
-				return
-			}
-			$appStore.vault.cachedRead($openFile).then((fileContent) => {
-				set(fileContent.length >= $settingsStore.noteContextMinChars)
-			})
-		},
-		false,
-	)
-
-	let derivedData: Observable<NoteDerivedData | undefined>
-	$: derivedData = liveQuery(async () => {
-		if (!$openFile) return
-
-		return await db.getNoteDerivedData($openFile.path)
+	let noteContextEnabled: Promise<boolean> = $derived.by(async () => {
+		if (!openFile) return false
+		const contents = await $appStore.vault.cachedRead(openFile)
+		return contents.length >= $settingsStore.noteContextMinChars
 	})
 
-	let keyTopics: KeyTopic[]
-	$: keyTopics =
-		$derivedData?.keyTopics?.map((t) => {
+	let derivedData = $derived.by(() => {
+		openFile; // https://github.com/sveltejs/svelte/issues/11424
+		return liveQuery(async () => {
+			if (!openFile) return
+			return await db.getNoteDerivedData(openFile.path)
+		})
+	})
+
+	let keyTopics = $derived.by(() => {
+		return $derivedData?.keyTopics?.map((t) => {
 			return {
 				name: t,
 				file: $appStore.metadataCache.getFirstLinkpathDest(t, ""),
 			}
 		}) ?? []
+	})
 
-	let networkLoading = writable(false)
+	let networkLoading = $state(false)
 	const fetchSummary = async (f: TFile) => {
 		const text = await $appStore.vault.cachedRead(f)
 		if (text.length < $settingsStore.noteContextMinChars) return
 
 		try {
-			networkLoading.set(true)
+			networkLoading = true
 			const summary = await noteSummary(text, $llmClient)
 			await db.updateNoteSummary(f.path, summary)
 		} catch (e) {
 			console.error(e)
 		} finally {
-			networkLoading.set(false)
+			networkLoading = false
 		}
 	}
 	const fetchTopics = async (f: TFile) => {
@@ -72,33 +64,36 @@
 		if (text.length < $settingsStore.noteContextMinChars) return
 
 		try {
-			networkLoading.set(true)
+			networkLoading = true
 			const topics = await extractKeyTopics(text, $llmClient)
 			await db.updateNoteKeyTopics(f.path, topics)
 		} catch (e) {
 			console.error(e)
 		} finally {
-			networkLoading.set(false)
+			networkLoading = false
 		}
 	}
 
-	openFile.subscribe(async (f) => {
-		if (!f || $settingsStore.openAIApiKey === "") return
+	$effect(() => {
+		if (!openFile || $settingsStore.openAIApiKey === "") {
+			return
+		}
 
 		if (!element || !element.isShown()) return
 
-		const localData = await db.getNoteDerivedData(f.path)
-		if (!localData) {
-			fetchSummary(f)
-			fetchTopics(f)
-		}
+		db.getNoteDerivedData(openFile.path).then((localData) => {
+			if (!localData && openFile) {
+				fetchSummary(openFile)
+				fetchTopics(openFile)
+			}
+		})
 	})
 
 	const onRecompute = async () => {
-		if (!$openFile) return
-		await db.deleteNoteDerivedData($openFile.path)
-		fetchTopics($openFile)
-		fetchSummary($openFile)
+		if (!openFile) return
+		await db.deleteNoteDerivedData(openFile.path)
+		fetchTopics(openFile)
+		fetchSummary(openFile)
 	}
 	const onKeyTopicClick = (path: string) => {
 		$appStore.workspace.openLinkText(path, "", "tab")
@@ -106,49 +101,50 @@
 </script>
 
 <TailwindCss />
-<h6 bind:this={element}>{$openFile?.basename ?? ""}</h6>
-<button on:click={onRecompute} class="icon-button" aria-label="Recompute" data-tooltip-delay="300">
+<h6 bind:this={element}>{openFile?.basename ?? ""}</h6>
+<button onclick={onRecompute} class="icon-button" aria-label="Recompute" data-tooltip-delay="300">
 	<ObsidianIcon iconId="refresh-cw" size="s" />
 </button>
 
-{#if $networkLoading}
+{#if networkLoading}
 	<div>Loading...</div>
 {/if}
 
-{#if $noteContextEnabled}
-	{#if $derivedData?.summary}
-		<h6>Summary</h6>
-		<p class="select-text">{$derivedData.summary}</p>
-	{/if}
+{#await noteContextEnabled then enabled}
+	{#if enabled}
+		{#if $derivedData?.summary}
+			<h6>Summary</h6>
+			<p class="select-text">{$derivedData.summary}</p>
+		{/if}
 
-	{#if keyTopics && keyTopics.length > 0}
-		<h6>Key topics</h6>
-		<ul>
-			{#each keyTopics as topic}
-				<li>
-					{#if topic.file}
-						<!-- svelte-ignore a11y-invalid-attribute -->
-						<a href="#" on:click={() => onKeyTopicClick(topic.file?.path ?? "")}
-							>{topic.name}</a
-						>
-					{:else}
-						<div class="group flex flex-row items-center">
-							<span class="mr-1 select-text">{topic.name}</span>
-							<span
-								class="clickable-icon invisible group-hover:visible"
-								aria-label="Create note"
+		{#if keyTopics && keyTopics.length > 0}
+			<h6>Key topics</h6>
+			<ul>
+				{#each keyTopics as topic}
+					<li>
+						{#if topic.file}
+							<!-- svelte-ignore a11y_invalid_attribute -->
+							<a href="#" onclick={() => onKeyTopicClick(topic.file?.path ?? "")}
+								>{topic.name}</a
 							>
-								<ObsidianIcon iconId="file-plus" size="xs" />
-							</span>
-						</div>
-					{/if}
-				</li>
-			{/each}
-		</ul>
+						{:else}
+							<div class="group flex flex-row items-center">
+								<span class="mr-1 select-text">{topic.name}</span>
+								<span
+									class="clickable-icon invisible group-hover:visible"
+									aria-label="Create note"
+								>
+									<ObsidianIcon iconId="file-plus" size="xs" />
+								</span>
+							</div>
+						{/if}
+					</li>
+				{/each}
+			</ul>
+		{/if}
+	{:else if openFile}
+		<p class="text-sm">Note is too short to generate context data for. You can adjust the threshold in the plugin settings.</p>
+	{:else}
+		<p class="w-full text-center">No file is open</p>
 	{/if}
-{:else if $openFile}
-	<p>Note is too short to generate context data for.</p>
-	<p>You can adjust the threshold in the plugin settings.</p>
-{:else}
-	<p class="w-full text-center">No file is open</p>
-{/if}
+{/await}
