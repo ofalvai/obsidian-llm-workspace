@@ -48,7 +48,7 @@
 	const vectorStore = new VectorStoreIndex(db)
 	const completionOptions: CompletionOptions = {
 		temperature: "balanced",
-		maxTokens: 512,
+		maxTokens: 1024,
 	}
 	const setTemperature = (t: Temperature) => {
 		completionOptions.temperature = t
