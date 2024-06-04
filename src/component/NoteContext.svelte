@@ -7,7 +7,13 @@
 	import { appStore, settingsStore } from "src/utils/obsidian"
 	import TailwindCss from "./TailwindCSS.svelte"
 	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
-	import { deleteNoteDerivedData, getNoteDerivedData, updateNoteKeyTopics, updateNoteSummary } from "src/storage/note-context"
+	import {
+		deleteNoteDerivedData,
+		getNoteDerivedData,
+		updateNoteKeyTopics,
+		updateNoteSummary,
+	} from "src/storage/note-context"
+	import Loading from "./obsidian/Loading.svelte"
 
 	let { db }: { db: LlmDexie } = $props()
 
@@ -29,7 +35,7 @@
 	})
 
 	let derivedData = $derived.by(() => {
-		openFile; // https://github.com/sveltejs/svelte/issues/11424
+		openFile // https://github.com/sveltejs/svelte/issues/11424
 		return liveQuery(async () => {
 			if (!openFile) return
 			return await getNoteDerivedData(db, openFile.path)
@@ -37,12 +43,14 @@
 	})
 
 	let keyTopics = $derived.by(() => {
-		return $derivedData?.keyTopics?.map((t) => {
-			return {
-				name: t,
-				file: $appStore.metadataCache.getFirstLinkpathDest(t, ""),
-			}
-		}) ?? []
+		return (
+			$derivedData?.keyTopics?.map((t) => {
+				return {
+					name: t,
+					file: $appStore.metadataCache.getFirstLinkpathDest(t, ""),
+				}
+			}) ?? []
+		)
 	})
 
 	let networkLoading = $state(false)
@@ -102,25 +110,33 @@
 </script>
 
 <TailwindCss />
-<h6 bind:this={element}>{openFile?.basename ?? ""}</h6>
-<button onclick={onRecompute} class="icon-button" aria-label="Recompute" data-tooltip-delay="300">
-	<ObsidianIcon iconId="refresh-cw" size="s" />
-</button>
+<div class="mb-2 flex flex-row justify-center" bind:this={element}>
+	<button
+		onclick={onRecompute}
+		class="clickable-icon"
+		aria-label="Recompute"
+		data-tooltip-delay="300"
+	>
+		<ObsidianIcon iconId="refresh-cw" size="s" />
+	</button>
+</div>
 
 {#if networkLoading}
-	<div>Loading...</div>
+	<div class="text-sm text-muted">
+		Loading <span class="relative top-1"><Loading size="s" /></span>
+	</div>
 {/if}
 
 {#await noteContextEnabled then enabled}
 	{#if enabled}
 		{#if $derivedData?.summary}
-			<h6>Summary</h6>
-			<p class="select-text">{$derivedData.summary}</p>
+			<div class="text-sm font-medium">Summary</div>
+			<p class="mt-1 select-text text-sm">{$derivedData.summary}</p>
 		{/if}
 
 		{#if keyTopics && keyTopics.length > 0}
-			<h6>Key topics</h6>
-			<ul>
+			<div class="text-sm font-medium">Key topics</div>
+			<ul class="mt-1 text-sm">
 				{#each keyTopics as topic}
 					<li>
 						{#if topic.file}
@@ -144,7 +160,10 @@
 			</ul>
 		{/if}
 	{:else if openFile}
-		<p class="text-sm">Note is too short to generate context data for. You can adjust the threshold in the plugin settings.</p>
+		<p class="text-sm">
+			Note is too short to generate context data for. You can adjust the threshold in the
+			plugin settings.
+		</p>
 	{:else}
 		<p class="w-full text-center">No file is open</p>
 	{/if}
