@@ -1,9 +1,15 @@
 <script lang="ts">
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 
-	export let iconId: string
-	export let label: string
-	export let value: string
+	let {
+		iconId,
+		label,
+		value,
+	}: {
+		iconId: string
+		label: string
+		value: string
+	} = $props()
 </script>
 
 <div class="my-2 flex flex-row">

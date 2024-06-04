@@ -13,7 +13,7 @@
 	import ConversationStyle from "./chat/ConversationStyle.svelte"
 	import type { CompletionOptions, Temperature } from "src/rag/llm/common"
 
-	export let file: TFile
+	let { file }: { file: TFile } = $props()
 
 	const noteContent = readable("", (set) => {
 		$appStore.vault.cachedRead(file).then((content) => {
@@ -34,18 +34,15 @@
 	const setTemperature = (t: Temperature) => {
 		completionOptions.temperature = t
 	}
-	let synthesizer: ResponseSynthesizer
-	let queryEngine: QueryEngine
-	let conversation: ReturnType<typeof conversationStore>
-	$: {
-		synthesizer = new DumbResponseSynthesizer(
-			$llmClient,
-			completionOptions,
-			$settingsStore.systemPrompt,
-		)
-		queryEngine = new SingleNoteQueryEngine(synthesizer, $noteContent, file.path)
-		conversation = conversationStore(queryEngine, $llmClient, completionOptions)
-	}
+	let synthesizer: ResponseSynthesizer = $derived(
+		new DumbResponseSynthesizer($llmClient, completionOptions, $settingsStore.systemPrompt),
+	)
+	let queryEngine: QueryEngine = $derived(
+		new SingleNoteQueryEngine(synthesizer, $noteContent, file.path),
+	)
+	let conversation: ReturnType<typeof conversationStore> = $derived(
+		conversationStore(queryEngine, $llmClient, completionOptions),
+	)
 </script>
 
 <TailwindCss />
@@ -53,9 +50,10 @@
 	<QuestionAndAnswer
 		conversation={$conversation}
 		displaySources={false}
-		on:message-submit={async (e) => conversation.submitMessage(e.detail)}
-		on:new-conversation={conversation.resetConversation}
-		on:debug-click={(e) => writeDebugInfo($appStore, e.detail)}
+		onMessageSubmit={async (msg) => conversation.submitMessage(msg)}
+		onNewConversation={conversation.resetConversation}
+		onDebugClick={(resp) => writeDebugInfo($appStore, resp)}
+		onSourceClick={() => {}}
 	>
 		<div slot="empty">
 			<div class="font-medium">Configuration</div>
@@ -67,7 +65,7 @@
 			<ConfigValue iconId="bot" label="LLM" value={$llmClient.displayName} />
 			<ConversationStyle
 				temperature={completionOptions.temperature}
-				on:change={(e) => setTemperature(e.detail)}
+				onChange={(t) => setTemperature(t)}
 			/>
 		</div>
 	</QuestionAndAnswer>

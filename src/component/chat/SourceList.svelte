@@ -8,31 +8,33 @@
 
 <script lang="ts">
 	import type { QueryResponse } from "src/rag/synthesizer"
-
-	import { createEventDispatcher } from "svelte"
-
 	import path from "node:path"
 
-	export let queryResponse: QueryResponse
+	let {
+		queryResponse,
+		onClick,
+	}: {
+		queryResponse: QueryResponse
+		onClick: (path: string) => void
+	} = $props()
 
-	let sources: SourceFile[] = []
-	$: {
+	let sources: SourceFile[] = $derived.by(() => {
+		const files: SourceFile[] = []
 		for (const source of queryResponse.sources) {
-			const existing = sources.find((f) => f.path === source.node.parent)
+			const existing = files.find((f) => f.path === source.node.parent)
 			if (existing) {
 				existing.similarity = Math.max(existing.similarity, source.similarity)
 			} else {
-				sources.push({
+				files.push({
 					base: path.basename(source.node.parent, path.extname(source.node.parent)),
 					path: source.node.parent,
 					similarity: source.similarity,
 				})
 			}
 		}
-		sources.sort((a, b) => b.similarity - a.similarity)
-	}
-
-	const dispatch = createEventDispatcher<{ "source-click": string }>()
+		files.sort((a, b) => b.similarity - a.similarity)
+		return files
+	})
 </script>
 
 <div class="mt-2 rounded bg-primary-alt p-3">
@@ -40,8 +42,8 @@
 	<ol class="mb-0 mt-2">
 		{#each sources as source}
 			<li class="mb-1">
-				<!-- svelte-ignore a11y-invalid-attribute -->
-				<a href="#" on:click={() => dispatch("source-click", source.path)}>{source.base}</a>
+				<!-- svelte-ignore a11y_invalid_attribute -->
+				<a href="#" onclick={() => onClick(source.path)}>{source.base}</a>
 				<span
 					aria-label="Relevance score"
 					data-tooltip-delay="300"

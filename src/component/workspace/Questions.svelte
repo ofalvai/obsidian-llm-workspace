@@ -1,16 +1,19 @@
 <script lang="ts">
 	import type { WorkspaceQuestion } from "src/llm-features/workspace-questions"
-	import { createEventDispatcher } from "svelte"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 	import Loading from "../obsidian/Loading.svelte"
 
-	export let questions: WorkspaceQuestion[]
-	export let isLoading: boolean
-
-	const dispatch = createEventDispatcher<{
-		"question-select": WorkspaceQuestion
-		regenerate: void
-	}>()
+	let {
+		questions,
+		isLoading,
+		onQuestionSelect,
+		onRegenerate,
+	}: {
+		questions: WorkspaceQuestion[]
+		isLoading: boolean
+		onQuestionSelect: (question: WorkspaceQuestion) => void
+		onRegenerate: () => void
+	} = $props()
 </script>
 
 <div class="mb-4">
@@ -20,7 +23,7 @@
 			class="clickable-icon"
 			aria-label="Regenerate"
 			data-delay="300"
-			on:click={() => dispatch("regenerate")}
+			onclick={() => onRegenerate()}
 		>
 			<ObsidianIcon iconId="refresh-cw" size="s" />
 		</button>
@@ -28,15 +31,15 @@
 	{#if isLoading}
 		<div class="relative my-4">
 			<span class="italic">Thinking</span>
-			<span class="absolute top-1 ml-1"><Loading /></span>
+			<span class="absolute top-1 ml-1"><Loading size="m" /></span>
 		</div>
 	{:else}
 		<div class="grid grid-cols-2 gap-4">
 			{#each questions as question}
 				<div
 					class="min-w-48 max-w-96 basis-1/2 cursor-pointer rounded bg-secondary p-3 hover:bg-hover"
-					on:click={() => dispatch("question-select", question)}
-					on:keyup={(e) => e.key === "Enter" && dispatch("question-select", question)}
+					onclick={() => onQuestionSelect(question)}
+					onkeyup={(e) => e.key === "Enter" && onQuestionSelect(question)}
 					role="button"
 					tabindex="0"
 				>

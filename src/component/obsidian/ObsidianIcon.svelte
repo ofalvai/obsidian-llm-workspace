@@ -1,26 +1,31 @@
 <script lang="ts">
 	import { setIcon } from "obsidian"
 
-	export let iconId: string
-	export let className: string = ""
-
-	// https://docs.obsidian.md/Reference/CSS+variables/Foundations/Icons#Icon%20sizes
-	export let size: "xs" | "s" | "m" | "l" | "xl" = "m"
-
-	// https://docs.obsidian.md/Reference/CSS+variables/Foundations/Colors#Semantic%20colors
-	export let color: "muted" | "normal" | "error" | "success" = "muted"
+	let {
+		iconId,
+		className,
+		size,
+		color,
+	}: {
+		iconId: string
+		className?: string
+		// https://docs.obsidian.md/Reference/CSS+variables/Foundations/Icons#Icon%20sizes
+		size?: "xs" | "s" | "m" | "l" | "xl"
+		// https://docs.obsidian.md/Reference/CSS+variables/Foundations/Colors#Semantic%20colors
+		color?: "muted" | "normal" | "error" | "success"
+	} = $props()
 
 	let el: HTMLElement | undefined
 
-	$: {
+	$effect(() => {
 		if (el) {
 			el.replaceChildren()
 			setIcon(el, iconId)
 		}
-	}
+	})
 </script>
 
-<span bind:this={el} class="size-{size} color-{color} {className}"></span>
+<span bind:this={el} class="size-{size ?? 'm'} color-{color ?? 'muted'} {className}"></span>
 
 <style>
 	span {

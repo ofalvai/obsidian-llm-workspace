@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { liveQuery } from "dexie"
 	import { Notice, TFile } from "obsidian"
-	import { conversationStore, type ConversationStore } from "src/llm-features/conversation"
 	import { llmClient } from "src/llm-features/client"
+	import { conversationStore } from "src/llm-features/conversation"
 	import {
 		workspaceQuestions,
 		type WorkspaceQuestion,
 	} from "src/llm-features/workspace-questions"
+	import type { CompletionOptions, EmbeddingClient, Temperature } from "src/rag/llm/common"
 	import { OpenAIEmbeddingClient } from "src/rag/llm/openai"
 	import { NodeParser } from "src/rag/node"
 	import { RetrieverQueryEngine, type QueryEngine } from "src/rag/query-engine"
@@ -21,22 +22,24 @@
 		readWorkspaceContext,
 		settingsStore,
 	} from "src/utils/obsidian"
-	import type { ComponentEvents } from "svelte"
-	import { writable } from "svelte/store"
+	import Error from "../Error.svelte"
 	import TailwindCss from "../TailwindCSS.svelte"
+	import ConfigValue from "../chat/ConfigValue.svelte"
+	import ConversationStyle from "../chat/ConversationStyle.svelte"
 	import QuestionAndAnswer from "../chat/QuestionAndAnswer.svelte"
 	import type { EmbeddedFileInfo } from "../types"
 	import IndexedFiles from "./IndexedFiles.svelte"
 	import Questions from "./Questions.svelte"
-	import type { CompletionOptions, EmbeddingClient, Temperature } from "src/rag/llm/common"
-	import Error from "../Error.svelte"
-	import ConfigValue from "../chat/ConfigValue.svelte"
-	import ConversationStyle from "../chat/ConversationStyle.svelte"
 
-	export let workspaceFile: TFile
-	export let db: LlmDexie
+	let {
+		workspaceFile,
+		db,
+	}: {
+		workspaceFile: TFile
+		db: LlmDexie
+	} = $props()
 
-	let indexingError: any | null = null
+	let indexingError: any | null = $state(null)
 
 	let workspaceContext: string | null = null
 	const metadata = $appStore.metadataCache.getFileCache(workspaceFile)
@@ -54,30 +57,32 @@
 		completionOptions.temperature = t
 	}
 	// TODO: refactor all of this into a derived store
-	let nodeParser: NodeParser
-	let embeddingClient: EmbeddingClient
-	let retriever: EmbeddingVectorRetriever
-	let synthesizer: ResponseSynthesizer
-	let queryEngine: QueryEngine
-	let conversation: ConversationStore
-	$: {
-		nodeParser = new NodeParser({
+	let nodeParser = $derived(
+		new NodeParser({
 			chunkSize: $settingsStore.chunkSize,
 			paragraphSeparator: "\n\n",
-		})
-		embeddingClient = new OpenAIEmbeddingClient($settingsStore.openAIApiKey)
-		retriever = new EmbeddingVectorRetriever(vectorStore, embeddingClient, {
+		}),
+	)
+	let embeddingClient: EmbeddingClient = $derived(
+		new OpenAIEmbeddingClient($settingsStore.openAIApiKey),
+	)
+	let retriever = $derived(
+		new EmbeddingVectorRetriever(vectorStore, embeddingClient, {
 			limit: $settingsStore.retrievedNodeCount,
-		})
-		synthesizer = new DumbResponseSynthesizer(
+		}),
+	)
+	let synthesizer: ResponseSynthesizer = $derived(
+		new DumbResponseSynthesizer(
 			$llmClient,
 			completionOptions,
 			$settingsStore.systemPrompt,
 			workspaceContext,
-		)
-		queryEngine = new RetrieverQueryEngine(retriever, synthesizer, workspaceFile.path)
-		conversation = conversationStore(queryEngine, $llmClient, completionOptions)
-	}
+		),
+	)
+	let queryEngine: QueryEngine = $derived(
+		new RetrieverQueryEngine(retriever, synthesizer, workspaceFile.path),
+	)
+	let conversation = $derived(conversationStore(queryEngine, $llmClient, completionOptions))
 
 	let links = liveQuery(async () => {
 		const workspace = await db.workspace
@@ -140,16 +145,16 @@
 	const workspaceData = liveQuery(async () => {
 		return db.workspace.where("workspaceFile").equals(workspaceFile.path).first()
 	})
-	const isLoadingQuestions = writable(false)
+	let isLoadingQuestions = $state(false)
 	const buildQuestions = async () => {
-		isLoadingQuestions.set(true)
+		isLoadingQuestions = true
 		try {
 			const questions = await workspaceQuestions($llmClient, $appStore.vault, $links)
 			await db.workspace.update(workspaceFile.path, { derivedQuestions: questions })
 		} catch (e) {
 			console.error("Failed to build questions", e)
 		} finally {
-			isLoadingQuestions.set(false)
+			isLoadingQuestions = false
 		}
 	}
 	const selectQuestion = async (question: WorkspaceQuestion) => {
@@ -198,14 +203,14 @@
 		}
 	}
 
-	const onLinkClick = (event: ComponentEvents<IndexedFiles>["link-click"]) => {
-		$appStore.workspace.openLinkText(event.detail, "", "tab")
+	const onLinkClick = (path: string) => {
+		$appStore.workspace.openLinkText(path, "", "tab")
 	}
-	const onLinkRebuild = async (event: ComponentEvents<IndexedFiles>["link-rebuild"]) => {
+	const onLinkRebuild = async (fileInfo: EmbeddedFileInfo) => {
 		indexingError = null
 		try {
-			await vectorStore.deleteFiles(event.detail.path)
-			const file = $appStore.vault.getFileByPath(event.detail.path)
+			await vectorStore.deleteFiles(fileInfo.path)
+			const file = $appStore.vault.getFileByPath(fileInfo.path)
 			if (!file) {
 				return
 			}
@@ -226,28 +231,29 @@
 	{#if isWorkspace}
 		<IndexedFiles
 			links={$links || []}
-			on:link-click={onLinkClick}
-			on:link-rebuild={onLinkRebuild}
-			on:rebuild-all={rebuildAll}
+			{onLinkClick}
+			{onLinkRebuild}
+			onRebuildAll={rebuildAll}
 		/>
 		{#if indexingError}
 			<Error body={indexingError} />
 		{/if}
 		<QuestionAndAnswer
 			conversation={$conversation}
-			on:message-submit={async (e) => {
-				conversation.submitMessage(e.detail)
+			displaySources={true}
+			onMessageSubmit={async (msg) => {
+				conversation.submitMessage(msg)
 			}}
-			on:source-click={onLinkClick}
-			on:debug-click={(e) => writeDebugInfo($appStore, e.detail)}
-			on:new-conversation={conversation.resetConversation}
+			onSourceClick={(path) => onLinkClick(path)}
+			onDebugClick={(resp) => writeDebugInfo($appStore, resp)}
+			onNewConversation={conversation.resetConversation}
 		>
 			<div slot="empty">
 				<Questions
 					questions={$workspaceData?.derivedQuestions ?? []}
-					isLoading={$isLoadingQuestions}
-					on:regenerate={buildQuestions}
-					on:question-select={async (e) => selectQuestion(e.detail)}
+					isLoading={isLoadingQuestions}
+					onRegenerate={buildQuestions}
+					onQuestionSelect={async (q) => selectQuestion(q)}
 				/>
 				<div>
 					<div class="font-medium">Configuration</div>
@@ -264,7 +270,7 @@
 					/>
 					<ConversationStyle
 						temperature={completionOptions.temperature}
-						on:change={(e) => setTemperature(e.detail)}
+						onChange={(t) => setTemperature(t)}
 					/>
 				</div>
 			</div>

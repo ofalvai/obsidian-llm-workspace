@@ -1,8 +1,9 @@
+import { ItemView, WorkspaceLeaf, type ViewStateResult } from "obsidian"
+import NoteChat from "src/component/NoteChat.svelte"
 import type { LlmPluginSettings } from "src/config/settings"
-import { ItemView, Notice, TFile, WorkspaceLeaf, type ViewStateResult } from "obsidian"
 import { LlmDexie } from "src/storage/db"
 import { appStore, settingsStore, viewStore } from "src/utils/obsidian"
-import NoteChat from "src/component/NoteChat.svelte"
+import { mount, unmount } from "svelte"
 
 export const VIEW_TYPE_NOTE_CHAT = "llm-note-chat-view"
 
@@ -19,7 +20,7 @@ export class NoteChatView extends ItemView {
 
 	filePath?: string
 
-	component!: NoteChat
+	component!: Record<string, any>
 	viewTitle = "LLM note chat"
 	navigation = false
 
@@ -56,7 +57,7 @@ export class NoteChatView extends ItemView {
 	}
 
 	async onClose() {
-		this.component?.$destroy()
+		unmount(this.component)
 	}
 
 	async setState(state: NoteChatViewState, result: ViewStateResult): Promise<void> {
@@ -82,7 +83,7 @@ export class NoteChatView extends ItemView {
 			container.createEl("p", { text: `File not found: ${this.filePath}` })
 			return
 		}
-		this.component = new NoteChat({
+		this.component = mount(NoteChat, {
 			target: this.contentEl,
 			props: {
 				file: file,

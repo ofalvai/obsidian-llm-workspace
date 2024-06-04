@@ -1,6 +1,10 @@
 <script lang="ts">
-	// https://docs.obsidian.md/Reference/CSS+variables/Foundations/Icons#Icon%20sizes
-	export let size: "xs" | "s" | "m" | "l" | "xl" = "m"
+	let {
+		size,
+	}: {
+		// https://docs.obsidian.md/Reference/CSS+variables/Foundations/Icons#Icon%20sizes
+		size: "xs" | "s" | "m" | "l" | "xl"
+	} = $props()
 </script>
 
 <svg

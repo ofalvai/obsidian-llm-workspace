@@ -4,20 +4,23 @@
 
 <script lang="ts">
 	import NoteLink from "./NoteLink.svelte"
-	import { createEventDispatcher } from "svelte"
 	import type { EmbeddedFileInfo } from "../types"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 
-	export let links: EmbeddedFileInfo[]
+	let {
+		links,
+		onLinkClick,
+		onLinkRebuild,
+		onRebuildAll,
+	}: {
+		links: EmbeddedFileInfo[]
+		onLinkClick: (path: string) => void
+		onLinkRebuild: (fileInfo: EmbeddedFileInfo) => void
+		onRebuildAll: () => void
+	} = $props()
 
-	const dispatch = createEventDispatcher<{
-		"link-click": string
-		"link-rebuild": EmbeddedFileInfo
-		"rebuild-all": void
-	}>()
-
-	let collapsed = true
-	$: displayedLinks = collapsed ? links.slice(0, MAX_FILES_TO_DISPLAY) : links
+	let collapsed = $state(true)
+	let displayedLinks = $derived(collapsed ? links.slice(0, MAX_FILES_TO_DISPLAY) : links)
 </script>
 
 <div>
@@ -25,7 +28,7 @@
 		<div class="text-base font-medium">Indexed notes</div>
 		<button
 			class="clickable-icon"
-			on:click={() => dispatch("rebuild-all")}
+			onclick={() => onRebuildAll()}
 			aria-label="Re-index all"
 			data-tooltip-delay="300"
 		>
@@ -34,10 +37,14 @@
 	</div>
 	<div class="mt-2">
 		{#each displayedLinks as link (link.path)}
-			<NoteLink fileInfo={link} on:link-click on:link-rebuild />
+			<NoteLink
+				fileInfo={link}
+				onLinkClick={(path) => onLinkClick(path)}
+				onLinkRebuild={(fileInfo) => onLinkRebuild(fileInfo)}
+			/>
 		{/each}
 		{#if links.length > MAX_FILES_TO_DISPLAY}
-			<button class="clickable-text" on:click={() => (collapsed = !collapsed)}>
+			<button class="clickable-text" onclick={() => (collapsed = !collapsed)}>
 				{collapsed ? "Show more" : "Show less"}
 			</button>
 		{/if}
