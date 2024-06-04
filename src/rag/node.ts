@@ -5,8 +5,6 @@ export interface Node {
 	content: string
 	parent: FilePath
 	createdAt: number
-	tags: string[]
-	frontmatter: FrontMatterCache
 }
 
 export interface NodeParserConfig {
@@ -21,7 +19,7 @@ export class NodeParser {
 		this.config = config
 	}
 
-	parse(text: string, path: string, metadata: CachedMetadata | null): Node[] {
+	parse(text: string, path: string): Node[] {
 		const paragraphSplits = text.split(this.config.paragraphSeparator)
 
 		// merge paragraphs that are too small
@@ -45,8 +43,6 @@ export class NodeParser {
 				content: paragraph,
 				parent: path,
 				createdAt: new Date().valueOf(),
-				tags: metadata?.tags?.map((tag) => tag.tag) ?? [],
-				frontmatter: metadata?.frontmatter ?? {},
 			}
 		})
 	}
