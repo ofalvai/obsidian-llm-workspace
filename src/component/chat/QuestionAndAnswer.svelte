@@ -48,7 +48,7 @@
 				{#if conversation.queryResponse.debugInfo?.originalQuery != conversation.queryResponse.debugInfo?.improvedQuery}
 					<div class="flex flex-row items-center">
 						<ObsidianIcon size="s" iconId="target" className="mr-2" />
-						<div aria-label="Improved query" data-tooltip-delay="300">
+						<div aria-label="Query used for retrieving relevant notes" data-tooltip-delay="300">
 							<ObsidianMarkdown
 								className="grow select-text text-faint"
 								source={conversation.queryResponse.debugInfo?.improvedQuery ?? ""}

@@ -1,30 +1,10 @@
 import type { Vault, Workspace } from "obsidian"
 import type { EmbeddedFileInfo } from "src/component/types"
+import { WORKSPACE_QUESTIONS_PROMPT } from "src/config/prompts"
 import type { ChatCompletionClient, CompletionOptions } from "src/rag/llm/common"
 
 const fileCount = 10
 const fileTruncateLimit = 1000 // characters, not tokens
-const questionsPrompt = `Your task is to generate a list of proactive questions based on the given context.
-The context is a sample of documents about a specific research topic.
-For each question, you should consider the following:
-1. What is the main theme of the question? Pick a theme that is at most 3 words long. The theme should use plain language, no need to escape characters.
-2. What is an appropriate question to explore the provided documents? It should be a full sentence, ending with a question mark.
-Generate AT MOST 6 questions. If you can't think of any more questions, you can provide fewer.
-Response format: JSON with the following schema:
-{
-	"questions": [
-		{
-			"content": "How do the different technologies compare (X, Y, Z) in terms of W?",
-			"theme": "comparison"
-		},
-		{
-			"content": "How did the invention of X influences Y?",
-			"theme": "impact"
-		}
-	]
-}
-Remember, certain characters need to be escaped in JSON strings.
-`
 
 // This type is used just for JSON parsing
 type WorkspaceQuestionHolder = {
@@ -48,7 +28,7 @@ export async function workspaceQuestions(
 		maxTokens: 1024,
 	}
 	const result = await client.createJSONCompletion<WorkspaceQuestionHolder>(
-		questionsPrompt,
+		WORKSPACE_QUESTIONS_PROMPT,
 		context,
 		options,
 	)
