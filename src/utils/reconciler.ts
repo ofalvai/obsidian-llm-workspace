@@ -3,6 +3,7 @@ import { App, type CachedMetadata, type EventRef, TAbstractFile, TFile, TFolder 
 import type { LlmDexie, WorkspaceStoreEntry } from "src/storage/db"
 import { type FilePath, isLlmWorkspace } from "./obsidian"
 import { VectorStoreIndex } from "src/rag/storage"
+import { deleteNoteDerivedData } from "src/storage/note-context"
 
 // ObsidianNoteReconciler is responsible for keeping the database in sync with changes in the Obsidian vault.
 // It listens to file and metadata changes and updates the relevant DB collections accordingly.
@@ -35,7 +36,7 @@ export class ObsidianNoteReconciler {
 		this.obsidianEventRefs.push(
 			this.app.vault.on("delete", this.onFileDelete),
 			this.app.vault.on("rename", this.onFileRename),
-			this.app.metadataCache.on("changed", this.onMetadataChange)
+			this.app.metadataCache.on("changed", this.onMetadataChange),
 		)
 	}
 
@@ -84,8 +85,8 @@ export class ObsidianNoteReconciler {
 					?.map((l) =>
 						this.app.metadataCache.getFirstLinkpathDest(
 							l.link,
-							trackedWorkspace.workspaceFile
-						)
+							trackedWorkspace.workspaceFile,
+						),
 					)
 					?.filter((l): l is Exclude<typeof l, null> => l !== null)
 					?.map((l) => l.path) ?? []
@@ -97,9 +98,9 @@ export class ObsidianNoteReconciler {
 						async () =>
 							await this.processWorkspaceLinkAdd(
 								trackedWorkspace.workspaceFile,
-								link
+								link,
 							),
-						0
+						0,
 					)
 				}
 			}
@@ -109,9 +110,9 @@ export class ObsidianNoteReconciler {
 						async () =>
 							await this.processWorkspaceLinkRemove(
 								trackedWorkspace.workspaceFile,
-								link
+								link,
 							),
-						0
+						0,
 					)
 				}
 			}
@@ -127,7 +128,7 @@ export class ObsidianNoteReconciler {
 			await this.vectorStore.deleteFiles(path)
 		}
 
-		await this.db.deleteNoteDerivedData(path)
+		await deleteNoteDerivedData(this.db, path)
 	}
 
 	private processFileMove = async (old: FilePath, new_: FilePath) => {
@@ -145,10 +146,8 @@ export class ObsidianNoteReconciler {
 		} else {
 			console.log(`Processing note move: ${old} -> ${new_}`)
 			this.db.transaction("rw", this.db.vectorStore, this.db.workspace, async () => {
-				this.db.transaction("rw", this.db.vectorStore, this.db.workspace, async () => {
-					await this.vectorStore.updateFilePath(old, new_)
-					await this.processLinkUpdateInAllWorkspaces(old, new_)
-				})
+				await this.vectorStore.updateFilePath(old, new_)
+				await this.processLinkUpdateInAllWorkspaces(old, new_)
 			})
 		}
 

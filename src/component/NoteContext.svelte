@@ -7,6 +7,7 @@
 	import { appStore, settingsStore } from "src/utils/obsidian"
 	import TailwindCss from "./TailwindCSS.svelte"
 	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
+	import { deleteNoteDerivedData, getNoteDerivedData, updateNoteKeyTopics, updateNoteSummary } from "src/storage/note-context"
 
 	let { db }: { db: LlmDexie } = $props()
 
@@ -31,7 +32,7 @@
 		openFile; // https://github.com/sveltejs/svelte/issues/11424
 		return liveQuery(async () => {
 			if (!openFile) return
-			return await db.getNoteDerivedData(openFile.path)
+			return await getNoteDerivedData(db, openFile.path)
 		})
 	})
 
@@ -45,28 +46,28 @@
 	})
 
 	let networkLoading = $state(false)
-	const fetchSummary = async (f: TFile) => {
+	const updateSummary = async (f: TFile) => {
 		const text = await $appStore.vault.cachedRead(f)
 		if (text.length < $settingsStore.noteContextMinChars) return
 
 		try {
 			networkLoading = true
 			const summary = await noteSummary(text, $llmClient)
-			await db.updateNoteSummary(f.path, summary)
+			await updateNoteSummary(db, f.path, summary)
 		} catch (e) {
 			console.error(e)
 		} finally {
 			networkLoading = false
 		}
 	}
-	const fetchTopics = async (f: TFile) => {
+	const updateTopics = async (f: TFile) => {
 		const text = await $appStore.vault.cachedRead(f)
 		if (text.length < $settingsStore.noteContextMinChars) return
 
 		try {
 			networkLoading = true
 			const topics = await extractKeyTopics(text, $llmClient)
-			await db.updateNoteKeyTopics(f.path, topics)
+			await updateNoteKeyTopics(db, f.path, topics)
 		} catch (e) {
 			console.error(e)
 		} finally {
@@ -81,19 +82,19 @@
 
 		if (!element || !element.isShown()) return
 
-		db.getNoteDerivedData(openFile.path).then((localData) => {
+		getNoteDerivedData(db, openFile.path).then((localData) => {
 			if (!localData && openFile) {
-				fetchSummary(openFile)
-				fetchTopics(openFile)
+				updateSummary(openFile)
+				updateTopics(openFile)
 			}
 		})
 	})
 
 	const onRecompute = async () => {
 		if (!openFile) return
-		await db.deleteNoteDerivedData(openFile.path)
-		fetchTopics(openFile)
-		fetchSummary(openFile)
+		await deleteNoteDerivedData(db, openFile.path)
+		updateTopics(openFile)
+		updateSummary(openFile)
 	}
 	const onKeyTopicClick = (path: string) => {
 		$appStore.workspace.openLinkText(path, "", "tab")
