@@ -15,7 +15,15 @@
 	} from "src/storage/note-context"
 	import Loading from "./obsidian/Loading.svelte"
 
-	let { db }: { db: LlmDexie } = $props()
+	let {
+		db,
+		onOpenNoteChat,
+		onOpenWorkspace,
+	}: {
+		db: LlmDexie
+		onOpenNoteChat: (path: string) => void
+		onOpenWorkspace: (path: string) => void
+	} = $props()
 
 	let element: HTMLElement | undefined
 
@@ -113,11 +121,30 @@
 <div class="mb-2 flex flex-row justify-center" bind:this={element}>
 	<button
 		onclick={onRecompute}
+		disabled={openFile == null}
 		class="clickable-icon"
 		aria-label="Recompute"
 		data-tooltip-delay="300"
 	>
-		<ObsidianIcon iconId="refresh-cw" size="s" />
+		<ObsidianIcon iconId="refresh-cw" size="m" />
+	</button>
+	<button
+		onclick={() => openFile?.path && onOpenNoteChat(openFile?.path)}
+		disabled={openFile == null}
+		class="clickable-icon"
+		aria-label="Chat with note"
+		data-tooltip-delay="300"
+	>
+		<ObsidianIcon iconId="message-square" size="m" />
+	</button>
+	<button
+		onclick={() => openFile?.path && onOpenWorkspace(openFile?.path)}
+		disabled={openFile == null}
+		class="clickable-icon"
+		aria-label="Open note as LLM workspace"
+		data-tooltip-delay="300"
+	>
+		<ObsidianIcon iconId="library-big" size="m" />
 	</button>
 </div>
 
@@ -165,6 +192,6 @@
 			plugin settings.
 		</p>
 	{:else}
-		<p class="w-full text-center">No file is open</p>
+		<p class="w-full text-center text-sm text-muted">No file is open</p>
 	{/if}
 {/await}

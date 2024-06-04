@@ -125,7 +125,14 @@ export default class LlmPlugin extends Plugin {
 	registerViews() {
 		this.registerView(
 			VIEW_TYPE_NOTE_CONTEXT,
-			(leaf) => new NoteContextView(leaf, this.settings, this.db),
+			(leaf) =>
+				new NoteContextView(
+					leaf,
+					this.settings,
+					this.db,
+					(path) => this.launchNoteChatView(path),
+					(path) => this.launchWorkspaceView(path),
+				),
 		)
 		this.registerView(
 			VIEW_TYPE_WORKSPACE,
