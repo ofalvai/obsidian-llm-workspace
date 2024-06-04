@@ -1,4 +1,3 @@
-import type { CachedMetadata, FrontMatterCache } from "obsidian"
 import type { FilePath } from "src/utils/obsidian"
 
 export interface Node {

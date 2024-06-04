@@ -30,8 +30,13 @@
 	</div>
 	{#if isLoading}
 		<div class="relative my-4">
-			<span class="italic">Thinking</span>
+			<span class="text-sm italic text-muted">Thinking</span>
 			<span class="absolute top-1 ml-1"><Loading size="m" /></span>
+		</div>
+	{:else if questions.length === 0}
+		<div class="mb-6 w-full text-sm text-muted">
+			<p>Workspace is not analyzed yet.</p>
+			<p>Click the regenerate button to get started.</p>
 		</div>
 	{:else}
 		<div class="grid grid-cols-2 gap-4">
