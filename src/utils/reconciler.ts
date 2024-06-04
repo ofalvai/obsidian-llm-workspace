@@ -7,6 +7,7 @@ import { VectorStoreIndex } from "src/rag/storage"
 // ObsidianNoteReconciler is responsible for keeping the database in sync with changes in the Obsidian vault.
 // It listens to file and metadata changes and updates the relevant DB collections accordingly.
 // Note: it doesn't clean up node embeddings even if the original note is deleted or no longer referenced from the workspace.
+// This is because recreating embeddings costs real money while wasting a few kilobytes in the DB is fine.
 export class ObsidianNoteReconciler {
 	private db: LlmDexie
 	private app: App
@@ -125,6 +126,8 @@ export class ObsidianNoteReconciler {
 		} else {
 			await this.vectorStore.deleteFiles(path)
 		}
+
+		await this.db.deleteNoteDerivedData(path)
 	}
 
 	private processFileMove = async (old: FilePath, new_: FilePath) => {
@@ -148,6 +151,8 @@ export class ObsidianNoteReconciler {
 				})
 			})
 		}
+
+		await this.db.noteDerivedData.update(old, { path: new_ })
 	}
 
 	private async processWorkspaceDelete(path: FilePath) {
