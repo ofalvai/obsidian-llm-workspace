@@ -27,8 +27,7 @@ export class LlmDexie extends Dexie {
 	workspace!: Table<WorkspaceStoreEntry>
 
 	constructor(vaultId: string) {
-		// TODO: rename this
-		super(`llm-plugin/cache/${vaultId}`)
+		super(`llm-workspace/${vaultId}`)
 		this.version(1).stores({
 			noteDerivedData: "path", // indexed props
 			vectorStore: "++, *includedInWorkspace, node.parent", // indexed props
