@@ -1,7 +1,8 @@
+import OpenAI from "openai"
+import type { ChatCompletionMessageParam } from "openai/resources/index.mjs"
 import { COMPLETION_MODEL, COMPLETION_TEMPERATURE, EMBEDDING_MODEL } from "src/config/openai"
 import { SELF_QUERY_EXAMPLES, SELF_QUERY_PROMPT } from "src/config/prompts"
-import OpenAI from "openai"
-import type { Node } from "../node"
+import { nodeRepresentation, type Node } from "../node"
 import {
 	type ChatMessage,
 	type ChatStreamEvent,
@@ -11,7 +12,6 @@ import {
 	type StreamingChatCompletionClient,
 	type Temperature,
 } from "./common"
-import type { ChatCompletionMessageParam } from "openai/resources/index.mjs"
 
 export class OpenAIChatCompletionClient implements StreamingChatCompletionClient {
 	private client: OpenAI
@@ -152,7 +152,7 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 			)
 
 		const response = await this.client.embeddings.create({
-			input: node.content,
+			input: nodeRepresentation(node),
 			model: EMBEDDING_MODEL,
 		})
 

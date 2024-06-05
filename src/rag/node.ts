@@ -1,3 +1,4 @@
+import path from "node:path"
 import type { FilePath } from "src/utils/obsidian"
 
 export interface Node {
@@ -29,7 +30,7 @@ export class NodeParser {
 				paragraphSplits[idx].length < this.config.chunkSize
 			) {
 				paragraphSplits[idx] = [paragraphSplits[idx], paragraphSplits[idx + 1]].join(
-					this.config.paragraphSeparator
+					this.config.paragraphSeparator,
 				)
 				paragraphSplits.splice(idx + 1, 1)
 			} else {
@@ -45,4 +46,18 @@ export class NodeParser {
 			}
 		})
 	}
+}
+
+export function nodeRepresentation(node: Node): string {
+	const title = path.basename(node.parent, path.extname(node.parent))
+	const folder = path.dirname(node.parent)
+
+	let stringValue = ""
+	stringValue += `Title: ${title}\n`
+	if (folder != ".") {
+		stringValue += `Folder: ${folder}\n`
+	}
+	stringValue += node.content
+
+	return stringValue
 }

@@ -1,8 +1,7 @@
 import { defaultSynthesisUserPrompt } from "src/config/prompts"
 import type { CompletionOptions, StreamingChatCompletionClient } from "./llm/common"
+import { nodeRepresentation } from "./node"
 import type { NodeSimilarity } from "./storage"
-import type { Node } from "./node"
-import path from "node:path"
 
 export interface QueryResponse {
 	text: string
@@ -60,7 +59,7 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 	): AsyncGenerator<QueryResponse> {
 		let context = nodes
 			.sort((a, b) => a.similarity - b.similarity) // put the most relevant nodes towards the end of context
-			.map((n) => nodeToContext(n.node))
+			.map((n) => nodeRepresentation(n.node))
 			.join("\n\n---***---\n\n")
 		if (this.workspaceContext) {
 			context += "\n\n---***---\n\n"
@@ -119,18 +118,4 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 			}
 		}
 	}
-}
-
-function nodeToContext(node: Node): string {
-	const title = path.basename(node.parent, path.extname(node.parent))
-	const folder = path.dirname(node.parent)
-
-	let stringValue = ""
-	stringValue += `Title: ${title}\n`
-	if (folder != ".") {
-		stringValue += `Folder: ${folder}\n`
-	}
-	stringValue += node.content
-
-	return stringValue
 }
