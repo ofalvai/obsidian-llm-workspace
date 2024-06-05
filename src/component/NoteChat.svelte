@@ -1,17 +1,17 @@
 <script lang="ts">
 	import type { TFile } from "obsidian"
-	import { conversationStore } from "src/llm-features/conversation"
 	import { llmClient } from "src/llm-features/client"
+	import { conversationStore } from "src/llm-features/conversation"
+	import type { CompletionOptions } from "src/rag/llm/common"
 	import { SingleNoteQueryEngine, type QueryEngine } from "src/rag/query-engine"
 	import { DumbResponseSynthesizer, type ResponseSynthesizer } from "src/rag/synthesizer"
 	import { writeDebugInfo } from "src/utils/debug"
 	import { appStore, settingsStore } from "src/utils/obsidian"
 	import { readable } from "svelte/store"
-	import QuestionAndAnswer from "./chat/QuestionAndAnswer.svelte"
 	import TailwindCss from "./TailwindCSS.svelte"
 	import ConfigValue from "./chat/ConfigValue.svelte"
 	import ConversationStyle from "./chat/ConversationStyle.svelte"
-	import type { CompletionOptions, Temperature } from "src/rag/llm/common"
+	import QuestionAndAnswer from "./chat/QuestionAndAnswer.svelte"
 
 	let { file }: { file: TFile } = $props()
 
@@ -27,13 +27,10 @@
 			}
 		})
 	})
-	const completionOptions: CompletionOptions = {
+	const completionOptions: CompletionOptions = $state({
 		temperature: "balanced",
 		maxTokens: 1024,
-	}
-	const setTemperature = (t: Temperature) => {
-		completionOptions.temperature = t
-	}
+	})
 	let synthesizer: ResponseSynthesizer = $derived(
 		new DumbResponseSynthesizer($llmClient, completionOptions, $settingsStore.systemPrompt),
 	)
@@ -65,7 +62,7 @@
 			<ConfigValue iconId="bot" label="LLM" value={$llmClient.displayName} />
 			<ConversationStyle
 				temperature={completionOptions.temperature}
-				onChange={(t) => setTemperature(t)}
+				onChange={(t) => (completionOptions.temperature = t)}
 			/>
 		</div>
 	</QuestionAndAnswer>

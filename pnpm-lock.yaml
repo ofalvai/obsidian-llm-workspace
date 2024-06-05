@@ -35,7 +35,7 @@ importers:
         version: 0.21.3
       esbuild-svelte:
         specifier: ^0.8.1
-        version: 0.8.1(esbuild@0.21.3)(svelte@5.0.0-next.148)
+        version: 0.8.1(esbuild@0.21.3)(svelte@5.0.0-next.149)
       obsidian:
         specifier: 1.5.7-1
         version: 1.5.7-1(@codemirror/state@6.4.1)(@codemirror/view@6.26.0)
@@ -44,16 +44,16 @@ importers:
         version: 8.4.35
       prettier-plugin-svelte:
         specifier: ^3.2.2
-        version: 3.2.2(prettier@3.2.5)(svelte@5.0.0-next.148)
+        version: 3.2.2(prettier@3.2.5)(svelte@5.0.0-next.149)
       prettier-plugin-tailwindcss:
         specifier: ^0.5.12
-        version: 0.5.12(prettier-plugin-svelte@3.2.2(prettier@3.2.5)(svelte@5.0.0-next.148))(prettier@3.2.5)
+        version: 0.5.12(prettier-plugin-svelte@3.2.2(prettier@3.2.5)(svelte@5.0.0-next.149))(prettier@3.2.5)
       svelte:
-        specifier: 5.0.0-next.148
-        version: 5.0.0-next.148
+        specifier: 5.0.0-next.149
+        version: 5.0.0-next.149
       svelte-preprocess:
         specifier: ^5.1.3
-        version: 5.1.3(postcss-load-config@4.0.2(postcss@8.4.35))(postcss@8.4.35)(svelte@5.0.0-next.148)(typescript@5.4.2)
+        version: 5.1.3(postcss-load-config@4.0.2(postcss@8.4.35))(postcss@8.4.35)(svelte@5.0.0-next.149)(typescript@5.4.2)
       tailwindcss:
         specifier: ^3.4.1
         version: 3.4.1
@@ -1260,8 +1260,8 @@ packages:
       typescript:
         optional: true
 
-  svelte@5.0.0-next.148:
-    resolution: {integrity: sha512-4N1V1BjClRsXBFOUKQZxmwg0Xb62ZUEM0B/5Q9bfeuR37uBpqkv4HYzso/QNqwVYPmnOmeMzQkrHJcuwh+ZCsQ==}
+  svelte@5.0.0-next.149:
+    resolution: {integrity: sha512-n7CPR/7XrU7D8Wlo8kVhhEvE+aytNbBHSBfjdFm0xSDFlb5TuSNbQbKDifDGVOAFXGtVhNzl755vLLfUyBlkiA==}
     engines: {node: '>=18'}
 
   tailwindcss@3.4.1:
@@ -1806,11 +1806,11 @@ snapshots:
 
   es6-promise@3.3.1: {}
 
-  esbuild-svelte@0.8.1(esbuild@0.21.3)(svelte@5.0.0-next.148):
+  esbuild-svelte@0.8.1(esbuild@0.21.3)(svelte@5.0.0-next.149):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.22
       esbuild: 0.21.3
-      svelte: 5.0.0-next.148
+      svelte: 5.0.0-next.149
 
   esbuild@0.21.3:
     optionalDependencies:
@@ -2302,16 +2302,16 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier-plugin-svelte@3.2.2(prettier@3.2.5)(svelte@5.0.0-next.148):
+  prettier-plugin-svelte@3.2.2(prettier@3.2.5)(svelte@5.0.0-next.149):
     dependencies:
       prettier: 3.2.5
-      svelte: 5.0.0-next.148
+      svelte: 5.0.0-next.149
 
-  prettier-plugin-tailwindcss@0.5.12(prettier-plugin-svelte@3.2.2(prettier@3.2.5)(svelte@5.0.0-next.148))(prettier@3.2.5):
+  prettier-plugin-tailwindcss@0.5.12(prettier-plugin-svelte@3.2.2(prettier@3.2.5)(svelte@5.0.0-next.149))(prettier@3.2.5):
     dependencies:
       prettier: 3.2.5
     optionalDependencies:
-      prettier-plugin-svelte: 3.2.2(prettier@3.2.5)(svelte@5.0.0-next.148)
+      prettier-plugin-svelte: 3.2.2(prettier@3.2.5)(svelte@5.0.0-next.149)
 
   prettier@3.2.5: {}
 
@@ -2421,20 +2421,20 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte-preprocess@5.1.3(postcss-load-config@4.0.2(postcss@8.4.35))(postcss@8.4.35)(svelte@5.0.0-next.148)(typescript@5.4.2):
+  svelte-preprocess@5.1.3(postcss-load-config@4.0.2(postcss@8.4.35))(postcss@8.4.35)(svelte@5.0.0-next.149)(typescript@5.4.2):
     dependencies:
       '@types/pug': 2.0.10
       detect-indent: 6.1.0
       magic-string: 0.30.7
       sorcery: 0.11.0
       strip-indent: 3.0.0
-      svelte: 5.0.0-next.148
+      svelte: 5.0.0-next.149
     optionalDependencies:
       postcss: 8.4.35
       postcss-load-config: 4.0.2(postcss@8.4.35)
       typescript: 5.4.2
 
-  svelte@5.0.0-next.148:
+  svelte@5.0.0-next.149:
     dependencies:
       '@ampproject/remapping': 2.2.1
       '@jridgewell/sourcemap-codec': 1.4.15
