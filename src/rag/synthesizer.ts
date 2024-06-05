@@ -7,19 +7,23 @@ export interface QueryResponse {
 	text: string
 
 	sources: NodeSimilarity[]
+	retrievalDetails?: RetrievalDetails // null when it's not in workspace RAG mode
 
 	systemPrompt: string
 	userPrompt: string
 
-	// Debug info is not present while the response is being streamed
+	// Debug info is not yet available while the response is being streamed
 	debugInfo?: DebugInfo
+}
+
+export interface RetrievalDetails {
+	originalQuery: string
+	improvedQuery: string
 }
 
 // TODO: add response string
 // TODO: add response time
 export interface DebugInfo {
-	originalQuery: string
-	improvedQuery: string
 	createdAt: number
 	inputTokens?: number
 	outputTokens?: number
@@ -84,6 +88,10 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 					yield {
 						text: aggregatedText,
 						sources: nodes,
+						retrievalDetails: {
+							originalQuery: query,
+							improvedQuery: improvedQuery,
+						},
 						systemPrompt,
 						userPrompt,
 					}
@@ -94,6 +102,10 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 					yield {
 						text: aggregatedText,
 						sources: nodes,
+						retrievalDetails: {
+							originalQuery: query,
+							improvedQuery: improvedQuery,
+						},
 						systemPrompt,
 						userPrompt,
 					}
@@ -103,11 +115,13 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 					yield {
 						text: aggregatedText,
 						sources: nodes,
+						retrievalDetails: {
+							originalQuery: query,
+							improvedQuery: improvedQuery,
+						},
 						systemPrompt,
 						userPrompt,
 						debugInfo: {
-							originalQuery: query,
-							improvedQuery: improvedQuery,
 							createdAt: Date.now(),
 							inputTokens: event.usage?.inputTokens,
 							outputTokens: event.usage?.outputTokens,

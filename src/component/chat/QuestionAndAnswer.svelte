@@ -46,7 +46,7 @@
 				/>
 			{/if}
 			{#if conversation.queryResponse}
-				{#if conversation.queryResponse.debugInfo?.originalQuery != conversation.queryResponse.debugInfo?.improvedQuery}
+				{#if conversation.queryResponse.retrievalDetails?.originalQuery != conversation.queryResponse.retrievalDetails?.improvedQuery}
 					<div class="flex flex-row items-center">
 						<ObsidianIcon size="s" iconId="target" className="mr-2" />
 						<div
@@ -55,7 +55,8 @@
 						>
 							<ObsidianMarkdown
 								className="grow select-text text-faint"
-								source={conversation.queryResponse.debugInfo?.improvedQuery ?? ""}
+								source={conversation.queryResponse.retrievalDetails
+									?.improvedQuery ?? ""}
 							/>
 						</div>
 					</div>
