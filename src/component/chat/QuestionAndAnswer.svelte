@@ -1,14 +1,14 @@
 <script lang="ts">
+	import { Notice } from "obsidian"
 	import type { Conversation } from "src/rag/conversation"
 	import type { QueryResponse } from "src/rag/synthesizer"
-	import ObsidianMarkdown from "../obsidian/ObsidianMarkdown.svelte"
-	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
-	import SourceList from "./SourceList.svelte"
-	import Loading from "../obsidian/Loading.svelte"
-	import { Notice } from "obsidian"
-	import Message from "./Message.svelte"
-	import UserInput from "./UserInput.svelte"
 	import Error from "../Error.svelte"
+	import Loading from "../obsidian/Loading.svelte"
+	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
+	import ObsidianMarkdown from "../obsidian/ObsidianMarkdown.svelte"
+	import Message from "./Message.svelte"
+	import SourceList from "./SourceList.svelte"
+	import UserInput from "./UserInput.svelte"
 
 	let {
 		conversation,
@@ -36,13 +36,14 @@
 	{#if conversation}
 		<div class="grow">
 			{#if conversation.initialUserQuery}
-				<div class="flex flex-row items-center">
-					<ObsidianIcon className="mr-2" iconId="user" size="s" />
-					<ObsidianMarkdown
-						className="grow select-text"
-						source={conversation.initialUserQuery}
-					/>
-				</div>
+				<Message
+					message={{
+						role: "user",
+						content: conversation.initialUserQuery,
+					}}
+					onCopy={(msg) => copyToClipboard(msg)}
+					onEdit={(msg) => {}}
+				/>
 			{/if}
 			{#if conversation.queryResponse}
 				{#if conversation.queryResponse.debugInfo?.originalQuery != conversation.queryResponse.debugInfo?.improvedQuery}

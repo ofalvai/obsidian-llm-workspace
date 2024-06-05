@@ -16,9 +16,9 @@
 
 <div class="flex flex-row items-baseline">
 	{#if message.role === "user"}
-		<ObsidianIcon iconId="user" size="s" className="mr-2 flex-none relative top-1" />
+		<ObsidianIcon iconId="user" size="s" className="mr-2 flex-none relative top-0.5" />
 	{:else if message.role === "assistant"}
-		<ObsidianIcon iconId="sparkles" size="s" className="mr-2 flex-none relative top-1" />
+		<ObsidianIcon iconId="sparkles" size="s" className="mr-2 flex-none relative top-0.5" />
 	{/if}
 	<ObsidianMarkdown
 		source={message.content}
