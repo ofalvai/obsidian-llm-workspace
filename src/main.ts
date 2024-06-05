@@ -7,6 +7,7 @@ import { NoteContextView, VIEW_TYPE_NOTE_CONTEXT } from "src/view/NoteContextVie
 import { VIEW_TYPE_WORKSPACE, WorkspaceView } from "src/view/WorkspaceView"
 import { settingsStore } from "./utils/obsidian"
 import { NoteChatView, VIEW_TYPE_NOTE_CHAT } from "./view/NoteChatView"
+import { showSuggestWorkspaceModal } from "./view/SuggestWorkspaceModal"
 
 export default class LlmPlugin extends Plugin {
 	settings!: LlmPluginSettings
@@ -174,6 +175,16 @@ export default class LlmPlugin extends Plugin {
 					return
 				}
 				this.launchNoteChatView(activeFile.path)
+			},
+		})
+
+		this.addCommand({
+			id: "open-workspace-suggest-modal",
+			name: "Open existing workspace",
+			callback: async () => {
+				await showSuggestWorkspaceModal(this.app, this.db, (workspace) =>
+					this.launchWorkspaceView(workspace),
+				)
 			},
 		})
 	}
