@@ -115,6 +115,11 @@
 	const onKeyTopicClick = (path: string) => {
 		$appStore.workspace.openLinkText(path, "", "tab")
 	}
+	const onCreateTopicNote = async (topic: string) => {
+		const path = `${topic}.md`
+		await $appStore.vault.create(path, "")
+		onKeyTopicClick(path)
+	}
 </script>
 
 <TailwindCss />
@@ -174,12 +179,13 @@
 						{:else}
 							<div class="group flex flex-row items-center">
 								<span class="mr-1 select-text">{topic.name}</span>
-								<span
+								<button
 									class="clickable-icon invisible group-hover:visible"
+									onclick={() => onCreateTopicNote(topic.name)}
 									aria-label="Create note"
 								>
 									<ObsidianIcon iconId="file-plus" size="xs" />
-								</span>
+								</button>
 							</div>
 						{/if}
 					</li>
