@@ -1,6 +1,6 @@
 import { Notice, Plugin, WorkspaceLeaf } from "obsidian"
 import { DEFAULT_SETTINGS, LlmSettingTab, type LlmPluginSettings } from "src/config/settings"
-import { VectorStoreIndex } from "src/rag/storage"
+import { VectorStoreIndex } from "src/rag/vectorstore"
 import { LlmDexie } from "src/storage/db"
 import { ObsidianNoteReconciler } from "src/utils/reconciler"
 import { NoteContextView, VIEW_TYPE_NOTE_CONTEXT } from "src/view/NoteContextView"

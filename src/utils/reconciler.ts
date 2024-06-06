@@ -2,7 +2,7 @@ import { type Subscription, liveQuery } from "dexie"
 import { App, type CachedMetadata, type EventRef, TAbstractFile, TFile, TFolder } from "obsidian"
 import type { LlmDexie, WorkspaceStoreEntry } from "src/storage/db"
 import { type FilePath, isLlmWorkspace } from "./obsidian"
-import { VectorStoreIndex } from "src/rag/storage"
+import { VectorStoreIndex } from "src/rag/vectorstore"
 import { deleteNoteDerivedData } from "src/storage/note-context"
 
 // ObsidianNoteReconciler is responsible for keeping the database in sync with changes in the Obsidian vault.
@@ -133,7 +133,6 @@ export class ObsidianNoteReconciler {
 
 	private processFileMove = async (old: FilePath, new_: FilePath) => {
 		if (this.isWorkspaceFile(old)) {
-			console.log(`Processing workspace move: ${old} -> ${new_}`)
 			this.db.transaction("rw", this.db.vectorStore, this.db.workspace, async () => {
 				await this.vectorStore.updateWorkspacePath(old, new_)
 				await this.db.workspace
@@ -144,7 +143,6 @@ export class ObsidianNoteReconciler {
 					})
 			})
 		} else {
-			console.log(`Processing note move: ${old} -> ${new_}`)
 			this.db.transaction("rw", this.db.vectorStore, this.db.workspace, async () => {
 				await this.vectorStore.updateFilePath(old, new_)
 				await this.processLinkUpdateInAllWorkspaces(old, new_)
@@ -155,7 +153,6 @@ export class ObsidianNoteReconciler {
 	}
 
 	private async processWorkspaceDelete(path: FilePath) {
-		console.log(`Processing workspace delete: ${path}`)
 		await this.db.workspace.where("workspaceFile").equals(path).delete()
 	}
 

@@ -12,7 +12,7 @@
 	import { NodeParser } from "src/rag/node"
 	import { RetrieverQueryEngine, type QueryEngine } from "src/rag/query-engine"
 	import { EmbeddingVectorRetriever } from "src/rag/retriever"
-	import { VectorStoreIndex } from "src/rag/storage"
+	import { VectorStoreIndex } from "src/rag/vectorstore"
 	import { DumbResponseSynthesizer, type ResponseSynthesizer } from "src/rag/synthesizer"
 	import type { LlmDexie, VectorStoreEntry } from "src/storage/db"
 	import { writeDebugInfo } from "src/utils/debug"

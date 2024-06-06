@@ -1,7 +1,7 @@
 import { defaultSynthesisUserPrompt } from "src/config/prompts"
 import type { CompletionOptions, StreamingChatCompletionClient } from "./llm/common"
 import { nodeRepresentation } from "./node"
-import type { NodeSimilarity } from "./storage"
+import type { NodeSimilarity } from "./vectorstore"
 
 export interface QueryResponse {
 	text: string
