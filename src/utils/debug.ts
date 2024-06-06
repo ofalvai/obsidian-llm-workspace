@@ -1,4 +1,4 @@
-import { Notice, type App } from "obsidian"
+import { type App } from "obsidian"
 import type { QueryResponse } from "src/rag/synthesizer"
 
 export async function writeDebugInfo(app: App, response: QueryResponse) {
@@ -6,11 +6,9 @@ export async function writeDebugInfo(app: App, response: QueryResponse) {
 	const file = app.metadataCache.getFirstLinkpathDest(debugFilePath, "")
 	const markdown = debugInfoToMarkdown(response)
 	if (file) {
-		await app.vault.append(file, markdown)
-		new Notice("Debug info appended to the end of file")
-	} else {
-		await app.vault.create(debugFilePath, markdown)
+		await app.vault.delete(file)
 	}
+	await app.vault.create(debugFilePath, markdown)
 
 	await app.workspace.openLinkText(debugFilePath, "", "tab")
 }
