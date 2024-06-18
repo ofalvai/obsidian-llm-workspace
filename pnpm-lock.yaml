@@ -20,7 +20,7 @@ importers:
         version: 2.1.0(eslint@8.57.0)
       '@tsconfig/svelte':
         specifier: ^5.0.2
-        version: 5.0.2
+        version: 5.0.4
       '@types/node':
         specifier: ^16.11.6
         version: 16.18.89
@@ -306,8 +306,8 @@ packages:
     peerDependencies:
       eslint: '>=8.40.0'
 
-  '@tsconfig/svelte@5.0.2':
-    resolution: {integrity: sha512-BRbo1fOtyVbhfLyuCWw6wAWp+U8UQle+ZXu84MYYWzYSEB28dyfnRBIE99eoG+qdAC0po6L2ScIEivcT07UaMA==}
+  '@tsconfig/svelte@5.0.4':
+    resolution: {integrity: sha512-BV9NplVgLmSi4mwKzD8BD/NQ8erOY/nUE/GpgWe2ckx+wIQF5RyRirn/QsSSCPeulVpc3RA/iJt6DpfTIZps0Q==}
 
   '@types/codemirror@5.60.8':
     resolution: {integrity: sha512-VjFgDF/eB+Aklcy15TtOTLQeMjTo07k7KAjql8OK5Dirr7a6sJY4T1uVBDuTVG9VEmn1uUsohOpYnVfgC6/jyw==}
@@ -1579,7 +1579,7 @@ snapshots:
       eslint-visitor-keys: 4.0.0
       espree: 10.0.1
 
-  '@tsconfig/svelte@5.0.2': {}
+  '@tsconfig/svelte@5.0.4': {}
 
   '@types/codemirror@5.60.8':
     dependencies:
