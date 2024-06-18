@@ -23,7 +23,7 @@ importers:
         version: 5.0.2
       '@types/node':
         specifier: ^16.11.6
-        version: 16.18.89
+        version: 16.18.99
       '@typescript-eslint/eslint-plugin':
         specifier: 7.9.0
         version: 7.9.0(@typescript-eslint/parser@7.9.0(eslint@8.57.0)(typescript@5.4.2))(eslint@8.57.0)(typescript@5.4.2)
@@ -243,6 +243,7 @@ packages:
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
+    deprecated: Use @eslint/config-array instead
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -250,6 +251,7 @@ packages:
 
   '@humanwhocodes/object-schema@2.0.3':
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
+    deprecated: Use @eslint/object-schema instead
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -313,11 +315,11 @@ packages:
   '@types/node-fetch@2.6.11':
     resolution: {integrity: sha512-24xFj9R5+rfQJLRyM56qh+wnVSYhyXC2tkoBndtY0U+vubqNsYXGjufB2nn8Q6gt0LrARwL6UBtMCSVCwl4B1g==}
 
-  '@types/node@16.18.89':
-    resolution: {integrity: sha512-QlrE8QI5z62nfnkiUZysUsAaxWaTMoGqFVcB3PvK1WxJ0c699bacErV4Fabe9Hki6ZnaHalgzihLbTl2d34XfQ==}
+  '@types/node@16.18.99':
+    resolution: {integrity: sha512-X2Yc+NQaPXDuaR32UmFrTr3OXWaht756A6sJw56o4dehkySBZ0NWH30CCRviuC0KFwTDW/NTjrtbFHhYcHkd6g==}
 
-  '@types/node@18.19.34':
-    resolution: {integrity: sha512-eXF4pfBNV5DAMKGbI02NnDtWrQ40hAN558/2vvS4gMpMIxaf6JmD7YjnZbq0Q9TDSSkKBamime8ewRoomHdt4g==}
+  '@types/node@18.19.36':
+    resolution: {integrity: sha512-tX1BNmYSWEvViftB26VLNxT6mEr37M7+ldUtq7rlKnv4/2fKYsJIOmqJAjT6h1DNuwQjIKgw3VJ/Dtw3yiTIQw==}
 
   '@types/pug@2.0.10':
     resolution: {integrity: sha512-Sk/uYFOBAB7mb74XcpizmH0KOR2Pv3D2Hmrh1Dmy5BmK3MpdSa5kqZcg6EKBdklU0bFXX9gCfzvpnyUehrPIuA==}
@@ -402,6 +404,11 @@ packages:
 
   acorn@8.11.3:
     resolution: {integrity: sha512-Y9rRfJG5jcKOE0CLisYbojUjIrIEE7AGMzA/Sm4BslANhbS+cDMpgBdcPT91oJ7OuJ9hYJBx59RjbhxVnrF8Xg==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
+  acorn@8.12.0:
+    resolution: {integrity: sha512-RTvkC4w+KNXrM39/lWCUaG0IbRkWdCv7W/IOW9oU6SawyxulvkQy5HQPVTKxEjczcUvapcrw3cFx/60VN/NRNw==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -1570,12 +1577,12 @@ snapshots:
 
   '@types/node-fetch@2.6.11':
     dependencies:
-      '@types/node': 16.18.89
+      '@types/node': 16.18.99
       form-data: 4.0.0
 
-  '@types/node@16.18.89': {}
+  '@types/node@16.18.99': {}
 
-  '@types/node@18.19.34':
+  '@types/node@18.19.36':
     dependencies:
       undici-types: 5.26.5
 
@@ -1676,11 +1683,17 @@ snapshots:
     dependencies:
       acorn: 8.11.3
 
+  acorn-jsx@5.3.2(acorn@8.12.0):
+    dependencies:
+      acorn: 8.12.0
+
   acorn-typescript@1.4.13(acorn@8.11.3):
     dependencies:
       acorn: 8.11.3
 
   acorn@8.11.3: {}
+
+  acorn@8.12.0: {}
 
   agentkeepalive@4.5.0:
     dependencies:
@@ -1922,8 +1935,8 @@ snapshots:
 
   espree@9.6.1:
     dependencies:
-      acorn: 8.11.3
-      acorn-jsx: 5.3.2(acorn@8.11.3)
+      acorn: 8.12.0
+      acorn-jsx: 5.3.2(acorn@8.12.0)
       eslint-visitor-keys: 3.4.3
 
   esquery@1.5.0:
@@ -2228,7 +2241,7 @@ snapshots:
 
   openai@4.47.3:
     dependencies:
-      '@types/node': 18.19.34
+      '@types/node': 18.19.36
       '@types/node-fetch': 2.6.11
       abort-controller: 3.0.0
       agentkeepalive: 4.5.0
