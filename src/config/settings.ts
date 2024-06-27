@@ -100,7 +100,7 @@ export class LlmSettingTab extends PluginSettingTab {
 		
 		new Setting(containerEl)
 			.setName("Prune database")
-			.setDesc("However, some changes don't remove data to avoid expensive LLM API calls in case it's needed again (such as building embeddings). This button allows you to manually prune the database to remove dangling entries.")
+			.setDesc("For most file change events in the vault, the database is kept in sync automatically. However, some changes don't remove data to avoid expensive LLM API calls in case it's needed again (such as building embeddings). This button allows you to manually prune the database to remove dangling entries.")
 			.addButton((button) => {
 				button.setButtonText("Prune")
 					.onClick(async () => {
