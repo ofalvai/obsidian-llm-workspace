@@ -34,6 +34,7 @@ const MODELS = [
 	"gpt-4o-2024-05-13",
 	"claude-3-haiku-20240307",
 	"claude-3-sonnet-20240229",
+	"claude-3-5-sonnet-20240620",
 	"claude-3-opus-20240229",
 ]
 
