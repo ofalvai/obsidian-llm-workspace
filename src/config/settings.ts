@@ -1,6 +1,7 @@
 import { PluginSettingTab, App, Setting, Notice } from "obsidian"
 import type LlmPlugin from "src/main"
 import { DEFAULT_SYSTEM_PROMPT } from "./prompts"
+import { Pruner } from "src/storage/pruner"
 
 export interface LlmPluginSettings {
 	openAIApiKey: string
@@ -94,6 +95,18 @@ export class LlmSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.noteContextMinChars = value
 						await this.plugin.saveSettings()
+					})
+			})
+		
+		new Setting(containerEl)
+			.setName("Prune database")
+			.setDesc("However, some changes don't remove data to avoid expensive LLM API calls in case it's needed again (such as building embeddings). This button allows you to manually prune the database to remove dangling entries.")
+			.addButton((button) => {
+				button.setButtonText("Prune")
+					.onClick(async () => {
+						const pruner = new Pruner(this.app.vault, this.plugin.db)
+						const count = await pruner.prune()
+						new Notice(`Pruned ${count} database entries.`, 0)
 					})
 			})
 
