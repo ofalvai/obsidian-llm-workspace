@@ -38,85 +38,51 @@
 	})
 </script>
 
-<div class="container">
-	<div class="header">
+<div class="flex flex-col">
+	<div class="flex flex-row">
 		<span
-			class="icon-status"
+			class="mr-1 mt-[1px] self-baseline"
 			aria-label={label}
 			data-tooltip-position="top"
 			data-tooltip-delay="300"
 		>
 			{#if fileInfo.nodeCount === 0}
-				<ObsidianIcon iconId="file-x" size="m" color="error" />
+				<ObsidianIcon iconId="file-x" size="s" color="error" />
 			{:else}
-				<ObsidianIcon iconId="file-check-2" size="m" color="success" />
+				<ObsidianIcon iconId="file-check-2" size="s" color="success" />
 			{/if}
 		</span>
-		<!-- svelte-ignore a11y_invalid_attribute -->
-		<a href="#" class="link-name" onclick={() => onLinkClick(fileInfo.path)}
-			>{fileInfo.name}
-		</a>
-		<button class="clickable-icon link-expand" onclick={() => (isCollapsed = !isCollapsed)}>
+		<div class="grow">
+			<!-- svelte-ignore a11y_invalid_attribute -->
+			<a href="#" class="text-sm" onclick={() => onLinkClick(fileInfo.path)}
+				>{fileInfo.name}
+			</a>
+		</div>
+		<button
+			class="clickable-icon ml-1 self-center"
+			onclick={() => (isCollapsed = !isCollapsed)}
+		>
 			{#if isCollapsed}
-				<ObsidianIcon iconId="chevron-down" size="m" />
+				<ObsidianIcon iconId="chevron-down" size="s" />
 			{:else}
-				<ObsidianIcon iconId="chevron-up" size="m" />
+				<ObsidianIcon iconId="chevron-up" size="s" />
 			{/if}
 		</button>
 	</div>
-	<div class={(isCollapsed ? "collapsed" : "") + " link-details"}>
+	<div
+		class={(isCollapsed ? "hidden" : "") +
+			" mb-4 ml-5 flex flex-col items-start gap-1 text-muted"}
+	>
 		{#if fileInfo.parent && !fileInfo.parent.isRoot()}
 			<div class="link-parent">
-				<ObsidianIcon iconId="folder" size="m" className="relative top-1" />
+				<ObsidianIcon iconId="folder" size="s" className="relative top-[3px] mr-0.5" />
 				<span class="text-sm">{fileInfo.parent.name}</span>
 			</div>
 		{/if}
 		<div>
-			<ObsidianIcon iconId="calendar-clock" size="m" className="relative top-1" />
+			<ObsidianIcon iconId="calendar-clock" size="s" className="relative top-[3px] mr-0.5" />
 			<span class="text-sm">{label}</span>
 		</div>
 		<button class="mt-2" onclick={() => onLinkRebuild(fileInfo)}>Re-index file</button>
 	</div>
 </div>
-
-<style>
-	.container {
-		display: flex;
-		flex-direction: column;
-	}
-	.header {
-		display: flex;
-		flex-direction: row;
-		margin-bottom: 2px;
-	}
-	.icon-status {
-		margin-right: 4px;
-		margin-top: 1px;
-		align-self: baseline;
-	}
-	.link-name {
-		flex-grow: 1;
-	}
-	.link-expand {
-		align-self: center;
-		margin-left: 4px;
-	}
-	.link-details {
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-		margin-bottom: 16px;
-		margin-left: 24px;
-		align-items: flex-start;
-		color: var(--text-muted);
-	}
-	.link-details.collapsed {
-		display: none;
-	}
-	.icon-folder {
-		margin-bottom: 3px;
-		stroke: var(--text-muted);
-		vertical-align: middle;
-		margin-right: 4px;
-	}
-</style>
