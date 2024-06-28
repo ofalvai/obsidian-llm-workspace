@@ -7,13 +7,13 @@
 		workspaceQuestions,
 		type WorkspaceQuestion,
 	} from "src/llm-features/workspace-questions"
-	import type { CompletionOptions, EmbeddingClient, Temperature } from "src/rag/llm/common"
+	import type { CompletionOptions, EmbeddingClient } from "src/rag/llm/common"
 	import { OpenAIEmbeddingClient } from "src/rag/llm/openai"
 	import { NodeParser } from "src/rag/node"
 	import { RetrieverQueryEngine, type QueryEngine } from "src/rag/query-engine"
 	import { EmbeddingVectorRetriever } from "src/rag/retriever"
-	import { VectorStoreIndex } from "src/rag/vectorstore"
 	import { DumbResponseSynthesizer, type ResponseSynthesizer } from "src/rag/synthesizer"
+	import { VectorStoreIndex } from "src/rag/vectorstore"
 	import type { LlmDexie, VectorStoreEntry } from "src/storage/db"
 	import { writeDebugInfo } from "src/utils/debug"
 	import {
@@ -49,13 +49,10 @@
 	}
 
 	const vectorStore = new VectorStoreIndex(db)
-	const completionOptions: CompletionOptions = {
+	const completionOptions: CompletionOptions = $state({
 		temperature: "balanced",
 		maxTokens: 1024,
-	}
-	const setTemperature = (t: Temperature) => {
-		completionOptions.temperature = t
-	}
+	})
 	// TODO: refactor all of this into a derived store
 	let nodeParser = $derived(
 		new NodeParser({
@@ -270,7 +267,7 @@
 					/>
 					<ConversationStyle
 						temperature={completionOptions.temperature}
-						onChange={(t) => setTemperature(t)}
+						onChange={(t) => (completionOptions.temperature = t)}
 					/>
 				</div>
 			</div>

@@ -45,7 +45,7 @@
 		{/each}
 		{#if links.length > MAX_FILES_TO_DISPLAY}
 			<button class="clickable-text" onclick={() => (collapsed = !collapsed)}>
-				{collapsed ? "Show more" : "Show less"}
+				{collapsed ? "Show more" : "Show fewer"}
 			</button>
 		{/if}
 	</div>
