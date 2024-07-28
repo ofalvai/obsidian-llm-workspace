@@ -22,6 +22,7 @@
 		readWorkspaceContext,
 		settingsStore,
 	} from "src/utils/obsidian"
+	import { readable } from "svelte/store"
 	import Error from "../Error.svelte"
 	import TailwindCss from "../TailwindCSS.svelte"
 	import ConfigValue from "../chat/ConfigValue.svelte"
@@ -41,12 +42,20 @@
 
 	let indexingError: any | null = $state(null)
 
-	let workspaceContext: string | null = null
-	const metadata = $appStore.metadataCache.getFileCache(workspaceFile)
-	const isWorkspace = metadata != null && isLlmWorkspace(metadata)
-	if (metadata) {
-		workspaceContext = readWorkspaceContext(metadata)
-	}
+	const metadata = readable($appStore.metadataCache.getFileCache(workspaceFile), (set) => {
+		const ref = $appStore.metadataCache.on("changed", (file) => {
+			if (file === workspaceFile) {
+				const cache = $appStore.metadataCache.getFileCache(workspaceFile)
+				set(cache)
+				// A removed context (null) is different than a null pending context!
+				pendingWorkspaceContext = readWorkspaceContext(cache) ?? ""
+			}
+		})
+		return () => $appStore.metadataCache.offref(ref)
+	})
+	const isWorkspace = isLlmWorkspace($metadata)
+	let pendingWorkspaceContext = $state<string | null>(null)
+	let workspaceContext = $state(readWorkspaceContext($metadata))
 
 	const vectorStore = new VectorStoreIndex(db)
 	const completionOptions: CompletionOptions = $state({
@@ -221,6 +230,16 @@
 			indexingError = e
 		}
 	}
+	const onNewConversation = () => {
+		onReload()
+		conversation.resetConversation()
+	}
+	const onReload = () => {
+		if (pendingWorkspaceContext !== null) {
+			workspaceContext = pendingWorkspaceContext
+			pendingWorkspaceContext = null
+		}
+	}
 </script>
 
 <TailwindCss />
@@ -238,12 +257,14 @@
 		<QuestionAndAnswer
 			conversation={$conversation}
 			displaySources={true}
+			isOutdated={pendingWorkspaceContext !== null}
 			onMessageSubmit={async (msg) => {
 				conversation.submitMessage(msg)
 			}}
 			onSourceClick={(path) => onLinkClick(path)}
 			onDebugClick={(resp) => writeDebugInfo($appStore, resp)}
-			onNewConversation={conversation.resetConversation}
+			{onNewConversation}
+			{onReload}
 		>
 			<div slot="empty">
 				<Questions

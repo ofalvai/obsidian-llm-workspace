@@ -8,7 +8,8 @@ const frontmatterKeyCategory = "category"
 const frontmatterKeyContext = "context"
 const frontmatterValueWorkspace = "LLM workspace"
 
-export function isLlmWorkspace(metadata: CachedMetadata): boolean {
+export function isLlmWorkspace(metadata: CachedMetadata | null): boolean {
+	if (!metadata) return false
 	const frontmatter = metadata.frontmatter
 	if (!frontmatter) return false
 
@@ -22,7 +23,8 @@ export function isLlmWorkspace(metadata: CachedMetadata): boolean {
 	return frontmatter[frontmatterKeyCategory] === frontmatterValueWorkspace
 }
 
-export function readWorkspaceContext(metadata: CachedMetadata): string | null {
+export function readWorkspaceContext(metadata: CachedMetadata | null): string | null {
+	if (!metadata) return null
 	if (!metadata.frontmatter) return null
 
 	if (frontmatterKeyContext in metadata.frontmatter) {
@@ -31,6 +33,7 @@ export function readWorkspaceContext(metadata: CachedMetadata): string | null {
 	return null
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function addWorkspaceProperty(frontmatter: any) {
 	if (!frontmatter) {
 		frontmatter = {}

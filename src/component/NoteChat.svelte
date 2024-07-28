@@ -7,7 +7,7 @@
 	import { DumbResponseSynthesizer, type ResponseSynthesizer } from "src/rag/synthesizer"
 	import { writeDebugInfo } from "src/utils/debug"
 	import { appStore, settingsStore } from "src/utils/obsidian"
-	import { readable } from "svelte/store"
+	import { writable } from "svelte/store"
 	import TailwindCss from "./TailwindCSS.svelte"
 	import ConfigValue from "./chat/ConfigValue.svelte"
 	import ConversationStyle from "./chat/ConversationStyle.svelte"
@@ -15,17 +15,19 @@
 
 	let { file }: { file: TFile } = $props()
 
-	const noteContent = readable("", (set) => {
+	let pendingNoteContent = $state<string | null>(null)
+	const noteContent = writable("", (set) => {
 		$appStore.vault.cachedRead(file).then((content) => {
 			set(content)
 		})
-		$appStore.vault.on("modify", (modifiedFile) => {
+		const ref = $appStore.vault.on("modify", (modifiedFile) => {
 			if (modifiedFile.path === file.path) {
 				$appStore.vault.cachedRead(file).then((content) => {
-					set(content)
+					pendingNoteContent = content
 				})
 			}
 		})
+		return () => $appStore.vault.offref(ref)
 	})
 	const completionOptions: CompletionOptions = $state({
 		temperature: "balanced",
@@ -40,6 +42,16 @@
 	let conversation: ReturnType<typeof conversationStore> = $derived(
 		conversationStore(queryEngine, $llmClient, completionOptions),
 	)
+	const onNewConversation = () => {
+		onReload()
+		conversation.resetConversation()
+	}
+	const onReload = () => {
+		if (pendingNoteContent !== null) {
+			noteContent.set(pendingNoteContent)
+			pendingNoteContent = null
+		}
+	}
 </script>
 
 <TailwindCss />
@@ -47,10 +59,12 @@
 	<QuestionAndAnswer
 		conversation={$conversation}
 		displaySources={false}
+		isOutdated={pendingNoteContent !== null}
 		onMessageSubmit={async (msg) => conversation.submitMessage(msg)}
-		onNewConversation={conversation.resetConversation}
+		{onNewConversation}
 		onDebugClick={(resp) => writeDebugInfo($appStore, resp)}
 		onSourceClick={() => {}}
+		{onReload}
 	>
 		<div slot="empty">
 			<div class="font-medium">Configuration</div>

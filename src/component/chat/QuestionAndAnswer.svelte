@@ -13,17 +13,21 @@
 	let {
 		conversation,
 		displaySources,
+		isOutdated,
 		onMessageSubmit,
 		onSourceClick,
 		onDebugClick,
 		onNewConversation,
+		onReload,
 	}: {
 		conversation: Conversation | null
 		displaySources: boolean
+		isOutdated: boolean
 		onMessageSubmit: (msg: string) => void
 		onSourceClick: (path: string) => void
 		onDebugClick: (response: QueryResponse) => void
 		onNewConversation: () => void
+		onReload: () => void
 	} = $props()
 
 	const copyToClipboard = (text: string) => {
@@ -118,6 +122,20 @@
 					<div class="relative top-2">
 						<Loading size="l" />
 					</div>
+				</div>
+			{/if}
+			{#if isOutdated}
+				<div class="flex flex-row justify-start">
+					<ObsidianIcon iconId="file-warning" size="s" className="mr-2" />
+					<p class="text-sm">Note content has changed.</p>
+					<button
+						class="clickable-icon"
+						onclick={onReload}
+						aria-label="Start new conversation"
+						data-tooltip-delay="300"
+					>
+						<ObsidianIcon iconId="refresh-cw" size="s" />
+					</button>
 				</div>
 			{/if}
 			{#if conversation.error}
