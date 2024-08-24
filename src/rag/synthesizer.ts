@@ -43,17 +43,20 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 	private completionOptions: CompletionOptions
 	private systemPrompt: string
 	private workspaceContext: string | null
+	private abortSignal: AbortSignal
 
 	constructor(
 		completionClient: StreamingChatCompletionClient,
 		completionOptions: CompletionOptions,
 		systemPrompt: string,
 		workspaceContext: string | null = null,
+		abortSignal: AbortSignal,
 	) {
 		this.completionClient = completionClient
 		this.completionOptions = completionOptions
 		this.systemPrompt = systemPrompt
 		this.workspaceContext = workspaceContext
+		this.abortSignal = abortSignal
 	}
 
 	async *synthesize(
@@ -79,6 +82,7 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 				{ role: "user", content: userPrompt },
 			],
 			this.completionOptions,
+			this.abortSignal,
 		)
 
 		let aggregatedText = ""

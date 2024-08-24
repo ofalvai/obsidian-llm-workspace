@@ -2,15 +2,17 @@
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 
 	let {
-		disabled,
+		isStreaming,
 		isConversationActive,
 		onSubmit,
 		onNewConversation,
+		onAbort,
 	}: {
-		disabled: boolean
+		isStreaming: boolean
 		isConversationActive: boolean
 		onSubmit: (input: string) => void
 		onNewConversation: () => void
+		onAbort: () => void
 	} = $props()
 
 	// TODO: Platform-specific keyboard hint
@@ -48,14 +50,26 @@
 			bind:value={query}
 		></textarea>
 		<div class="flex flex-col justify-center gap-y-2">
-			<button
-				class={"clickable-icon"}
-				disabled={disabled || query.trim() == ""}
-				type="submit"
-				aria-label="Send message"
-			>
-				<ObsidianIcon iconId="send" />
-			</button>
+			{#if isStreaming}
+				<button
+					class="clickable-icon"
+					type="button"
+					aria-label="Stop response"
+					onclick={() => onAbort()}
+				>
+					<ObsidianIcon iconId="x" />
+				</button>
+			{:else}
+				<button
+					class="clickable-icon"
+					disabled={query.trim() == ""}
+					type="submit"
+					aria-label="Send message"
+				>
+					<ObsidianIcon iconId="send" />
+				</button>
+			{/if}
+
 			{#if isConversationActive}
 				<button
 					class="clickable-icon"
