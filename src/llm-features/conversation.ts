@@ -44,7 +44,11 @@ export const conversationStore = (
 			} catch (e) {
 				console.error(e)
 				conversation.isLoading = false
-				conversation.error = e
+				if (e instanceof Error && e.message === "Unexpected status code: 401") {
+					conversation.error = new Error("Unauthorized. Did you set the right API key?")
+				} else {
+					conversation.error = e
+				}
 				store.set(conversation)
 			}
 		} else {

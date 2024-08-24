@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
 	const MAX_FILES_TO_DISPLAY = 10
 </script>
 

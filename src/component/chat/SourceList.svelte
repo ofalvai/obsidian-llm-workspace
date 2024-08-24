@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
 	interface SourceFile {
 		base: string
 		path: string
