@@ -47,6 +47,7 @@
 		conversation.resetConversation()
 	}
 	const onReload = () => {
+		debugger;
 		if (pendingNoteContent !== null) {
 			noteContent.set(pendingNoteContent)
 			pendingNoteContent = null
@@ -61,9 +62,10 @@
 		displaySources={false}
 		isOutdated={pendingNoteContent !== null}
 		onMessageSubmit={async (msg) => conversation.submitMessage(msg)}
-		{onNewConversation}
-		onDebugClick={(resp) => writeDebugInfo($appStore, resp)}
 		onSourceClick={() => {}}
+		onDebugClick={(resp) => writeDebugInfo($appStore, resp)}
+		{onNewConversation}
+		onAbort={() => {}}
 		{onReload}
 	>
 		<div slot="empty">

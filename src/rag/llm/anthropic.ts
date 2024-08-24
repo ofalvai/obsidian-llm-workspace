@@ -80,6 +80,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 	async *createStreamingChatCompletion(
 		messages: ChatMessage[],
 		options: CompletionOptions,
+		abortSignal: AbortSignal,
 	): AsyncGenerator<ChatStreamEvent> {
 		if (this.apiKey === "") throw new Error("Anthropic API key is not set")
 
@@ -113,7 +114,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 					}
 				}),
 			}),
-		})
+		}, abortSignal)
 
 		let inputTokenCount = 0
 		let outputTokenCount = 0

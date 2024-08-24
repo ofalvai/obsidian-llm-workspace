@@ -31,6 +31,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 	async *createStreamingChatCompletion(
 		messages: ChatMessage[],
 		options: CompletionOptions,
+		abortSignal: AbortSignal,
 	): AsyncGenerator<ChatStreamEvent> {
 		if (this.apiKey === "") throw new Error("OpenAI API key is not set")
 
@@ -46,7 +47,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 			stream_options: { include_usage: true },
 			max_tokens: options.maxTokens,
 			temperature: temperature(options.temperature),
-		})
+		}, { signal: abortSignal })
 
 		let inputTokens = 0
 		let outputTokens = 0

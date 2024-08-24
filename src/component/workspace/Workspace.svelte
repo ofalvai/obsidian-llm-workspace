@@ -77,18 +77,20 @@
 			limit: $settingsStore.retrievedNodeCount,
 		}),
 	)
+	let abortController = new AbortController() // TODO: recreate after abort
 	let synthesizer: ResponseSynthesizer = $derived(
 		new DumbResponseSynthesizer(
 			$llmClient,
 			completionOptions,
 			$settingsStore.systemPrompt,
 			workspaceContext,
+			abortController.signal,
 		),
 	)
 	let queryEngine: QueryEngine = $derived(
 		new RetrieverQueryEngine(retriever, synthesizer, workspaceFile.path),
 	)
-	let conversation = $derived(conversationStore(queryEngine, $llmClient, completionOptions))
+	let conversation = $derived(conversationStore(queryEngine, $llmClient, completionOptions, abortController.signal))
 
 	let links = liveQuery(async () => {
 		const workspace = await db.workspace
@@ -264,6 +266,7 @@
 			onSourceClick={(path) => onLinkClick(path)}
 			onDebugClick={(resp) => writeDebugInfo($appStore, resp)}
 			{onNewConversation}
+			onAbort={() => abortController.abort()}
 			{onReload}
 		>
 			<div slot="empty">

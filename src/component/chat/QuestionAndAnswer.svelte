@@ -18,6 +18,7 @@
 		onSourceClick,
 		onDebugClick,
 		onNewConversation,
+		onAbort,
 		onReload,
 	}: {
 		conversation: Conversation | null
@@ -27,6 +28,7 @@
 		onSourceClick: (path: string) => void
 		onDebugClick: (response: QueryResponse) => void
 		onNewConversation: () => void
+		onAbort: () => void
 		onReload: () => void
 	} = $props()
 
@@ -147,10 +149,11 @@
 	{/if}
 	<div id="scroll-anchor"></div>
 	<UserInput
-		disabled={conversation?.isLoading ?? false}
+		isStreaming={conversation?.isLoading ?? false}
 		isConversationActive={conversation != null}
 		onSubmit={(input) => onMessageSubmit(input)}
 		{onNewConversation}
+		{onAbort}
 	/>
 </div>
 

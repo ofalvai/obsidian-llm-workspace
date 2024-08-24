@@ -5,7 +5,7 @@ import { Readable } from "node:stream"
 // A fetch()-like function that uses `node:https` under the hood to circumvent CORS restrictions.
 // It returns a Node Readable stream with the response body to allow streaming the response
 // as it arrives.
-export async function nodeStreamingFetch(url: string, options: any = {}): Promise<Readable> {
+export async function nodeStreamingFetch(url: string, options: any = {}, abortSignal: AbortSignal): Promise<Readable> {
 	return new Promise((resolve, reject) => {
 		const requestOptions = {
 			method: options.method || "GET",
@@ -18,7 +18,7 @@ export async function nodeStreamingFetch(url: string, options: any = {}): Promis
 
 		const req = request(url, requestOptions, (res: IncomingMessage) => {
 			if (res.statusCode !== 200) {
-				var body = ""
+				let body = ""
 				res.on("readable", () => {
 					body += res.read()
 				})
@@ -32,20 +32,44 @@ export async function nodeStreamingFetch(url: string, options: any = {}): Promis
 			resolve(readable)
 
 			res.on("data", (chunk) => {
-				readable.push(chunk)
+				if (abortSignal.aborted) {
+					readable.push(null)
+				} else {
+					readable.push(chunk)
+				}
 			})
 
 			res.on("end", () => {
+				// All data is consumed from the response stream
 				readable.push(null)
+				cleanup()
 			})
 			readable.on("error", (e) => {
-				console.log("error", e)
+				cleanup()
 				reject(e)
+			})
+			readable.on("close", () => {
+				// No more events, stream is closed
+				cleanup()
 			})
 		})
 
+		const onAbort = () => {
+			req.end()
+			cleanup()
+		}
+		abortSignal.addEventListener("abort", onAbort)
+
+		const cleanup = () => {
+			abortSignal.removeEventListener("abort", onAbort)
+			req.removeAllListeners()
+		}
+
 		req.on("error", (error) => {
 			reject(error)
+		})
+		req.on("close", () => {
+			cleanup()
 		})
 
 		if (options.body) {

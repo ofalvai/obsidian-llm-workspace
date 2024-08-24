@@ -58,6 +58,7 @@ export type StreamingChatCompletionClient = ChatCompletionClient & {
 	createStreamingChatCompletion: (
 		messages: ChatMessage[],
 		options: CompletionOptions,
+		signal: AbortSignal,
 	) => AsyncGenerator<ChatStreamEvent>
 }
 

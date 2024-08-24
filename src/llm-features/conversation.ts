@@ -16,6 +16,7 @@ export const conversationStore = (
 	queryEngine: QueryEngine,
 	chatClient: StreamingChatCompletionClient,
 	completionOptions: CompletionOptions,
+	abortSignal: AbortSignal,
 ): ConversationStore => {
 	const store = writable<Conversation | null>(null)
 
@@ -71,7 +72,7 @@ export const conversationStore = (
 				...conversation.additionalMessages,
 			]
 			try {
-				const stream = chatClient.createStreamingChatCompletion(messages, completionOptions)
+				const stream = chatClient.createStreamingChatCompletion(messages, completionOptions, abortSignal)
 				for await (const event of stream) {
 					switch (event.type) {
 						case "start":
