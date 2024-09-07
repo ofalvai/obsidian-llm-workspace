@@ -8,6 +8,7 @@ import {
 } from "./common"
 import { iterSSEMessages } from "../../utils/sse"
 import { nodeStreamingFetch } from "src/utils/node"
+import { messageWithAttachmens } from "src/config/prompts"
 
 interface Message {
 	id: string
@@ -109,7 +110,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 				messages: messages.slice(1).map((message) => {
 					return {
 						role: message.role,
-						content: message.content,
+						content: messageWithAttachmens(message.content, message.attachedContent),
 					}
 				}),
 			}),
@@ -173,6 +174,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 			return {
 				content: newMessage.content[0].text,
 				role: "assistant",
+				attachedContent: [],
 			}
 		} catch (e) {
 			return Promise.reject(e)
@@ -187,9 +189,9 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 		if (this.apiKey === "") throw new Error("Anthropic API key is not set")
 
 		const messages: ChatMessage[] = [
-			{ role: "system", content: systemPrompt },
-			{ role: "user", content: userPrompt },
-			{ role: "assistant", content: "{" }, // force valid JSON output
+			{ role: "system", content: systemPrompt, attachedContent: [] },
+			{ role: "user", content: userPrompt, attachedContent: [] },
+			{ role: "assistant", content: "{", attachedContent: [] }, // force valid JSON output
 		]
 		const response = await this.makeRequest(messages, options, false)
 		const newMessage = (await response.json) as Message
@@ -226,7 +228,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 				messages: messages.slice(1).map((message) => {
 					return {
 						role: message.role,
-						content: message.content,
+						content: messageWithAttachmens(message.content, message.attachedContent),
 					}
 				}),
 			}),

@@ -10,6 +10,7 @@ export type Role = "system" | "user" | "assistant"
 export interface ChatMessage {
 	content: string
 	role: Role
+	attachedContent: Node[]
 }
 
 export interface ChatStartEvent {

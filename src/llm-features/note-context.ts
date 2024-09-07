@@ -8,8 +8,8 @@ export async function noteSummary(note: string, client: ChatCompletionClient): P
 	}
 	const completion = await client.createChatCompletion(
 		[
-			{ role: "system", content: SUMMARY_PROMPT },
-			{ role: "user", content: note },
+			{ role: "system", content: SUMMARY_PROMPT, attachedContent: [] },
+			{ role: "user", content: note, attachedContent: [] },
 		],
 		options,
 	)

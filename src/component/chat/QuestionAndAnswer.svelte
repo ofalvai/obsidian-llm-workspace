@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Notice } from "obsidian"
+	import { Notice, TFile } from "obsidian"
 	import type { Conversation } from "src/rag/conversation"
 	import type { QueryResponse } from "src/rag/synthesizer"
 	import Error from "../Error.svelte"
@@ -12,22 +12,26 @@
 
 	let {
 		conversation,
-		displaySources,
 		isOutdated,
+		attachedFiles,
 		onMessageSubmit,
 		onSourceClick,
 		onDebugClick,
 		onNewConversation,
 		onReload,
+		onSelectAttachment,
+		onRemoveAttachedFile,
 	}: {
 		conversation: Conversation | null
-		displaySources: boolean
 		isOutdated: boolean
+		attachedFiles: TFile[]
 		onMessageSubmit: (msg: string) => void
 		onSourceClick: (path: string) => void
 		onDebugClick: (response: QueryResponse) => void
 		onNewConversation: () => void
 		onReload: () => void
+		onSelectAttachment: () => void
+		onRemoveAttachedFile: (file: TFile) => void
 	} = $props()
 
 	const copyToClipboard = (text: string) => {
@@ -44,6 +48,7 @@
 					message={{
 						role: "user",
 						content: conversation.initialUserQuery,
+						attachedContent: [],
 					}}
 					onCopy={(msg) => copyToClipboard(msg)}
 					onEdit={(msg) => {}}
@@ -98,14 +103,14 @@
 						<ObsidianIcon iconId="bug-play" size="s" />
 					</button>
 				</div>
-				{#if displaySources}
+				{#if conversation.queryResponse.sources.length > 1}
 					<SourceList
 						queryResponse={conversation.queryResponse}
 						onClick={onSourceClick}
 					/>
 				{/if}
 			{/if}
-			{#each conversation.additionalMessages as msg}
+			{#each conversation.additionalMessages as msg (msg.content)}
 				<Message
 					message={msg}
 					onCopy={(msg) => copyToClipboard(msg)}
@@ -127,7 +132,7 @@
 			{#if isOutdated}
 				<div class="flex flex-row justify-start">
 					<ObsidianIcon iconId="file-warning" size="s" className="mr-2" />
-					<p class="text-sm">Note content has changed.</p>
+					<p class="text-sm">Note content has changed</p>
 					<button
 						class="clickable-icon"
 						onclick={onReload}
@@ -149,8 +154,11 @@
 	<UserInput
 		disabled={conversation?.isLoading ?? false}
 		isConversationActive={conversation != null}
+		{attachedFiles}
 		onSubmit={(input) => onMessageSubmit(input)}
 		{onNewConversation}
+		{onSelectAttachment}
+		{onRemoveAttachedFile}
 	/>
 </div>
 

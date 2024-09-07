@@ -6,9 +6,10 @@ import type {
 	StreamingChatCompletionClient,
 } from "../rag/llm/common"
 import type { QueryEngine } from "../rag/query-engine"
+import type { Node } from "src/rag/node"
 
 export type ConversationStore = Readable<Conversation | null> & {
-	submitMessage: (newMessage: string) => Promise<void>
+	submitMessage: (newMessage: string, attachedContent: Node[]) => Promise<void>
 	resetConversation: () => void
 }
 
@@ -21,7 +22,7 @@ export const conversationStore = (
 
 	const resetConversation = () => store.set(null)
 
-	const submitMessage = async (newMessage: string) => {
+	const submitMessage = async (newMessage: string, attachedContent: Node[]) => {
 		let conversation = get(store)
 
 		if (!conversation || !conversation.queryResponse) {
@@ -34,7 +35,7 @@ export const conversationStore = (
 			}
 			store.set(conversation)
 			try {
-				for await (const update of queryEngine.query(newMessage)) {
+				for await (const update of queryEngine.query(newMessage, attachedContent)) {
 					conversation.queryResponse = update
 					conversation.isLoading = true
 					store.set(conversation)
@@ -55,27 +56,31 @@ export const conversationStore = (
 			conversation.additionalMessages.push({
 				role: "user",
 				content: newMessage,
+				attachedContent: attachedContent,
 			})
 			conversation.isLoading = true
 			store.set(conversation)
 
-			const messages: ChatMessage[] = [
+			const messagesSoFar: ChatMessage[] = [
 				{
 					role: "system",
 					content: conversation.queryResponse.systemPrompt,
+					attachedContent: []
 				},
 				{
 					role: "user",
 					content: conversation.queryResponse.userPrompt,
+					attachedContent: []
 				},
 				{
 					role: "assistant",
 					content: conversation.queryResponse.text,
+					attachedContent: []
 				},
 				...conversation.additionalMessages,
 			]
 			try {
-				const stream = chatClient.createStreamingChatCompletion(messages, completionOptions)
+				const stream = chatClient.createStreamingChatCompletion(messagesSoFar, completionOptions)
 				for await (const event of stream) {
 					switch (event.type) {
 						case "start":
@@ -83,6 +88,7 @@ export const conversationStore = (
 							conversation.additionalMessages.push({
 								role: "assistant",
 								content: "",
+								attachedContent: []
 							})
 							break
 						case "delta":
@@ -100,7 +106,6 @@ export const conversationStore = (
 					store.set(conversation)
 				}
 			} catch (e) {
-				console.error(e)
 				conversation.isLoading = false
 				conversation.error = e
 				store.set(conversation)

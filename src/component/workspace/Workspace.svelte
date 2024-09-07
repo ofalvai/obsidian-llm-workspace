@@ -31,6 +31,7 @@
 	import type { EmbeddedFileInfo } from "../types"
 	import IndexedFiles from "./IndexedFiles.svelte"
 	import Questions from "./Questions.svelte"
+	import { showSelectVaultFileModal } from "src/view/SelectVaultFileModal"
 
 	let {
 		workspaceFile,
@@ -165,7 +166,7 @@
 	}
 	const selectQuestion = async (question: WorkspaceQuestion) => {
 		conversation.resetConversation()
-		conversation.submitMessage(question.content)
+		conversation.submitMessage(question.content, [])
 	}
 
 	const rebuildAll = async () => {
@@ -240,6 +241,38 @@
 			pendingWorkspaceContext = null
 		}
 	}
+	
+	let attachedFiles = $state<TFile[]>([])
+	const onSelectAttachment = async () => {
+		const onSelect = (selectedFile: TFile) => {
+			if (attachedFiles.some((f) => f.path === selectedFile.path)) {
+				return
+			}
+			attachedFiles.push(selectedFile)
+		}
+		await showSelectVaultFileModal($appStore, onSelect)
+	}
+	const onRemoveAttachedFile = (file: TFile) => {
+		attachedFiles = attachedFiles.filter((f) => f.path !== file.path)
+	}
+
+	const onSubmitMessage = async (message: string) => {
+		var nodes = []
+		for (const file of attachedFiles) {
+			try {
+				nodes.push({
+					content: await $appStore.vault.cachedRead(file),
+					parent: file.path,
+					createdAt: new Date().valueOf(),
+				})
+			} catch (e) {
+				console.error(`Failed to attach file ${file.path}`, e)
+				continue
+			}
+		}
+		attachedFiles = []
+		conversation.submitMessage(message, nodes)
+	}
 </script>
 
 <TailwindCss />
@@ -256,15 +289,15 @@
 		{/if}
 		<QuestionAndAnswer
 			conversation={$conversation}
-			displaySources={true}
 			isOutdated={pendingWorkspaceContext !== null}
-			onMessageSubmit={async (msg) => {
-				conversation.submitMessage(msg)
-			}}
+			{attachedFiles}
+			onMessageSubmit={onSubmitMessage}
 			onSourceClick={(path) => onLinkClick(path)}
 			onDebugClick={(resp) => writeDebugInfo($appStore, resp)}
 			{onNewConversation}
 			{onReload}
+			{onSelectAttachment}
+			{onRemoveAttachedFile}
 		>
 			<div slot="empty">
 				<Questions

@@ -2,6 +2,7 @@
 	import type { ChatMessage } from "src/rag/llm/common"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 	import ObsidianMarkdown from "../obsidian/ObsidianMarkdown.svelte"
+	import path from "node:path"
 
 	let {
 		message,
@@ -25,7 +26,17 @@
 		className={(message.role === "user" ? "text-accent font-medium" : "") + " grow select-text"}
 	/>
 </div>
-<div class="mt-1 flex w-full flex-row justify-end">
+<div class="flex w-full flex-row pl-5">
+	<div class="flex flex-grow flex-row flex-wrap gap-1">
+		{#each message.attachedContent as file (file.parent)}
+			<div
+				class="flex flex-row items-center rounded border border-solid border-border bg-primary px-1 py-0.5 text-sm"
+			>
+				{path.basename(file.parent, path.extname(file.parent))}
+			</div>
+		{/each}
+	</div>
+
 	{#if message.role === "assistant"}
 		<button
 			class="clickable-icon"

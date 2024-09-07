@@ -1,11 +1,12 @@
 import type { Retriever } from "./retriever"
 import type { QueryResponse, ResponseSynthesizer } from "./synthesizer"
+import type { Node } from "./node"
 
 export interface QueryEngine {
-	query(query: string): AsyncGenerator<QueryResponse>
+	query(query: string, attachedContent: Node[]): AsyncGenerator<QueryResponse>
 }
 
-export class RetrieverQueryEngine {
+export class RetrieverQueryEngine implements QueryEngine {
 	private retriever: Retriever
 	private synthesizer: ResponseSynthesizer
 	private workspaceFilePath: string
@@ -16,14 +17,22 @@ export class RetrieverQueryEngine {
 		this.workspaceFilePath = workspaceFilePath
 	}
 
-	async *query(query: string): AsyncGenerator<QueryResponse> {
+	async *query(query: string, attachedContent: Node[]): AsyncGenerator<QueryResponse> {
 		const result = await this.retriever.retrieve(query, this.workspaceFilePath)
-		yield *this.synthesizer.synthesize(query, result.nodes, result.improvedQuery)
+		const nodes = [
+			...result.nodes,
+			...attachedContent.map((node) => {
+				return {
+					node: node,
+					similarity: 1,
+				}
+			}),
+		]
+		yield* this.synthesizer.synthesize(query, nodes, result.improvedQuery)
 	}
 }
 
-export class SingleNoteQueryEngine {
-
+export class SingleNoteQueryEngine implements QueryEngine {
 	private synthesizer: ResponseSynthesizer
 	private content: string
 	private notePath: string
@@ -34,15 +43,23 @@ export class SingleNoteQueryEngine {
 		this.notePath = notePath
 	}
 
-	async *query(query: string): AsyncGenerator<QueryResponse> {
-		const node = {
-			node: {
-				content: this.content,
-				parent: this.notePath,
-				createdAt: new Date().valueOf(),
+	async *query(query: string, attachedContent: Node[]): AsyncGenerator<QueryResponse> {
+		const nodes = [
+			{
+				node: {
+					content: this.content,
+					parent: this.notePath,
+					createdAt: new Date().valueOf(),
+				},
+				similarity: 1,
 			},
-			similarity: 1,
-		}
-		yield *this.synthesizer.synthesize(query, [node], query)
+			...attachedContent.map((node) => {
+				return {
+					node: node,
+					similarity: 1,
+				}
+			}),
+		]
+		yield* this.synthesizer.synthesize(query, nodes, query)
 	}
 }

@@ -1,3 +1,5 @@
+import { nodeRepresentation, type Node } from "../rag/node"
+
 export const DEFAULT_SYSTEM_PROMPT = `You are an assistant that answers user questions about a personal knowledgebase. You are invoked as a plugin within Obsidian, the popular knowledge management and note-taking software.
 The user's knowledgebase usually contains both original thoughts and references to other people's work on the internet and in books. They also keep track of projects and tasks there.
 Content rules you must follow:
@@ -32,14 +34,25 @@ export const SELF_QUERY_EXAMPLES = [
 	},
 ]
 
+export const CONTEXT_SEPARATOR = "---***---"
+
 export const defaultSynthesisUserPrompt = (context: string, query: string) => {
 	return `Given the context information and not prior knowledge, answer the user query.
-Context information is below. Each chunk of context is separated by \`---***---\`.
+Context information is below. Each chunk of context is separated by \`${CONTEXT_SEPARATOR}\`.
 <context>
 ${context}
 </context>
 User query: ${query}
 Answer:`
+}
+
+export const messageWithAttachmens = (message: string, attachments: Node[]) => {
+	let content = message
+	if (attachments.length > 0) {
+		content += `\n\nAdditional context is attached below:\n`
+		content += attachments.map(a => nodeRepresentation(a)).join(`\n\n${CONTEXT_SEPARATOR}\n\n`)
+	}
+	return content
 }
 
 export const SUMMARY_PROMPT = `Summarize the following note in two sentences. Use simple language.

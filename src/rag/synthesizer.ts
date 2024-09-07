@@ -1,4 +1,4 @@
-import { defaultSynthesisUserPrompt } from "src/config/prompts"
+import { CONTEXT_SEPARATOR, defaultSynthesisUserPrompt } from "src/config/prompts"
 import type { CompletionOptions, StreamingChatCompletionClient } from "./llm/common"
 import { nodeRepresentation } from "./node"
 import type { NodeSimilarity } from "./vectorstore"
@@ -64,9 +64,9 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 		let context = nodes
 			.sort((a, b) => a.similarity - b.similarity) // put the most relevant nodes towards the end of context
 			.map((n) => nodeRepresentation(n.node))
-			.join("\n\n---***---\n\n")
+			.join(`\n\n${CONTEXT_SEPARATOR}\n\n`)
 		if (this.workspaceContext) {
-			context += "\n\n---***---\n\n"
+			context += `\n\n${CONTEXT_SEPARATOR}\n\n`
 			context += "High-level context provided by the user: "
 			context += this.workspaceContext
 		}
@@ -75,8 +75,8 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 
 		const stream = this.completionClient.createStreamingChatCompletion(
 			[
-				{ role: "system", content: systemPrompt },
-				{ role: "user", content: userPrompt },
+				{ role: "system", content: systemPrompt, attachedContent: [] },
+				{ role: "user", content: userPrompt, attachedContent: [] },
 			],
 			this.completionOptions,
 		)

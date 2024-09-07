@@ -1,7 +1,7 @@
 import OpenAI from "openai"
 import type { ChatCompletionMessageParam } from "openai/resources/index.mjs"
 import { COMPLETION_MODEL, COMPLETION_TEMPERATURE, EMBEDDING_MODEL } from "src/config/openai"
-import { SELF_QUERY_EXAMPLES, SELF_QUERY_PROMPT } from "src/config/prompts"
+import { messageWithAttachmens, SELF_QUERY_EXAMPLES, SELF_QUERY_PROMPT } from "src/config/prompts"
 import { nodeRepresentation, type Node } from "../node"
 import {
 	type ChatMessage,
@@ -40,7 +40,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 			messages: messages.map((message) => {
 				return {
 					role: message.role,
-					content: message.content,
+					content: messageWithAttachmens(message.content, message.attachedContent),
 				}
 			}),
 			stream_options: { include_usage: true },
@@ -78,7 +78,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 			messages: messages.map((message) => {
 				return {
 					role: message.role,
-					content: message.content,
+					content: messageWithAttachmens(message.content, message.attachedContent),
 				}
 			}),
 			max_tokens: options.maxTokens,
@@ -88,6 +88,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 		return {
 			content: response.choices[0].message.content!,
 			role: "assistant",
+			attachedContent: []
 		}
 	}
 

@@ -1,5 +1,5 @@
-import type { ChatMessage } from "./llm/common";
-import type { QueryResponse } from "./synthesizer";
+import type { ChatMessage } from "./llm/common"
+import type { QueryResponse } from "./synthesizer"
 
 export interface Conversation {
 	initialUserQuery: string
