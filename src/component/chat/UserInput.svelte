@@ -1,37 +1,60 @@
 <script lang="ts">
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 	import type { TFile } from "obsidian"
+	import { showSelectVaultFileModal } from "src/view/SelectVaultFileModal"
+	import { appStore } from "src/utils/obsidian"
 
 	let {
 		disabled,
 		isConversationActive,
-		attachedFiles,
 		onSubmit,
 		onNewConversation,
-		onSelectAttachment,
-		onRemoveAttachedFile,
 	}: {
 		disabled: boolean
 		isConversationActive: boolean
-		attachedFiles: TFile[]
-		onSubmit: (input: string) => void
+		onSubmit: (input: string, attachedFiles: TFile[]) => void
 		onNewConversation: () => void
-		onSelectAttachment: () => void
-		onRemoveAttachedFile: (file: TFile) => void
 	} = $props()
 
 	const keyboardHint = "Press ⏎ to send message, ⇧ + ⏎ for new line.\n"
+	const rowCountDefault = 3
+	const rowCountExpanded = 8
 
 	let query = $state("")
+	let rowCount = $state(rowCountDefault)
+	let attachedFiles: TFile[] = $state([])
 
 	const _onSubmit = (e: SubmitEvent) => {
 		e.preventDefault()
-		onSubmit(query)
+		onSubmit(query, attachedFiles)
 		query = ""
+		attachedFiles = []
 	}
 	const _onNewConversation = () => {
 		query = ""
 		onNewConversation()
+	}
+	const onFileAttach = async (cursorPos: number) => {
+		// Delete back the [[
+		query = query.slice(0, cursorPos - 2) + query.slice(cursorPos)
+		const onSelect = (selectedFile: TFile) => {
+			if (attachedFiles.some((f) => f.path === selectedFile.path)) {
+				return
+			}
+			attachedFiles.push(selectedFile)
+		}
+		await showSelectVaultFileModal($appStore, onSelect)
+	}
+	const onInlineInclude = async (cursorPos: number) => {
+		// Delete back the @
+		query = query.slice(0, cursorPos - 1) + query.slice(cursorPos)
+
+		const onSelect = async (file: TFile) => {
+			const prompt = await $appStore.vault.cachedRead(file)
+			query = query + " " + prompt
+			rowCount = rowCountExpanded
+		}
+		await showSelectVaultFileModal($appStore, onSelect)
 	}
 </script>
 
@@ -44,7 +67,7 @@
 				{file.basename}
 				<button
 					class="ml-1 h-fit w-fit bg-transparent p-0 !shadow-none hover:shadow-none"
-					onclick={() => onRemoveAttachedFile(file)}
+					onclick={() => attachedFiles.remove(file)}
 				>
 					<ObsidianIcon iconId="x" size="s" />
 				</button>
@@ -57,29 +80,31 @@
 		<textarea
 			class="text-normal w-full resize-y bg-secondary"
 			autofocus
-			rows="3"
+			rows={rowCount}
 			onkeydown={(event) => {
 				if (event.key === "Enter" && !event.shiftKey) {
 					event.preventDefault()
 					_onSubmit(new SubmitEvent("submit"))
 				}
 			}}
-			oninput={(event) => {
+			oninput={async (event) => {
 				const textarea = event.target as HTMLTextAreaElement
 				if (textarea.selectionStart != textarea.selectionEnd) {
 					// We don't carea about text selection
 					return
 				}
-				if (textarea.value.length < 2) return
 
 				const cursorPos = textarea.selectionStart
 				if (
+					textarea.value.length >= 2 &&
 					textarea.value[cursorPos - 1] === "[" &&
 					textarea.value[cursorPos - 2] === "["
 				) {
-					// Delete back the [[
-					query = query.slice(0, cursorPos - 2) + query.slice(cursorPos)
-					onSelectAttachment()
+					onFileAttach(cursorPos)
+				}
+
+				if (textarea.value.length >= 1 && textarea.value[cursorPos - 1] === "@") {
+					onInlineInclude(cursorPos)
 				}
 			}}
 			placeholder={(isConversationActive ? "Continue conversation..." : "Ask a question...") +
@@ -102,7 +127,7 @@
 					onclick={_onNewConversation}
 					aria-label="New conversation"
 				>
-					<ObsidianIcon iconId="plus" />
+					<ObsidianIcon iconId="list-restart" />
 				</button>
 			{/if}
 		</div>

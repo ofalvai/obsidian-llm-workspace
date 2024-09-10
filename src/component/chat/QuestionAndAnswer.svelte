@@ -13,25 +13,19 @@
 	let {
 		conversation,
 		isOutdated,
-		attachedFiles,
 		onMessageSubmit,
 		onSourceClick,
 		onDebugClick,
 		onNewConversation,
 		onReload,
-		onSelectAttachment,
-		onRemoveAttachedFile,
 	}: {
 		conversation: Conversation | null
 		isOutdated: boolean
-		attachedFiles: TFile[]
-		onMessageSubmit: (msg: string) => void
+		onMessageSubmit: (msg: string, attachedFiles: TFile[]) => void
 		onSourceClick: (path: string) => void
 		onDebugClick: (response: QueryResponse) => void
 		onNewConversation: () => void
 		onReload: () => void
-		onSelectAttachment: () => void
-		onRemoveAttachedFile: (file: TFile) => void
 	} = $props()
 
 	const copyToClipboard = (text: string) => {
@@ -154,11 +148,8 @@
 	<UserInput
 		disabled={conversation?.isLoading ?? false}
 		isConversationActive={conversation != null}
-		{attachedFiles}
-		onSubmit={(input) => onMessageSubmit(input)}
+		onSubmit={onMessageSubmit}
 		{onNewConversation}
-		{onSelectAttachment}
-		{onRemoveAttachedFile}
 	/>
 </div>
 

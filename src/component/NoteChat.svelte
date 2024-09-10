@@ -54,21 +54,7 @@
 		}
 	}
 
-	let attachedFiles = $state<TFile[]>([])
-	const onSelectAttachment = async () => {
-		const onSelect = (selectedFile: TFile) => {
-			if (attachedFiles.some((f) => f.path === selectedFile.path)) {
-				return
-			}
-			attachedFiles.push(selectedFile)
-		}
-		await showSelectVaultFileModal($appStore, onSelect)
-	}
-	const onRemoveAttachedFile = (file: TFile) => {
-		attachedFiles = attachedFiles.filter((f) => f.path !== file.path)
-	}
-
-	const onSubmitMessage = async (message: string) => {
+	const onSubmitMessage = async (message: string, attachedFiles: TFile[]) => {
 		var nodes = []
 		for (const file of attachedFiles) {
 			try {
@@ -82,7 +68,6 @@
 				continue
 			}
 		}
-		attachedFiles = []
 		conversation.submitMessage(message, nodes)
 	}
 </script>
@@ -92,14 +77,11 @@
 	<QuestionAndAnswer
 		conversation={$conversation}
 		isOutdated={pendingNoteContent !== null}
-		{attachedFiles}
 		onMessageSubmit={onSubmitMessage}
 		{onNewConversation}
 		onDebugClick={(resp) => writeDebugInfo($appStore, resp)}
 		onSourceClick={() => {}}
 		{onReload}
-		{onSelectAttachment}
-		{onRemoveAttachedFile}
 	>
 		<div slot="empty">
 			<div class="font-medium">Configuration</div>
