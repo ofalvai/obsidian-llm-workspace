@@ -6,14 +6,17 @@
 	import NoteLink from "./NoteLink.svelte"
 	import type { EmbeddedFileInfo } from "../types"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
+	import ProgressBar from "../obsidian/ProgressBar.svelte"
 
 	let {
 		links,
+		indexingProgress,
 		onLinkClick,
 		onLinkRebuild,
 		onRebuildAll,
 	}: {
 		links: EmbeddedFileInfo[]
+		indexingProgress: number
 		onLinkClick: (path: string) => void
 		onLinkRebuild: (fileInfo: EmbeddedFileInfo) => void
 		onRebuildAll: () => void
@@ -25,7 +28,12 @@
 
 <div>
 	<div class="flex items-center justify-between">
-		<div class="text-base font-medium">Indexed notes</div>
+		<div class="flex flex-row items-center w-full mr-1">
+			<div class="text-base font-medium grow">Workspace sources</div>
+			{#if indexingProgress < 100}
+				<ProgressBar value={indexingProgress} className="w-1/4"/>
+			{/if}
+		</div>
 		<button
 			class="clickable-icon"
 			onclick={() => onRebuildAll()}

@@ -31,7 +31,6 @@
 	import type { EmbeddedFileInfo } from "../types"
 	import IndexedFiles from "./IndexedFiles.svelte"
 	import Questions from "./Questions.svelte"
-	import { showSelectVaultFileModal } from "src/view/SelectVaultFileModal"
 
 	let {
 		workspaceFile,
@@ -169,6 +168,7 @@
 		conversation.submitMessage(question.content, [])
 	}
 
+	let indexingProgress = $state(100)
 	const rebuildAll = async () => {
 		// Collect all linked files
 		// Note: we can't use `app.metadataCache.getFileCache(workspaceFile).links` because
@@ -188,21 +188,28 @@
 
 		try {
 			indexingError = null
+			indexingProgress = 0
 
 			await vectorStore.deleteFiles(...linkedFilePaths)
-
+			
+			const nodes = []
 			for (const path of linkedFilePaths) {
 				// TODO: test for non-markdown files
-				// TODO: batched iteration
 				const file = $appStore.vault.getFileByPath(path)
 				if (!file) {
 					continue
 				}
 				const text = await $appStore.vault.cachedRead(file)
 				for (const node of nodeParser.parse(text, file.path)) {
-					const embedding = await embeddingClient.embedNode(node)
-					await vectorStore.addNode(node, embedding, workspaceFile.path)
+					nodes.push(node)
 				}
+			}
+
+			for (let i = 0; i < nodes.length; i++) {
+				const node = nodes[i]
+				const embedding = await embeddingClient.embedNode(node)
+				await vectorStore.addNode(node, embedding, workspaceFile.path)
+				indexingProgress = 100 * (i + 2) / nodes.length
 			}
 		} catch (e) {
 			console.error("Failed to rebuild linked files", e)
@@ -265,6 +272,7 @@
 	{#if isWorkspace}
 		<IndexedFiles
 			links={$links || []}
+			{indexingProgress}
 			{onLinkClick}
 			{onLinkRebuild}
 			onRebuildAll={rebuildAll}
