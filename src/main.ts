@@ -1,4 +1,4 @@
-import { Notice, Plugin, WorkspaceLeaf } from "obsidian"
+import { Notice, Plugin, TFolder, WorkspaceLeaf } from "obsidian"
 import { DEFAULT_SETTINGS, LlmSettingTab, type LlmPluginSettings } from "src/config/settings"
 import { VectorStoreIndex } from "src/rag/vectorstore"
 import { LlmDexie } from "src/storage/db"
@@ -192,6 +192,10 @@ export default class LlmPlugin extends Plugin {
 	registerMenuEntries() {
 		this.registerEvent(
 			this.app.workspace.on("file-menu", (menu, editor, view) => {
+				if (editor instanceof TFolder) {
+					return
+				}
+				
 				menu.addItem((item) => {
 					item.setTitle("Chat with note")
 					item.setIcon("message-square")
