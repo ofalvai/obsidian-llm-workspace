@@ -43,7 +43,8 @@
 	})
 
 	let derivedData = $derived.by(() => {
-		openFile // https://github.com/sveltejs/svelte/issues/11424
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions -- https://github.com/sveltejs/svelte/issues/11424
+		openFile
 		return liveQuery(async () => {
 			if (!openFile) return
 			return await getNoteDerivedData(db, openFile.path)

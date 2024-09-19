@@ -66,7 +66,6 @@ export default class LlmPlugin extends Plugin {
 		const workspaceLeaves = workspace.getLeavesOfType(VIEW_TYPE_WORKSPACE)
 		if (workspaceLeaves.length > 0) {
 			// Create another leaf as a tab in the root split's right split
-			// @ts-ignore: https://github.com/obsidianmd/obsidian-api/issues/160
 			const containerOfChatViews = workspaceLeaves[0].parent
 			leaf = workspace.createLeafInParent(containerOfChatViews, workspaceLeaves.length)
 		} else {
@@ -93,7 +92,7 @@ export default class LlmPlugin extends Plugin {
 		const chatViewLeaves = workspace.getLeavesOfType(VIEW_TYPE_NOTE_CHAT)
 		if (chatViewLeaves.length > 0) {
 			// Create another leaf as a tab in the root split's right split
-			// @ts-ignore: https://github.com/obsidianmd/obsidian-api/issues/160
+			// @ts-expeect-error: https://github.com/obsidianmd/obsidian-api/issues/160
 			const containerOfChatViews = chatViewLeaves[0].parent
 			leaf = workspace.createLeafInParent(containerOfChatViews, chatViewLeaves.length)
 		} else {
@@ -191,7 +190,7 @@ export default class LlmPlugin extends Plugin {
 
 	registerMenuEntries() {
 		this.registerEvent(
-			this.app.workspace.on("file-menu", (menu, editor, view) => {
+			this.app.workspace.on("file-menu", (menu, editor) => {
 				if (editor instanceof TFolder) {
 					return
 				}

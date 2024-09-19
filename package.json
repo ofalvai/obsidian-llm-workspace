@@ -7,7 +7,7 @@
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
-		"lint": "eslint **/*.ts",
+		"lint": "eslint **/*.{ts,svelte}",
 		"format": "prettier --write **/*.{ts,js,svelte}"
 	},
 	"keywords": [],
@@ -16,14 +16,15 @@
 	"packageManager": "pnpm@9.6.0",
 	"dependencies": {
 		"dexie": "4.0.8",
+		"eslint-plugin-svelte": "^2.44.0",
 		"openai": "^4.47.1"
 	},
 	"devDependencies": {
-		"@stylistic/eslint-plugin-js": "^2.1.0",
+		"@stylistic/eslint-plugin-js": "^2.8.0",
 		"@tsconfig/svelte": "^5.0.2",
 		"@types/node": "^16.11.6",
-		"@typescript-eslint/eslint-plugin": "7.13.1",
-		"@typescript-eslint/parser": "7.13.1",
+		"@typescript-eslint/eslint-plugin": "8.6.0",
+		"@typescript-eslint/parser": "8.6.0",
 		"esbuild": "0.23.0",
 		"esbuild-svelte": "^0.8.1",
 		"obsidian": "1.6.6",

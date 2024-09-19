@@ -40,7 +40,7 @@
 		db: LlmDexie
 	} = $props()
 
-	let indexingError: any | null = $state(null)
+	let indexingError: unknown | null = $state(null)
 
 	const metadata = readable($appStore.metadataCache.getFileCache(workspaceFile), (set) => {
 		const ref = $appStore.metadataCache.on("changed", (file) => {
@@ -124,7 +124,7 @@
 				})
 			}
 			return map
-		}, new Map<String, EmbeddedFileInfo>())
+		}, new Map<string, EmbeddedFileInfo>())
 
 		return filePaths.map((path) => {
 			const embeddingInfo = embeddedFileMap.get(path)
