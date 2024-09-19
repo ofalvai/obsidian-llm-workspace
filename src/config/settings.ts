@@ -57,7 +57,7 @@ export class LlmSettingTab extends PluginSettingTab {
 			.setHeading()
 
 		new Setting(containerEl)
-			.setName("LLM model for question answering")
+			.setName("Model for conversationss")
 			.setDesc("The model used to answer questions in the LLM workspace view")
 			.addDropdown((dropdown) => {
 				dropdown
@@ -70,7 +70,7 @@ export class LlmSettingTab extends PluginSettingTab {
 			})
 
 		new Setting(containerEl)
-			.setName("LLM model for note context")
+			.setName("Model for note context")
 			.setDesc("The model used to generate note context (summary, key topics)")
 			.addDropdown((dropdown) => {
 				dropdown
@@ -100,7 +100,7 @@ export class LlmSettingTab extends PluginSettingTab {
 		
 		new Setting(containerEl)
 			.setName("Prune database")
-			.setDesc("For most file change events in the vault, the database is kept in sync automatically. However, some changes don't remove data to avoid expensive LLM API calls in case it's needed again (such as building embeddings). This button allows you to manually prune the database to remove dangling entries.")
+			.setDesc("For most file change events in your vault, the plugin's database is kept in sync automatically. However, some vault changes don't remove plugin data immediately to avoid expensive LLM API calls in case it's needed again (such as building embeddings). This button manually prunes the plugin database.")
 			.addButton((button) => {
 				button.setButtonText("Prune")
 					.onClick(async () => {

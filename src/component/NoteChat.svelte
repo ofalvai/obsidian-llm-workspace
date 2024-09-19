@@ -12,7 +12,6 @@
 	import ConfigValue from "./chat/ConfigValue.svelte"
 	import ConversationStyle from "./chat/ConversationStyle.svelte"
 	import QuestionAndAnswer from "./chat/QuestionAndAnswer.svelte"
-	import { showSelectVaultFileModal } from "src/view/SelectVaultFileModal"
 
 	let { file }: { file: TFile } = $props()
 
