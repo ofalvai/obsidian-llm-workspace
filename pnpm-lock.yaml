@@ -35,7 +35,7 @@ importers:
         version: 0.23.0
       esbuild-svelte:
         specifier: ^0.8.1
-        version: 0.8.1(esbuild@0.23.0)(svelte@5.0.0-next.244)
+        version: 0.8.1(esbuild@0.23.0)(svelte@5.0.0-next.255)
       obsidian:
         specifier: 1.6.6
         version: 1.6.6(@codemirror/state@6.4.1)(@codemirror/view@6.26.0)
@@ -44,16 +44,16 @@ importers:
         version: 8.4.38
       prettier-plugin-svelte:
         specifier: ^3.2.2
-        version: 3.2.6(prettier@3.2.5)(svelte@5.0.0-next.244)
+        version: 3.2.6(prettier@3.2.5)(svelte@5.0.0-next.255)
       prettier-plugin-tailwindcss:
         specifier: ^0.6.5
-        version: 0.6.5(prettier-plugin-svelte@3.2.6(prettier@3.2.5)(svelte@5.0.0-next.244))(prettier@3.2.5)
+        version: 0.6.5(prettier-plugin-svelte@3.2.6(prettier@3.2.5)(svelte@5.0.0-next.255))(prettier@3.2.5)
       svelte:
-        specifier: 5.0.0-next.244
-        version: 5.0.0-next.244
+        specifier: 5.0.0-next.255
+        version: 5.0.0-next.255
       svelte-preprocess:
         specifier: ^6.0.0
-        version: 6.0.2(postcss-load-config@4.0.2(postcss@8.4.38))(postcss@8.4.38)(svelte@5.0.0-next.244)(typescript@5.4.2)
+        version: 6.0.2(postcss-load-config@4.0.2(postcss@8.4.38))(postcss@8.4.38)(svelte@5.0.0-next.255)(typescript@5.4.2)
       tailwindcss:
         specifier: ^3.4.1
         version: 3.4.3
@@ -457,8 +457,9 @@ packages:
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
-  aria-query@5.3.0:
-    resolution: {integrity: sha512-b0P0sZPKtyu8HkeRAfCq0IfURZK+SuwMjY1UXGBU27wpAiTwQAIlq56IbIO+ytk/JjS1fMR14ee5WBBfKi5J6A==}
+  aria-query@5.3.1:
+    resolution: {integrity: sha512-Z/ZeOgVl7bcSYZ/u/rh0fOpvEpq//LZmdbkXyc7syVzjPAhfOa9ebsdTSjEBDU4vs5nC98Kfduj1uFo0qyET3g==}
+    engines: {node: '>= 0.4'}
 
   array-union@2.1.0:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
@@ -555,10 +556,6 @@ packages:
   delayed-stream@1.0.0:
     resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
     engines: {node: '>=0.4.0'}
-
-  dequal@2.0.3:
-    resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
-    engines: {node: '>=6'}
 
   dexie@4.0.8:
     resolution: {integrity: sha512-1G6cJevS17KMDK847V3OHvK2zei899GwpDiqfEXHP1ASvme6eWJmAp9AU4s1son2TeGkWmC0g3y8ezOBPnalgQ==}
@@ -1240,8 +1237,8 @@ packages:
       typescript:
         optional: true
 
-  svelte@5.0.0-next.244:
-    resolution: {integrity: sha512-whSOcKdpuAFd5xD9J2EhuHeRs4J4nHis6NSUKRXpC3HQoCmsoKhyIldMjiv6QFkQpe6QMsid8lwvgLXkZTSC/A==}
+  svelte@5.0.0-next.255:
+    resolution: {integrity: sha512-vQJeKYtjtNwVWOwhppqYDh08LOhfdDa20RsoVAY9TTSnCLFCIN4SwvXHpmEKU9qVbCpzi6XJ99JKlt5fT59I9Q==}
     engines: {node: '>=18'}
 
   tailwindcss@3.4.3:
@@ -1692,9 +1689,7 @@ snapshots:
 
   argparse@2.0.1: {}
 
-  aria-query@5.3.0:
-    dependencies:
-      dequal: 2.0.3
+  aria-query@5.3.1: {}
 
   array-union@2.1.0: {}
 
@@ -1774,8 +1769,6 @@ snapshots:
 
   delayed-stream@1.0.0: {}
 
-  dequal@2.0.3: {}
-
   dexie@4.0.8: {}
 
   didyoumean@1.2.2: {}
@@ -1796,11 +1789,11 @@ snapshots:
 
   emoji-regex@9.2.2: {}
 
-  esbuild-svelte@0.8.1(esbuild@0.23.0)(svelte@5.0.0-next.244):
+  esbuild-svelte@0.8.1(esbuild@0.23.0)(svelte@5.0.0-next.255):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.22
       esbuild: 0.23.0
-      svelte: 5.0.0-next.244
+      svelte: 5.0.0-next.255
 
   esbuild@0.23.0:
     optionalDependencies:
@@ -2276,16 +2269,16 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier-plugin-svelte@3.2.6(prettier@3.2.5)(svelte@5.0.0-next.244):
+  prettier-plugin-svelte@3.2.6(prettier@3.2.5)(svelte@5.0.0-next.255):
     dependencies:
       prettier: 3.2.5
-      svelte: 5.0.0-next.244
+      svelte: 5.0.0-next.255
 
-  prettier-plugin-tailwindcss@0.6.5(prettier-plugin-svelte@3.2.6(prettier@3.2.5)(svelte@5.0.0-next.244))(prettier@3.2.5):
+  prettier-plugin-tailwindcss@0.6.5(prettier-plugin-svelte@3.2.6(prettier@3.2.5)(svelte@5.0.0-next.255))(prettier@3.2.5):
     dependencies:
       prettier: 3.2.5
     optionalDependencies:
-      prettier-plugin-svelte: 3.2.6(prettier@3.2.5)(svelte@5.0.0-next.244)
+      prettier-plugin-svelte: 3.2.6(prettier@3.2.5)(svelte@5.0.0-next.255)
 
   prettier@3.2.5: {}
 
@@ -2373,22 +2366,22 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte-preprocess@6.0.2(postcss-load-config@4.0.2(postcss@8.4.38))(postcss@8.4.38)(svelte@5.0.0-next.244)(typescript@5.4.2):
+  svelte-preprocess@6.0.2(postcss-load-config@4.0.2(postcss@8.4.38))(postcss@8.4.38)(svelte@5.0.0-next.255)(typescript@5.4.2):
     dependencies:
-      svelte: 5.0.0-next.244
+      svelte: 5.0.0-next.255
     optionalDependencies:
       postcss: 8.4.38
       postcss-load-config: 4.0.2(postcss@8.4.38)
       typescript: 5.4.2
 
-  svelte@5.0.0-next.244:
+  svelte@5.0.0-next.255:
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@jridgewell/sourcemap-codec': 1.5.0
       '@types/estree': 1.0.5
       acorn: 8.12.1
       acorn-typescript: 1.4.13(acorn@8.12.1)
-      aria-query: 5.3.0
+      aria-query: 5.3.1
       axobject-query: 4.1.0
       esm-env: 1.0.0
       esrap: 1.2.2
