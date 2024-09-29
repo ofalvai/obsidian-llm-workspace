@@ -19,7 +19,7 @@
 			<button
 				class={"capitalize !shadow-none " +
 					(temperature === tempValue
-						? "!bg-interactive-accent text-on-accent hover:!bg-interactive-accent-hover"
+						? "!bg-interactive-accent !text-on-accent hover:!bg-interactive-accent-hover"
 						: "bg-interactive hover:bg-interactive-hover")}
 				onclick={() => onChange(tempValue)}
 			>

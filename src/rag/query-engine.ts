@@ -60,6 +60,7 @@ export class SingleNoteQueryEngine implements QueryEngine {
 				}
 			}),
 		]
+		// TODO: we should not pass the original query as the improved query
 		yield* this.synthesizer.synthesize(query, nodes, query)
 	}
 }

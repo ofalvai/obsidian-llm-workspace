@@ -16,8 +16,8 @@
 		onNewConversation: () => void
 	} = $props()
 
-	const keyboardHint = "Press ⏎ to send message, ⇧ + ⏎ for new line.\n"
-	const rowCountDefault = 3
+	const keyboardHint = "⇧ + ⏎: line break\n[[: attach file\n@: insert prompt"
+	const rowCountDefault = 4
 	const rowCountExpanded = 8
 
 	let query = $state("")
@@ -28,6 +28,7 @@
 		e.preventDefault()
 		onSubmit(query, attachedFiles)
 		query = ""
+		rowCount = rowCountDefault
 		attachedFiles = []
 	}
 	const _onNewConversation = () => {
