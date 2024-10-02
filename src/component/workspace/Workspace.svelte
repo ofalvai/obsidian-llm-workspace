@@ -19,6 +19,7 @@
 	import {
 		appStore,
 		isLlmWorkspace,
+		isPlaintextFile,
 		readWorkspaceContext,
 		settingsStore,
 	} from "src/utils/obsidian"
@@ -176,7 +177,11 @@
 		let linkedFilePaths: string[] = [workspaceFile.path]
 		if (workspaceFile.path in $appStore.metadataCache.resolvedLinks) {
 			const linksOfFile = $appStore.metadataCache.resolvedLinks[workspaceFile.path]
-			linkedFilePaths = Object.keys(linksOfFile)
+			for (const link of Object.keys(linksOfFile)) {
+				if (isPlaintextFile(link)) {
+					linkedFilePaths.push(link)
+				}
+			}
 		} else {
 			linkedFilePaths = []
 		}
@@ -191,7 +196,7 @@
 			indexingProgress = 0
 
 			await vectorStore.deleteFiles(...linkedFilePaths)
-			
+
 			const nodes = []
 			for (const path of linkedFilePaths) {
 				// TODO: test for non-markdown files
@@ -209,7 +214,7 @@
 				const node = nodes[i]
 				const embedding = await embeddingClient.embedNode(node)
 				await vectorStore.addNode(node, embedding, workspaceFile.path)
-				indexingProgress = 100 * (i + 2) / nodes.length
+				indexingProgress = (100 * (i + 2)) / nodes.length
 			}
 		} catch (e) {
 			console.error("Failed to rebuild linked files", e)

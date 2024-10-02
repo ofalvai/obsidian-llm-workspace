@@ -1,3 +1,4 @@
+import path from "node:path"
 import { type App, type CachedMetadata, type View } from "obsidian"
 import type { LlmPluginSettings } from "src/config/settings"
 import { writable } from "svelte/store"
@@ -31,6 +32,11 @@ export function readWorkspaceContext(metadata: CachedMetadata | null): string | 
 		return metadata.frontmatter[frontmatterKeyContext]
 	}
 	return null
+}
+
+export function isPlaintextFile(file: FilePath): boolean {
+	// This is not a complete list, but Obsidian itself doesn't handle all plaintext file types, so this is fine.
+	return path.extname(file) in ["md", "txt", "markdown"]
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

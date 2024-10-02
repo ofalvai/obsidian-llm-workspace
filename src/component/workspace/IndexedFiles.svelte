@@ -28,10 +28,10 @@
 
 <div>
 	<div class="flex items-center justify-between">
-		<div class="flex flex-row items-center w-full mr-1">
-			<div class="text-base font-medium grow">Workspace sources</div>
+		<div class="mr-1 flex w-full flex-row items-center">
+			<div class="grow text-base font-medium">Workspace sources</div>
 			{#if indexingProgress < 100}
-				<ProgressBar value={indexingProgress} className="w-1/4"/>
+				<ProgressBar value={indexingProgress} className="w-1/4" />
 			{/if}
 		</div>
 		<button

@@ -194,7 +194,7 @@ export default class LlmPlugin extends Plugin {
 				if (editor instanceof TFolder) {
 					return
 				}
-				
+
 				menu.addItem((item) => {
 					item.setTitle("Chat with note")
 					item.setIcon("message-square")
