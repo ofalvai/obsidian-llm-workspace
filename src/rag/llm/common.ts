@@ -33,6 +33,7 @@ export interface ChatStopEvent {
 export interface Usage {
 	inputTokens: number
 	outputTokens: number
+	cachedInputTokens: number
 }
 
 export type ChatStreamEvent = ChatStartEvent | ChatDeltaEvent | ChatStopEvent

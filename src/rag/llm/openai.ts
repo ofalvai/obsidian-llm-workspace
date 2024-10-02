@@ -1,6 +1,5 @@
 import OpenAI from "openai"
 import type { ChatCompletionMessageParam } from "openai/resources/index.mjs"
-import { COMPLETION_MODEL, COMPLETION_TEMPERATURE, EMBEDDING_MODEL } from "src/config/openai"
 import { messageWithAttachmens, SELF_QUERY_EXAMPLES, SELF_QUERY_PROMPT } from "src/config/prompts"
 import { nodeRepresentation, type Node } from "../node"
 import {
@@ -50,11 +49,13 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 
 		let inputTokens = 0
 		let outputTokens = 0
+		let cachedInputTokens = 0
 		yield { type: "start" }
 		for await (const chunk of stream) {
 			if (chunk.usage) {
-				inputTokens = chunk.usage.prompt_tokens
-				outputTokens = chunk.usage.completion_tokens
+				inputTokens += chunk.usage.prompt_tokens
+				outputTokens += chunk.usage.completion_tokens
+				cachedInputTokens += chunk.usage.prompt_tokens_details?.cached_tokens ?? 0
 			}
 			if (chunk.choices.length > 0) {
 				yield { content: chunk.choices[0].delta.content ?? "", type: "delta" }
@@ -62,7 +63,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 		}
 		yield {
 			type: "stop",
-			usage: { inputTokens, outputTokens },
+			usage: { inputTokens, outputTokens, cachedInputTokens },
 			temeperature: temperature(options.temperature),
 		}
 	}
@@ -137,6 +138,10 @@ function temperature(t: Temperature): number {
 	}
 }
 
+const IMPROVE_QUERY_MODEL = "gpt-4o-mini-2024-07-18"
+const IMPROVE_QUERY_TEMP = 0.1
+const EMBEDDING_MODEL = "text-embedding-3-small"
+
 export class OpenAIEmbeddingClient implements EmbeddingClient {
 	private client: OpenAI
 	private apiKey: string
@@ -198,8 +203,8 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 
 		const completion = await this.client.chat.completions.create({
 			messages,
-			model: COMPLETION_MODEL,
-			temperature: COMPLETION_TEMPERATURE,
+			model: IMPROVE_QUERY_MODEL,
+			temperature: IMPROVE_QUERY_TEMP,
 		})
 		return completion.choices[0].message.content!
 	}

@@ -26,6 +26,7 @@ export interface RetrievalDetails {
 export interface DebugInfo {
 	createdAt: number
 	inputTokens?: number
+	cachedInputTokens?: number
 	outputTokens?: number
 	temperature: number
 }
@@ -124,6 +125,7 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 						debugInfo: {
 							createdAt: Date.now(),
 							inputTokens: event.usage?.inputTokens,
+							cachedInputTokens: event.usage?.cachedInputTokens,
 							outputTokens: event.usage?.outputTokens,
 							temperature: event.temeperature,
 						},
