@@ -1,8 +1,9 @@
 <script lang="ts">
-	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 	import type { TFile } from "obsidian"
+	import { Notice } from "obsidian"
+	import { appStore, settingsStore } from "src/utils/obsidian"
 	import { showSelectVaultFileModal } from "src/view/SelectVaultFileModal"
-	import { appStore } from "src/utils/obsidian"
+	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 
 	let {
 		disabled,
@@ -55,7 +56,13 @@
 			query = query + " " + prompt
 			rowCount = rowCountExpanded
 		}
-		await showSelectVaultFileModal($appStore, onSelect)
+
+		const promptFolder = $appStore.vault.getFolderByPath($settingsStore.promptFolder)
+		if (!promptFolder) {
+			new Notice(`Prompt folder not found: ${$settingsStore.promptFolder}`, 1000)
+			return
+		}
+		await showSelectVaultFileModal($appStore, onSelect, promptFolder)
 	}
 </script>
 

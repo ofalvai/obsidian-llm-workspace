@@ -1,10 +1,20 @@
-import { App, FuzzySuggestModal, TFile } from "obsidian"
+import { App, FuzzySuggestModal, TFile, TFolder, Vault } from "obsidian"
 
-export async function showSelectVaultFileModal(app: App, onSelect: (file: TFile) => void) {
-	const files = app.vault.getMarkdownFiles()
+export async function showSelectVaultFileModal(app: App, onSelect: (file: TFile) => void, root?: TFolder) {
+	let files: TFile[] = []
+	if (root) {
+		Vault.recurseChildren(root, (entry) => {
+			if (entry instanceof TFile) {
+				files.push(entry)
+			}
+		})
+	} else {
+		files = app.vault.getMarkdownFiles()
+	}
 
 	const modal = new SelectVaultFileModal(app, files, onSelect)
-	modal.setPlaceholder("Select a file from vault")
+	const locationLabel = root ? root.path : "vault"
+	modal.setPlaceholder(`Select a file from ${locationLabel}`)
 	modal.open()
 }
 

@@ -14,6 +14,8 @@ export interface LlmPluginSettings {
 
 	questionAndAnswerModel: string
 	noteContextModel: string
+
+	promptFolder: string
 }
 
 export const DEFAULT_SETTINGS: LlmPluginSettings = {
@@ -27,6 +29,8 @@ export const DEFAULT_SETTINGS: LlmPluginSettings = {
 
 	questionAndAnswerModel: "gpt-4o-mini-2024-07-18",
 	noteContextModel: "gpt-4o-mini-2024-07-18",
+
+	promptFolder: "Resources/LLM/Prompts"
 }
 
 const MODELS = [
@@ -81,6 +85,22 @@ export class LlmSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings()
 					})
 			})
+
+		new Setting(containerEl)
+			.setName("Prompt folder location")
+			.setDesc(
+				"Files in the folder will be available as prompts. Type @ to the chat input to open the prompt selector.",
+			)
+			.addText((text) => {
+				text
+				.setValue(this.plugin.settings.promptFolder)
+				.setPlaceholder("Select a folder")
+				.onChange(async (value) => {
+					this.plugin.settings.promptFolder = value
+					await this.plugin.saveSettings()
+				})
+			})
+
 
 		new Setting(containerEl)
 			.setName("Note context minimum length")
