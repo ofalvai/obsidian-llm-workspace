@@ -22,7 +22,7 @@
 	"devDependencies": {
 		"@stylistic/eslint-plugin-js": "^2.8.0",
 		"@tsconfig/svelte": "^5.0.2",
-		"@types/node": "^16.11.6",
+		"@types/node": "^20.0.0",
 		"@typescript-eslint/eslint-plugin": "8.8.0",
 		"@typescript-eslint/parser": "8.8.0",
 		"esbuild": "0.23.0",
