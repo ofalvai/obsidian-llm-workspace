@@ -46,8 +46,7 @@ export class WorkspaceView extends ItemView {
 		settingsStore.set(this.settings)
 		appStore.set(this.app)
 		viewStore.set(this)
-
-
+		
 		this.addAction("file-input", "Open workspace note", () => {
 			if (this.filePath) {
 				this.app.workspace.openLinkText(this.filePath, "", "tab")

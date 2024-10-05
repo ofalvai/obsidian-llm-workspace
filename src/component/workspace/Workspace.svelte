@@ -54,7 +54,7 @@
 		})
 		return () => $appStore.metadataCache.offref(ref)
 	})
-	const isWorkspace = isLlmWorkspace($metadata)
+	const isWorkspace = $derived(isLlmWorkspace($metadata))
 	let pendingWorkspaceContext = $state<string | null>(null)
 	let workspaceContext = $state(readWorkspaceContext($metadata))
 
