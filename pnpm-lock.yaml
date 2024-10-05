@@ -50,7 +50,7 @@ importers:
         version: 3.2.6(prettier@3.2.5)(svelte@5.0.0-next.255)
       prettier-plugin-tailwindcss:
         specifier: ^0.6.5
-        version: 0.6.6(prettier-plugin-svelte@3.2.6(prettier@3.2.5)(svelte@5.0.0-next.255))(prettier@3.2.5)
+        version: 0.6.8(prettier-plugin-svelte@3.2.6(prettier@3.2.5)(svelte@5.0.0-next.255))(prettier@3.2.5)
       svelte:
         specifier: 5.0.0-next.255
         version: 5.0.0-next.255
@@ -607,6 +607,7 @@ packages:
   eslint@8.57.0:
     resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   esm-env@1.0.0:
@@ -1074,8 +1075,8 @@ packages:
       prettier: ^3.0.0
       svelte: ^3.2.0 || ^4.0.0-next.0 || ^5.0.0-next.0
 
-  prettier-plugin-tailwindcss@0.6.6:
-    resolution: {integrity: sha512-OPva5S7WAsPLEsOuOWXATi13QrCKACCiIonFgIR6V4lYv4QLp++UXVhZSzRbZxXGimkQtQT86CC6fQqTOybGng==}
+  prettier-plugin-tailwindcss@0.6.8:
+    resolution: {integrity: sha512-dGu3kdm7SXPkiW4nzeWKCl3uoImdd5CTZEJGxyypEPL37Wj0HT2pLqjrvSei1nTeuQfO4PUfjeW5cTUNRLZ4sA==}
     engines: {node: '>=14.21.3'}
     peerDependencies:
       '@ianvs/prettier-plugin-sort-imports': '*'
@@ -2323,7 +2324,7 @@ snapshots:
       prettier: 3.2.5
       svelte: 5.0.0-next.255
 
-  prettier-plugin-tailwindcss@0.6.6(prettier-plugin-svelte@3.2.6(prettier@3.2.5)(svelte@5.0.0-next.255))(prettier@3.2.5):
+  prettier-plugin-tailwindcss@0.6.8(prettier-plugin-svelte@3.2.6(prettier@3.2.5)(svelte@5.0.0-next.255))(prettier@3.2.5):
     dependencies:
       prettier: 3.2.5
     optionalDependencies:
