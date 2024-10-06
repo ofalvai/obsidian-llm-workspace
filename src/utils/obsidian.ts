@@ -36,7 +36,7 @@ export function readWorkspaceContext(metadata: CachedMetadata | null): string | 
 
 export function isPlaintextFile(file: FilePath): boolean {
 	// This is not a complete list, but Obsidian itself doesn't handle all plaintext file types, so this is fine.
-	return path.extname(file) in ["md", "txt", "markdown"]
+	return [".md", ".txt", ".markdown"].includes(path.extname(file))
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
