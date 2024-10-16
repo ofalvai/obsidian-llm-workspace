@@ -13,7 +13,7 @@
 	"keywords": [],
 	"author": "",
 	"license": "MIT",
-	"packageManager": "pnpm@9.6.0",
+	"packageManager": "pnpm@9.12.2",
 	"dependencies": {
 		"dexie": "4.0.8",
 		"eslint-plugin-svelte": "^2.44.0",
