@@ -40,8 +40,8 @@ importers:
         specifier: ^0.8.1
         version: 0.8.2(esbuild@0.24.0)(svelte@5.0.0-next.255)
       obsidian:
-        specifier: 1.6.6
-        version: 1.6.6(@codemirror/state@6.4.1)(@codemirror/view@6.26.0)
+        specifier: 1.7.2
+        version: 1.7.2(@codemirror/state@6.4.1)(@codemirror/view@6.26.0)
       postcss:
         specifier: ^8.4.35
         version: 8.4.47
@@ -928,8 +928,8 @@ packages:
     resolution: {integrity: sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw==}
     engines: {node: '>= 6'}
 
-  obsidian@1.6.6:
-    resolution: {integrity: sha512-GZHzeOiwmw/wBjB5JwrsxAZBLqxGQmqtEKSvJJvT0LtTcqeOFnV8jv0ZK5kO7hBb44WxJc+LdS7mZgLXbb+qXQ==}
+  obsidian@1.7.2:
+    resolution: {integrity: sha512-k9hN9brdknJC+afKr5FQzDRuEFGDKbDjfCazJwpgibwCAoZNYHYV8p/s3mM8I6AsnKrPKNXf8xGuMZ4enWelZQ==}
     peerDependencies:
       '@codemirror/state': ^6.0.0
       '@codemirror/view': ^6.0.0
@@ -2197,7 +2197,7 @@ snapshots:
 
   object-hash@3.0.0: {}
 
-  obsidian@1.6.6(@codemirror/state@6.4.1)(@codemirror/view@6.26.0):
+  obsidian@1.7.2(@codemirror/state@6.4.1)(@codemirror/view@6.26.0):
     dependencies:
       '@codemirror/state': 6.4.1
       '@codemirror/view': 6.26.0
