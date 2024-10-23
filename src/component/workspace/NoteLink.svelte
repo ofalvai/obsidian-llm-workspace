@@ -26,6 +26,7 @@
 	})
 
 	let label = $derived.by(() => {
+		// TODO: now might be outdated when fileInfo is updated
 		let lastProcessedLabel = window.moment(fileInfo.lastProcessed).from(now)
 		switch (fileInfo.nodeCount) {
 			case 0:

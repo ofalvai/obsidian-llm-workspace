@@ -20,6 +20,7 @@ export class WorkspaceView extends ItemView {
 
 	filePath?: string
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	component!: Record<string, any>
 	viewTitle = "LLM Workspace"
 	navigation = false
@@ -46,7 +47,7 @@ export class WorkspaceView extends ItemView {
 		settingsStore.set(this.settings)
 		appStore.set(this.app)
 		viewStore.set(this)
-		
+
 		this.addAction("file-input", "Open workspace note", () => {
 			if (this.filePath) {
 				this.app.workspace.openLinkText(this.filePath, "", "tab")

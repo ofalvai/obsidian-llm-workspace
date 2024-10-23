@@ -283,7 +283,7 @@
 			onRebuildAll={rebuildAll}
 		/>
 		{#if indexingError}
-			<Error body={indexingError} />
+			<Error body={indexingError.toString()} />
 		{/if}
 		<QuestionAndAnswer
 			conversation={$conversation}
