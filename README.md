@@ -62,12 +62,15 @@ The following plugins work well together with LLM workspace and make the experie
 
 
 ### Current limitations
-- Plugin only handles Markdown files. There is no support for images, PDFs or canvases for now.
-- 
+- The plugin only handles Markdown files for now. There is no support for images, PDFs or canvases.
+- The chunking of notes is pretty naive and there is no token count validation (but models have huge context windows nowadays)
 
 
 ### Additional details
-- You can review all prompts [here](https://github.com/ofalvai/obsidian-llm-workspace/blob/main/src/config/prompts.ts)
+
+- This plugin makes network requests to external LLM APIs. You can view the API-related code [here](https://github.com/ofalvai/obsidian-llm-workspace/tree/main/src/rag/llm)
+- You can review all LLM prompts [here](https://github.com/ofalvai/obsidian-llm-workspace/blob/main/src/config/prompts.ts)
+- The RAG implementation is [here](https://github.com/ofalvai/obsidian-llm-workspace/tree/main/src/rag)
 
 ### Roadmap
 - Change models and model parameters mid-conversation
@@ -88,3 +91,4 @@ The following plugins work well together with LLM workspace and make the experie
 ### Built with
 - [Svelte 5](https://svelte.dev/)
 - [Dexie](https://dexie.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
