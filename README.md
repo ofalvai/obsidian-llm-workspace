@@ -2,25 +2,29 @@
 
 ### Quick demo
 
+<details>
+<summary>Click to expand</summary>
 Let's create a new LLM workspace. A workspace is just a regular note with links to other notes.
 
-![Create workspace](https://github.com/user-attachments/assets/3e5d7515-5d7c-47c8-bc98-9eafe43e2fa4)
+https://github.com/user-attachments/assets/3e5d7515-5d7c-47c8-bc98-9eafe43e2fa4
 
 The workspace view opens side-by-side to the notes. Let's index all information in the workspace. Behind the scenes, this creates the typical [RAG](https://en.m.wikipedia.org/wiki/Retrieval-augmented_generation) setup by chunking documents and computing embeddings for them:
 
-![Open and index](./docs/1%20Open%20and%20index.mp4)
+https://github.com/user-attachments/assets/8a3c73f6-5789-4573-83a3-b8f9a07ec02f
 
 We can start a conversation right away, but it's also possible to generate exploratory questions:
 
-![Explore](./docs/2%20Explore.mp4)
+https://github.com/user-attachments/assets/3b82909e-128e-4d1b-a180-dd01e0e241a7
 
 A conversation is always grounded in the workspace sources and you can debug RAG pipeline:
 
-![Debug](./docs/3%20Debug.mp4)
+https://github.com/user-attachments/assets/488f79b1-d928-4249-8a01-e79de9f5997a
 
 You can also chat with a single note (without creating a workspace) and attach more context gradually:
 
-![Single note](./docs/4%20Single%20note.mp4)
+https://github.com/user-attachments/assets/2f4c4e88-81a1-4cda-ae05-b88a0988bd8c
+
+</details>
 
 ### Why make another AI plugin?
 - This plugin focuses on a specific 
