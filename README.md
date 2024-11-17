@@ -26,40 +26,39 @@ https://github.com/user-attachments/assets/2f4c4e88-81a1-4cda-ae05-b88a0988bd8c
 
 </details>
 
-### Why make another AI plugin?
-- This plugin focuses on a specific 
-- Because it's fun to build tools for my own needs! :)
+### Why have another AI plugin for Obsidian?
+- This plugin focuses on a specific way of AI integration: manually created source sets that an LLM chat is grounded in. It's both cheaper, faster, and more accurate than doing RAG over an entire vault (and we organize our notes anyway, right?!).
+- I wanted something that is flexible, configurable, tweakable. AI progresses too fast anyway, I have no idea what's going to be the best setup tomorrow.
+- Because it's always fun to build tools for my own needs!
 
 ### Goals
 - Integrate LLMs into the Obsidian vault, not the other way around (copy-pasting snippets in and out of ChatGPT)
 - Enable granular control, tweaking and transparency: choose from multiple models and LLM providers, customize prompts, and debug responses.
 - Native to Obsidian, not just a ChatGPT clone inside the Obsidian window
-- Great UX
-
-### Non-goals
-- Integrate LLMs into Obsidian in every possible way. There are existing plugins for many use-cases, such as generating notes or auto-tagging notes.
-- Indexing and retrieval for the entire vault. 
+- Great UX, efficient multitasking.
 
 ### Get started
 
-#### Supported LLM APIs
-#### Recommended plugins
-These plugins work well together with LLM workspace and make the experience even better:
+This is a _bring your own API key_ kind of integration. The first step is to add an API key in the plugin settings and choose a model.
 
-- [Folder notes](https://github.com/LostPaul/obsidian-folder-notes): blurs the line between a folder and a note in the file tree, a note can have child notes like in Notion. Combined with this plugin, an LLM workspace can be a folder with notes inside.
+[This page](./docs/LLM%20providers.md) details the supported LLM providers and the various details of each integration.
+
+The main plugin panel can be launched from the context menu entries, but the following commands are also available:
+
+- Open active note as LLM workspace
+- Chat with active note
+- Open existing workspace
+- Open context panel
+
+### Recommended plugins
+The following plugins work well together with LLM workspace and make the experience even better:
+
+- [Folder notes](https://github.com/LostPaul/obsidian-folder-notes): blurs the line between a folder and a note in the file tree. A note can have child notes like in Notion and similar tools. Combined with this plugin, an LLM workspace can be a folder with notes inside.
 - [Waypoint](https://github.com/IdreesInc/Waypoint): generates a table of contents with links to other notes. Combined with Folder notes and LLM workspace, it maintains links to notes in the LLM workspace folder.
 
-#### Advanced usage
+### Advanced use
 
-##### Prompt library
-
-You can set up a folder as a prompt library, then collect prompts as files there. Insert prompts to the chat input by typing `@`.
-
-##### 
-
-
-##### Note context sidebar
-
+[Click here](./docs/Advanced%20use.md) for a list of advanced features and use cases.
 
 
 ### Current limitations
@@ -84,9 +83,8 @@ You can set up a folder as a prompt library, then collect prompts as files there
 ### Prior work and inspiration
 - [Google NotebookLM](https://notebooklm.google.com/)
 - [Notion AI Q&A](https://www.notion.so/product/ai)
-- [Cohere's document chat](https://cohere.com/chat) with grounding
+- [Cohere's document chat with grounding](https://cohere.com/chat)
 
 ### Built with
 - [Svelte 5](https://svelte.dev/)
 - [Dexie](https://dexie.org/)
-- 
