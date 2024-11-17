@@ -4,7 +4,7 @@
 
 Let's create a new LLM workspace. A workspace is just a regular note with links to other notes.
 
-![Create workspace](./docs/0%20Create%20workspace.mp4)
+![Create workspace](https://github.com/user-attachments/assets/3e5d7515-5d7c-47c8-bc98-9eafe43e2fa4)
 
 The workspace view opens side-by-side to the notes. Let's index all information in the workspace. Behind the scenes, this creates the typical [RAG](https://en.m.wikipedia.org/wiki/Retrieval-augmented_generation) setup by chunking documents and computing embeddings for them:
 
