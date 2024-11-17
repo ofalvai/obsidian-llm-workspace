@@ -31,7 +31,7 @@
 		"postcss": "^8.4.35",
 		"prettier-plugin-svelte": "^3.2.2",
 		"prettier-plugin-tailwindcss": "^0.6.5",
-		"svelte": "5.0.0-next.255",
+		"svelte": "5.2.2",
 		"svelte-preprocess": "^6.0.0",
 		"tailwindcss": "^3.4.1",
 		"tslib": "2.7.0",
