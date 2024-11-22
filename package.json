@@ -16,10 +16,10 @@
 	"packageManager": "pnpm@9.6.0",
 	"dependencies": {
 		"dexie": "4.0.8",
-		"eslint-plugin-svelte": "^2.44.0",
 		"openai": "^4.67.0"
 	},
 	"devDependencies": {
+		"eslint-plugin-svelte": "^2.44.0",
 		"@stylistic/eslint-plugin-js": "^2.8.0",
 		"@tsconfig/svelte": "^5.0.2",
 		"@types/node": "^16.11.6",

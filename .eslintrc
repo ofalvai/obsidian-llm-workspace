@@ -14,6 +14,10 @@
     "project": "./tsconfig.json",
     "extraFileExtensions": [".svelte"]
   },
+  "ignorePatterns": [
+    "tailwind.config.js",
+    "esbuild.config.mjs"
+  ],
   "overrides": [
     {
       "files": ["*.svelte"],
