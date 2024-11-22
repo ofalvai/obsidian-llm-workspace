@@ -145,8 +145,12 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 				case "message_stop":
 					yield {
 						type: "stop",
-						usage: { inputTokens: inputTokenCount, outputTokens: outputTokenCount, cachedInputTokens: 0 },
-						temeperature: temperature(options.temperature),
+						usage: {
+							inputTokens: inputTokenCount,
+							outputTokens: outputTokenCount,
+							cachedInputTokens: 0,
+						},
+						temperature: temperature(options.temperature),
 					}
 					break
 			}

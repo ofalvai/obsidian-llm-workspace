@@ -27,7 +27,7 @@ export interface ChatStopEvent {
 	type: "stop"
 	usage?: Usage
 	// Implementation-specific temp number for debugging purposes
-	temeperature: number
+	temperature: number
 }
 
 export interface Usage {

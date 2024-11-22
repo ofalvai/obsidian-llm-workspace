@@ -1,6 +1,11 @@
 import path from "node:path"
 import type { FilePath } from "src/utils/obsidian"
 
+/**
+ * A node represents a chunk of content from a file. Other components of the RAG pipeline reference nodes,
+ * not files typically.
+ * It's important that a Node is not a reference to a file, but a snapshot of its content at a given time.
+ */
 export interface Node {
 	content: string
 	parent: FilePath

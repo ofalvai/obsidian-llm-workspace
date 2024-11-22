@@ -6,6 +6,9 @@ export interface QueryEngine {
 	query(query: string, attachedContent: Node[]): AsyncGenerator<QueryResponse>
 }
 
+/**
+ * A query engine that uses a retriever to select nodes from the workspace and synthesizes a response grounded in those nodes.
+ */
 export class RetrieverQueryEngine implements QueryEngine {
 	private retriever: Retriever
 	private synthesizer: ResponseSynthesizer
@@ -32,6 +35,9 @@ export class RetrieverQueryEngine implements QueryEngine {
 	}
 }
 
+/**
+ * A query engine that is grounded in a single node (plus the attached nodes, if any).
+ */
 export class SingleNoteQueryEngine implements QueryEngine {
 	private synthesizer: ResponseSynthesizer
 	private content: string

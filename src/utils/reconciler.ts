@@ -6,7 +6,7 @@ import { VectorStoreIndex } from "src/rag/vectorstore"
 import { deleteNoteDerivedData } from "src/storage/note-context"
 
 // ObsidianNoteReconciler is responsible for keeping the database in sync with changes in the Obsidian vault.
-// It listens to file and metadata changes and updates the relevant DB collections accordingly.
+// It listens to file and metadata changes, and updates the relevant DB collections accordingly.
 // Note: it doesn't clean up node embeddings even if the original note is deleted or no longer referenced from the workspace.
 // This is because recreating embeddings costs real money and we don't want to do it unless necessary.
 // See Pruner for cleaning up these dangling entries manually.

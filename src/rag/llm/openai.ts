@@ -64,7 +64,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 		yield {
 			type: "stop",
 			usage: { inputTokens, outputTokens, cachedInputTokens },
-			temeperature: temperature(options.temperature),
+			temperature: temperature(options.temperature),
 		}
 	}
 
@@ -89,7 +89,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 		return {
 			content: response.choices[0].message.content!,
 			role: "assistant",
-			attachedContent: []
+			attachedContent: [],
 		}
 	}
 

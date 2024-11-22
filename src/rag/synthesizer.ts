@@ -127,7 +127,7 @@ export class DumbResponseSynthesizer implements ResponseSynthesizer {
 							inputTokens: event.usage?.inputTokens,
 							cachedInputTokens: event.usage?.cachedInputTokens,
 							outputTokens: event.usage?.outputTokens,
-							temperature: event.temeperature,
+							temperature: event.temperature,
 						},
 					}
 				}
