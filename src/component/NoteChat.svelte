@@ -83,7 +83,7 @@
 		{onReload}
 	>
 		<div slot="empty">
-			<div class="font-medium">Configuration</div>
+			<div class="font-medium">Chat configuration</div>
 			<ConfigValue
 				iconId="file-text"
 				label="Conversation grounded in"

@@ -44,6 +44,7 @@
 				return
 			}
 			attachedFiles.push(selectedFile)
+			query = query + selectedFile.basename
 		}
 		await showSelectVaultFileModal($appStore, onSelect)
 	}

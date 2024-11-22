@@ -302,7 +302,7 @@
 					onQuestionSelect={async (q) => selectQuestion(q)}
 				/>
 				<div>
-					<div class="font-medium">Configuration</div>
+					<div class="font-medium">Chat configuration</div>
 					<ConfigValue iconId="bot" label="LLM" value={$llmClient.displayName} />
 					<ConfigValue
 						iconId="separator-horizontal"

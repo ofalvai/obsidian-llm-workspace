@@ -89,7 +89,7 @@ export class LlmSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Prompt folder location")
 			.setDesc(
-				"Files in the folder will be available as prompts. Type @ to the chat input to open the prompt selector.",
+				"Files in this folder will be available as prompts. Type @ in the chat input to open the prompt selector.",
 			)
 			.addText((text) => {
 				text
