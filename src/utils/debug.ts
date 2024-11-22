@@ -6,7 +6,7 @@ export async function writeDebugInfo(app: App, response: QueryResponse) {
 	const file = app.metadataCache.getFirstLinkpathDest(debugFilePath, "")
 	const markdown = debugInfoToMarkdown(response)
 	if (file) {
-		await app.vault.delete(file)
+		await app.fileManager.trashFile(file)
 	}
 	await app.vault.create(debugFilePath, markdown)
 

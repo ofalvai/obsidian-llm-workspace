@@ -1,10 +1,12 @@
 import type { IncomingMessage } from "node:http"
 import { request } from "node:https"
 import { Readable } from "node:stream"
+import { logger } from "./logger"
 
 // A fetch()-like function that uses `node:https` under the hood to circumvent CORS restrictions.
 // It returns a Node Readable stream with the response body to allow streaming the response
 // as it arrives.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function nodeStreamingFetch(url: string, options: any = {}): Promise<Readable> {
 	return new Promise((resolve, reject) => {
 		const requestOptions = {
@@ -18,7 +20,7 @@ export async function nodeStreamingFetch(url: string, options: any = {}): Promis
 
 		const req = request(url, requestOptions, (res: IncomingMessage) => {
 			if (res.statusCode !== 200) {
-				var body = ""
+				let body = ""
 				res.on("readable", () => {
 					body += res.read()
 				})
@@ -39,7 +41,7 @@ export async function nodeStreamingFetch(url: string, options: any = {}): Promis
 				readable.push(null)
 			})
 			readable.on("error", (e) => {
-				console.log("error", e)
+				logger.error("error", "nodeStreamingFetch", e)
 				reject(e)
 			})
 		})
