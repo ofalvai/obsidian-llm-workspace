@@ -4,6 +4,7 @@ import type { LlmDexie, WorkspaceStoreEntry } from "src/storage/db"
 import { type FilePath, isLlmWorkspace } from "./obsidian"
 import { VectorStoreIndex } from "src/rag/vectorstore"
 import { deleteNoteDerivedData } from "src/storage/note-context"
+import { logger } from "./logger"
 
 // ObsidianNoteReconciler is responsible for keeping the database in sync with changes in the Obsidian vault.
 // It listens to file and metadata changes, and updates the relevant DB collections accordingly.
@@ -158,7 +159,7 @@ export class ObsidianNoteReconciler {
 	}
 
 	private async processWorkspaceLinkAdd(workspacePath: FilePath, linkedNotePath: FilePath) {
-		console.log(`Processing workspace link add: ${workspacePath} -> ${linkedNotePath}`)
+		logger.info(`Processing workspace link add: ${workspacePath} -> ${linkedNotePath}`)
 		await this.db.workspace
 			.where("workspaceFile")
 			.equals(workspacePath)
@@ -171,7 +172,7 @@ export class ObsidianNoteReconciler {
 	}
 
 	private async processWorkspaceLinkRemove(workspacePath: FilePath, linkedNotePath: FilePath) {
-		console.log(`Processing workspace link remove: ${workspacePath} -> ${linkedNotePath}`)
+		logger.info(`Processing workspace link remove: ${workspacePath} -> ${linkedNotePath}`)
 		await this.db.workspace
 			.where("workspaceFile")
 			.equals(workspacePath)
@@ -181,7 +182,7 @@ export class ObsidianNoteReconciler {
 	}
 
 	private async processLinkUpdateInAllWorkspaces(old: FilePath, new_: FilePath) {
-		console.log(`Processing link update in all workspaces: ${old} -> ${new_}`)
+		logger.info(`Processing link update in all workspaces: ${old} -> ${new_}`)
 		await this.db.workspace
 			.where("links")
 			.equals(old)

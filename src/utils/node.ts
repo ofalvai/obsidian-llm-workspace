@@ -1,6 +1,7 @@
 import type { IncomingMessage } from "node:http"
 import { request } from "node:https"
 import { Readable } from "node:stream"
+import { logger } from "./logger"
 
 // A fetch()-like function that uses `node:https` under the hood to circumvent CORS restrictions.
 // It returns a Node Readable stream with the response body to allow streaming the response
@@ -40,7 +41,7 @@ export async function nodeStreamingFetch(url: string, options: any = {}): Promis
 				readable.push(null)
 			})
 			readable.on("error", (e) => {
-				console.log("error", e)
+				logger.error("error", "nodeStreamingFetch", e)
 				reject(e)
 			})
 		})

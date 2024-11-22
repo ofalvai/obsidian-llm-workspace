@@ -1,5 +1,6 @@
 import { Vault } from "obsidian"
 import type { LlmDexie } from "./db"
+import { logger } from "src/utils/logger"
 
 export class Pruner {
 	private vault: Vault
@@ -19,11 +20,11 @@ export class Pruner {
 		// - Embeddings of files that no longer exist
 		// - Derived data of files that no longer exist (the reconciler deletes these, but a file could be deleted without Obsidian running)
 
-		let danglingWorkspacePaths = []
+		const danglingWorkspacePaths = []
 		for (const workspace of await this.db.workspace.toArray()) {
 			const fileExists = await this.vault.adapter.exists(workspace.workspaceFile)
 			if (!fileExists) {
-				console.log(`Pruned dangling workspace ${workspace.workspaceFile}.`)
+				logger.info(`Pruned dangling workspace ${workspace.workspaceFile}.`)
 				danglingWorkspacePaths.push(workspace.workspaceFile)
 			}
 		}
@@ -36,13 +37,13 @@ export class Pruner {
 			(await this.db.workspace.toArray()).map((ws) => ws.workspaceFile),
 		)
 
-		let danglingFilePaths = []
+		const danglingFilePaths = []
 		for (const entry of await this.db.vectorStore.toArray()) {
 			const fileExists = await this.vault.adapter.exists(entry.node.parent)
 			const workspacesExist = entry.includedInWorkspace.some((ws) => workspaces.has(ws))
 			if (!fileExists || !workspacesExist) {
 				danglingFilePaths.push(entry.node.parent)
-				console.log(`Pruned dangling vector store entry of ${entry.node.parent}.`)
+				logger.info(`Pruned dangling vector store entry of ${entry.node.parent}.`)
 			}
 		}
 		const danglingVectorStoreEntryCount = await this.db.vectorStore
@@ -50,11 +51,11 @@ export class Pruner {
 			.anyOf(danglingFilePaths)
 			.delete()
 
-		let danglingDerivedDataFiles = []
+		const danglingDerivedDataFiles = []
 		for (const derivedData of await this.db.noteDerivedData.toArray()) {
 			const fileExists = await this.vault.adapter.exists(derivedData.path)
 			if (!fileExists) {
-				console.log(`Pruned dangling derived data of ${derivedData.path}.`)
+				logger.info(`Pruned dangling derived data of ${derivedData.path}.`)
 				danglingDerivedDataFiles.push(derivedData.path)
 			}
 		}
@@ -63,10 +64,10 @@ export class Pruner {
 			.anyOf(danglingDerivedDataFiles)
 			.delete()
 
-		console.log(`Pruned ${danglingWorkspaceCount} dangling workspaces`)
-		console.log(`Pruned ${danglingVectorStoreEntryCount} dangling vector store entries`)
-		console.log(`Pruned ${danglingDerivedDataCount} dangling note derived data`)
-		console.log(`Operation took ${Date.now() - startTime}ms`)
+		logger.info(`Pruned ${danglingWorkspaceCount} dangling workspaces`)
+		logger.info(`Pruned ${danglingVectorStoreEntryCount} dangling vector store entries`)
+		logger.info(`Pruned ${danglingDerivedDataCount} dangling note derived data`)
+		logger.info(`Operation took ${Date.now() - startTime}ms`)
 
 		return danglingWorkspaceCount + danglingVectorStoreEntryCount + danglingDerivedDataCount
 	}

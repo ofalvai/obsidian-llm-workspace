@@ -2,6 +2,7 @@ import { PluginSettingTab, App, Setting, Notice } from "obsidian"
 import type LlmPlugin from "src/main"
 import { DEFAULT_SYSTEM_PROMPT } from "./prompts"
 import { Pruner } from "src/storage/pruner"
+import { logger } from "src/utils/logger"
 
 export interface LlmPluginSettings {
 	openAIApiKey: string
@@ -127,6 +128,17 @@ export class LlmSettingTab extends PluginSettingTab {
 						const pruner = new Pruner(this.app.vault, this.plugin.db)
 						const count = await pruner.prune()
 						new Notice(`Pruned ${count} database entries.`, 0)
+					})
+			})
+		
+		new Setting(containerEl)
+			.setName("Enable logging")
+			.setDesc("Enable logging to the developer console.")
+			.addToggle((toggle) => {
+				toggle
+					.setValue(logger.isEnabled())
+					.onChange(async (value) => {
+						logger.toggleLogging(value)
 					})
 			})
 
