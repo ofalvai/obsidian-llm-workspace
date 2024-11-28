@@ -58,10 +58,6 @@ export class LlmSettingTab extends PluginSettingTab {
 		containerEl.empty()
 
 		new Setting(containerEl)
-			.setName("General settings")
-			.setHeading()
-
-		new Setting(containerEl)
 			.setName("Model for conversationss")
 			.setDesc("The model used to answer questions in the LLM workspace view")
 			.addDropdown((dropdown) => {
