@@ -1,4 +1,4 @@
-# Obsidian LLM Workspace
+# LLM Workspace plugin for Obsidian
 
 ### Quick demo
 
