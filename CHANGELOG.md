@@ -1,4 +1,16 @@
 
+<a name="1.0.2"></a>
+## [1.0.2](https://github.com/ofalvai/obsidian-llm-plugin/compare/1.0.1...1.0.2) (2024-11-29)
+
+### Fixes
+
+* inconsistent lockfile ([70a70c7](https://github.com/ofalvai/obsidian-llm-plugin/commit/70a70c73ddf7a946ccef1a80bf8539969b8edaf5))
+
+### Chore
+
+* generate changelog ([bd8e1ab](https://github.com/ofalvai/obsidian-llm-plugin/commit/bd8e1abf66595bf5a6f37509c076bd79005f7b49))
+
+
 <a name="1.0.1"></a>
 ## [1.0.1](https://github.com/ofalvai/obsidian-llm-plugin/compare/1.0.0...1.0.1) (2024-11-29)
 
@@ -20,5 +32,4 @@
 <a name="1.0.0"></a>
 ## 1.0.0 (2024-11-17)
 
-Initial release.
 
