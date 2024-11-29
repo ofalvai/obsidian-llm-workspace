@@ -1,0 +1,33 @@
+style: github
+template: CHANGELOG.tpl.md
+info:
+  title: CHANGELOG
+  repository_url: https://github.com/ofalvai/obsidian-llm-plugin
+options:
+  commits:
+    # filters:
+    #   Type:
+    #     - feat
+    #     - fix
+    #     - perf
+    #     - refactor
+  commit_groups:
+    sort_by: Custom
+    title_order:
+      - feat
+      - fix
+      - chore
+      - refactor
+    title_maps:
+      feat: Features
+      fix: Fixes
+      chore: Chore
+      refactor: Code Refactoring
+  header:
+    pattern: "^(\\w*)\\:\\s(.*)$"
+    pattern_maps:
+      - Type
+      - Subject
+  notes:
+    keywords:
+      - BREAKING CHANGE
