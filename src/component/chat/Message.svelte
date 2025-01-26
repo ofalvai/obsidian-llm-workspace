@@ -2,18 +2,71 @@
 	import type { ChatMessage } from "src/rag/llm/common"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 	import ObsidianMarkdown from "../obsidian/ObsidianMarkdown.svelte"
+	import SelectionActions from "./SelectionActions.svelte"
 	import path from "node:path"
+	import { TextAction, type TextActionConfig } from "src/types/TextAction"
 
 	let {
 		message,
-		onCopy,
-		onEdit,
+		actionConfig = {
+			[TextAction.COPY]: {
+				label: "Copy",
+				icon: "copy",
+				handler: (text: string) => onCopy(text)
+			},
+			[TextAction.EDIT]: {
+				label: "Edit",
+				icon: "edit",
+				handler: (text: string) => onEdit(text)
+			},
+			[TextAction.EXPLAIN]: {
+				label: "Explain",
+				icon: "help",
+				handler: (text: string) => onExplain(text)
+			},
+			[TextAction.IMPROVE]: {
+				label: "Improve",
+				icon: "up-and-down-arrows",
+				handler: (text: string) => onImprove(text)
+			}
+		}
 	}: {
 		message: ChatMessage
-		onCopy: (msg: string) => void
-		onEdit: (msg: string) => void
+		actionConfig?: TextActionConfig
 	} = $props()
+
+	let showSelectionActions = $state(false)
+	let selectedText = $state("")
+	let selectionPosition = $state({ x: 0, y: 0 })
+
+	function handleSelection(event: MouseEvent) {
+		const selection = window.getSelection()
+		if (!selection || selection.isCollapsed) {
+			showSelectionActions = false
+			return
+		}
+
+		selectedText = selection.toString().trim()
+		if (selectedText) {
+			const range = selection.getRangeAt(0)
+			const rect = range.getBoundingClientRect()
+			selectionPosition = {
+				x: rect.left,
+				y: rect.bottom + window.scrollY + 5
+			}
+			showSelectionActions = true
+		}
+	}
+
+	function handleClick(event: MouseEvent) {
+		const target = event.target as HTMLElement
+		if (!target.closest(".selection-actions")) {
+			showSelectionActions = false
+		}
+	}
 </script>
+
+<svelte:window on:click={handleClick} />
 
 <div class="flex flex-row items-baseline">
 	{#if message.role === "user"}
@@ -24,6 +77,7 @@
 	<ObsidianMarkdown
 		source={message.content}
 		className={(message.role === "user" ? "text-accent font-medium" : "") + " grow select-text"}
+		onmouseup={handleSelection}
 	/>
 </div>
 <div class="flex w-full flex-row pl-5">
@@ -48,3 +102,14 @@
 		</button>
 	{:else if message.role === "user"}{/if}
 </div>
+
+{#if showSelectionActions && message.role === "assistant"}
+	<div class="selection-actions">
+		<SelectionActions
+			{selectedText}
+			{onExplain}
+			{onImprove}
+			position={selectionPosition}
+		/>
+	</div>
+{/if}
