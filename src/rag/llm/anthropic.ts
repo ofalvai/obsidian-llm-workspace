@@ -173,7 +173,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 			throw new Error("First message must be the system role, got " + messages[0].role)
 		}
 		try {
-			const response = await this.makeRequest(messages, options, false)
+			const response = await this.makeRequest(messages, options)
 			const newMessage = (await response.json) as Message
 			return {
 				content: newMessage.content[0].text,
@@ -197,7 +197,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 			{ role: "user", content: userPrompt, attachedContent: [] },
 			{ role: "assistant", content: "{", attachedContent: [] }, // force valid JSON output
 		]
-		const response = await this.makeRequest(messages, options, false)
+		const response = await this.makeRequest(messages, options)
 		const newMessage = (await response.json) as Message
 		try {
 			return JSON.parse("{" + newMessage.content[0].text) as T
@@ -211,7 +211,6 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 	async makeRequest(
 		messages: ChatMessage[],
 		options: CompletionOptions,
-		stream: boolean,
 	): Promise<RequestUrlResponse> {
 		// Anthropic API doesn't set CORS headers correctly, so we can't use the new fetch API here.
 		// Obsidian's requestUrl() doesn't enforce CORS.
@@ -224,7 +223,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 				"x-api-key": this.apiKey,
 			},
 			body: JSON.stringify({
-				stream: stream,
+				stream: false,
 				model: this.model,
 				temperature: temperature(options.temperature),
 				max_tokens: options.maxTokens,
