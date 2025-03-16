@@ -28,8 +28,8 @@ export const DEFAULT_SETTINGS: LlmPluginSettings = {
 	chunkSize: 1000,
 	retrievedNodeCount: 10,
 
-	questionAndAnswerModel: "gpt-4o-mini-2024-07-18",
-	noteContextModel: "gpt-4o-mini-2024-07-18",
+	questionAndAnswerModel: "",
+	noteContextModel: "",
 
 	promptFolder: "Resources/LLM/Prompts"
 }
@@ -41,7 +41,10 @@ const MODELS = [
 	"claude-3-5-haiku-20241022",
 	"claude-3-5-sonnet-20241022",
 	"claude-3-opus-20240229",
-	"claude-3-7-sonnet-20250219"
+	"claude-3-7-sonnet-20250219",
+	"llama-3.3-70b",
+	"deepseek-chat",
+	"deepseek-reasoner",
 ]
 
 export class LlmSettingTab extends PluginSettingTab {
@@ -153,7 +156,7 @@ export class LlmSettingTab extends PluginSettingTab {
 			openaiLink,
 		)
 		new Setting(containerEl)
-			.setName("OpenAI API key")
+			.setName("JohnGPT API key")
 			.setDesc(openaiApiKeyDesc)
 			.addText((text) =>
 				text
@@ -167,16 +170,16 @@ export class LlmSettingTab extends PluginSettingTab {
 
 		const anthropicApiKeyDesc = document.createDocumentFragment()
 		const anthropicLink = document.createElement("a")
-		anthropicLink.href = "https://console.anthropic.com"
-		anthropicLink.textContent = "console.anthropic.com"
+		anthropicLink.href = "https://platform.deepseek.com"
+		anthropicLink.textContent = "platform.deepseek.com"
 		anthropicApiKeyDesc.append(
-			"Required when using an Anthropic model.",
+			"Required when using an Deepseek model.",
 			document.createElement("br"),
 			"Create a key at ",
 			anthropicLink,
 		)
 		new Setting(containerEl)
-			.setName("Anthropic API key")
+			.setName("Deepseek API key")
 			.setDesc(anthropicApiKeyDesc)
 			.addText((text) =>
 				text
