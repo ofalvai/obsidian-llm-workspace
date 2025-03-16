@@ -3,45 +3,10 @@ import type {
 	ChatMessage,
 	ChatStreamEvent,
 	CompletionOptions,
-	Role,
 	StreamingChatCompletionClient,
 	Temperature,
-} from "./common"
-import { iterSSEMessages } from "src/utils/sse"
-import type { RequestUrlResponse } from "obsidian"
-
-interface LocalModels {
-	models: Model[]
-}
-
-interface Model {
-	name: string
-	model: string
-	details: ModelDetails
-}
-
-interface ModelDetails {
-	parameter_size: string
-	quantization_level: string
-}
-
-type StreamEvent = ChunkEvent | DoneEvent
-
-interface ChunkEvent {
-	message: Message
-	done: false
-}
-
-interface Message {
-	role: Role
-	content: string
-}
-
-interface DoneEvent {
-	done: true
-	prompt_eval_count: number
-	eval_count: number
-}
+} from "../common"
+import type { ChatResponse, StreamEvent } from "./types"
 
 export class OllamaChatCompletionClient implements StreamingChatCompletionClient {
 	private url: string
@@ -53,7 +18,7 @@ export class OllamaChatCompletionClient implements StreamingChatCompletionClient
 	}
 
 	get displayName(): string {
-		return "${this.model} via Ollama"
+		return `${this.model} via Ollama`
 	}
 
 	async *createStreamingChatCompletion(
@@ -95,33 +60,62 @@ export class OllamaChatCompletionClient implements StreamingChatCompletionClient
 			}),
 		})
 
-		const stream = iterSSEMessages(resp)
-		let hasStarted = false
-		for await (const event of stream) {
-			if (!event.data) {
-				continue
-			}
+		// Ollama response stream is not SSE, just a streamed newline-delimited JSON
+		// so we need to parse the JSON ourselves
+		resp.setEncoding("utf8")
+		let streamInProgress = false
+		let buffer = ""
+		for await (const chunk of resp) {
+			buffer += chunk
+			const bufferLines = buffer.split("\n")
 
-			const data = JSON.parse(event.data) as StreamEvent
-			if (data.done) {
-				yield {
-					type: "stop",
-					temperature: temperature(options.temperature),
-					usage: {
-						inputTokens: data.eval_count,
-						outputTokens: data.prompt_eval_count,
-						cachedInputTokens: 0, // not implemented
-					},
+			// Empty the buffer, except for the last, possibly incomplete line
+			buffer = bufferLines.pop() ?? ""
+
+			for (const line of bufferLines) {
+				try {
+					const event = JSON.parse(line) as StreamEvent
+					yield this.convertStreamEvent(event, streamInProgress, options)
+					streamInProgress = true
+				} catch (error) {
+					throw new Error(`Failed to parse Ollama response: ${line}, error: ${error}`)
 				}
-				break
-			} else {
-				if (!hasStarted) {
-					yield { type: "start" }
-					hasStarted = true
-				}
-				yield { type: "delta", content: data.message.content }
-				break
 			}
+		}
+
+		// Process any remaining data in the buffer
+		if (buffer !== "") {
+			for (const part of buffer.split("\n").filter((p) => p !== "")) {
+				try {
+					const event = JSON.parse(part) as StreamEvent
+					yield this.convertStreamEvent(event, streamInProgress, options)
+				} catch (error) {
+					throw new Error(`Failed to parse Ollama response: ${part}, error: ${error}`)
+				}
+			}
+		}
+	}
+
+	convertStreamEvent(
+		event: StreamEvent,
+		streamInProgress: boolean,
+		options: CompletionOptions,
+	): ChatStreamEvent {
+		if (event.done) {
+			return {
+				type: "stop",
+				temperature: temperature(options.temperature),
+				usage: {
+					inputTokens: event.eval_count, // updated from data to event
+					outputTokens: event.prompt_eval_count, // updated from data to event
+					cachedInputTokens: 0, // not implemented
+				},
+			}
+		} else {
+			if (!streamInProgress) {
+				return { type: "start" }
+			}
+			return { type: "delta", content: event.message.content } // updated from data to event
 		}
 	}
 
@@ -145,9 +139,9 @@ export class OllamaChatCompletionClient implements StreamingChatCompletionClient
 
 		try {
 			const response = await this.makeRequest(messages, options)
-			const newMessage = (await response.json()) as Message
+			const chatResponse = (await response.json()) as ChatResponse
 			return {
-				content: newMessage.content,
+				content: chatResponse.message.content,
 				role: "assistant",
 				attachedContent: [],
 			}
@@ -172,12 +166,12 @@ export class OllamaChatCompletionClient implements StreamingChatCompletionClient
 		]
 
 		const response = await this.makeRequest(messages, options)
-		const newMessage = (await response.json()) as Message
+		const chatResponse = (await response.json()) as ChatResponse
 		try {
-			return JSON.parse("{" + newMessage.content) as T
+			return JSON.parse("{" + chatResponse.message.content) as T
 		} catch (e) {
 			throw new Error(
-				`LLM response could not be parsed to JSON schema: ${e}\nResponse: {${newMessage.content}`,
+				`LLM response could not be parsed to JSON schema: ${e}\nResponse: {${chatResponse.message.content}`, // updated from newMessage to chatResponse
 			)
 		}
 	}
@@ -209,20 +203,6 @@ export class OllamaChatCompletionClient implements StreamingChatCompletionClient
 		}
 		return resp
 	}
-}
-
-export async function listLoadableModels(url: string): Promise<LocalModels> {
-	if (!url) {
-		return Promise.reject("No URL provided")
-	}
-
-	if (url.endsWith("/")) {
-		url = url.slice(0, -1)
-	}
-
-	const response = await fetch(`${url}/api/tags`)
-	const data = (await response.json()) as LocalModels
-	return data
 }
 
 function temperature(t: Temperature): number {

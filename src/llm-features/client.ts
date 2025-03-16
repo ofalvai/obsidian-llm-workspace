@@ -9,7 +9,7 @@ import { AnthropicChatCompletionClient } from "../rag/llm/anthropic"
 import type { StreamingChatCompletionClient } from "../rag/llm/common"
 import { OpenAIChatCompletionClient } from "../rag/llm/openai"
 import { settingsStore } from "../utils/obsidian"
-import { OllamaChatCompletionClient } from "src/rag/llm/ollama"
+import { OllamaChatCompletionClient } from "src/rag/llm/ollama/client"
 
 export const llmClient = derived<Writable<LlmPluginSettings>, StreamingChatCompletionClient>(
 	settingsStore,
