@@ -101,26 +101,13 @@ export class LlmSettingTab extends PluginSettingTab {
 	openProviderSettingsModal(component: ProviderSettingsComponent, provider: Provider, doModelSelection: boolean, currentModel: string | null): void {
 		const modal = new Modal(this.app)
 		modal.setTitle(`${provider} settings`)
+		const closeDialog = () => modal.close()
 		const componentInstance = mount(component, {
 			target: modal.contentEl,
 			props: {
 				currentModel,
 				doModelSelection,
-				onModelSelected: async (model: string) => {
-					this.plugin.settings.questionAndAnswerModel = {
-						provider,
-						model,
-					}
-					switch (provider) {
-						case "Ollama":
-							this.plugin.settings.providerSettings.Ollama = {
-								url: model,
-							}
-							break
-						}
-					await this.plugin.saveSettings()
-					modal.close()
-				}
+				closeDialog
 			},
 		})
 
@@ -156,7 +143,7 @@ export class LlmSettingTab extends PluginSettingTab {
 			})
 
 		const modelSetting = new Setting(containerEl)
-			.setName("Model for conversationss")
+			.setName("Model for conversations")
 			.setDesc("The model used to answer questions in the LLM workspace view")
 			.addDropdown((dropdown) => {
 				dropdown

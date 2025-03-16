@@ -1,17 +1,18 @@
 <script lang="ts">
-	import { listLoadableModels } from "src/rag/llm/ollama"
-	import Loading from "../obsidian/Loading.svelte"
+	import { listLoadableModels } from "src/rag/llm/ollama/models"
+	import { pluginStore } from "src/utils/obsidian"
 	import Error from "../Error.svelte"
+	import Loading from "../obsidian/Loading.svelte"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 
 	let {
 		currentModel,
 		doModelSelection,
-		onModelSelected,
+		closeDialog,
 	}: {
 		currentModel: string | null
 		doModelSelection: boolean
-		onModelSelected: (model: string) => void
+		closeDialog: () => void
 	} = $props()
 
 	let url = $state("http://localhost:11434")
@@ -40,6 +41,33 @@
 		}
 	}
 
+	const saveSettings = () => {
+		$pluginStore.settings = {
+			...$pluginStore.settings,
+			providerSettings: {
+				...$pluginStore.settings.providerSettings,
+				Ollama: {
+					url,
+				},
+			},
+		}
+
+		if (doModelSelection) {
+			$pluginStore.settings = {
+				...$pluginStore.settings,
+				// TODO:
+				questionAndAnswerModel: {
+					provider: "Ollama",
+					model: selectedModel,
+				},
+			}
+		}
+
+		$pluginStore.saveSettings()
+
+		closeDialog()
+	}
+
 	// If too many requests are sent to the server, it will respond with a 503 error indicating the server is overloaded. You can adjust how many requests may be queue by setting OLLAMA_MAX_QUEUE.
 </script>
 
@@ -62,10 +90,7 @@
 	{#if doModelSelection}
 		<label for="model" class="mb-2 mt-4 block font-medium">Model</label>
 		<input id="model" type="text" placeholder="Model" bind:value={selectedModel} />
-		<button
-			class="mod-cta ml-4"
-			onclick={() => onModelSelected(selectedModel)}
-			disabled={selectedModel.trim() === ""}
+		<button class="mod-cta ml-4" onclick={saveSettings} disabled={selectedModel.trim() === ""}
 			>Select model
 		</button>
 

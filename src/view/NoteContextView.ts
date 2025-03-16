@@ -1,14 +1,16 @@
 import { ItemView, WorkspaceLeaf } from "obsidian"
 import NoteContext from "src/component/NoteContext.svelte"
 import type { LlmPluginSettings } from "src/config/settings"
+import type LlmPlugin from "src/main"
 import { LlmDexie } from "src/storage/db"
-import { appStore, settingsStore, viewStore } from "src/utils/obsidian"
+import { appStore, pluginStore, settingsStore, viewStore } from "src/utils/obsidian"
 import { mount, unmount } from "svelte"
 
 export const VIEW_TYPE_NOTE_CONTEXT = "llm-note-context-view"
 
 export class NoteContextView extends ItemView {
 	settings: LlmPluginSettings
+	plugin: LlmPlugin
 
 	db: LlmDexie
 
@@ -20,12 +22,14 @@ export class NoteContextView extends ItemView {
 	constructor(
 		leaf: WorkspaceLeaf,
 		settings: LlmPluginSettings,
+		plugin: LlmPlugin,
 		db: LlmDexie,
 		openNoteChat: (notePath: string) => void,
 		openWorkspace: (notePath: string) => void
 	) {
 		super(leaf)
 		this.settings = settings
+		this.plugin = plugin
 		this.db = db
 		this.openNoteChat = openNoteChat
 		this.openWorkspace = openWorkspace
@@ -47,6 +51,7 @@ export class NoteContextView extends ItemView {
 		settingsStore.set(this.settings)
 		appStore.set(this.app)
 		viewStore.set(this)
+		pluginStore.set(this.plugin)
 
 		this.component = mount(NoteContext, {
 			target: this.contentEl,

@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { appStore, settingsStore } from "src/utils/obsidian"
+	import { pluginStore } from "src/utils/obsidian"
 
 	let {
-		doModelSelection,
-		onModelSelected,
+		closeDialog,
 	}: {
 		doModelSelection: boolean
-		onModelSelected: (model: string) => void
+		closeDialog: () => void
 	} = $props()
 
 	let apiKey = $state("")
@@ -25,7 +24,21 @@
 		}
 	}
 
-	const onSave = () => {}
+	const saveSettings = () => {
+		$pluginStore.settings = {
+			...$pluginStore.settings,
+			providerSettings: {
+				...$pluginStore.settings.providerSettings,
+				Anthropic: {
+					apiKey,
+				},
+			},
+		}
+
+		$pluginStore.saveSettings()
+
+		closeDialog()
+	}
 </script>
 
 <input placeholder="API key" bind:value={apiKey} />
@@ -38,6 +51,6 @@
 	<p>Error: {error}</p>
 {/if}
 
-<button onclick={onSave}>Save</button>
+<button onclick={saveSettings}>Save</button>
 
 <p>Important notes:</p>

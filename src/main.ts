@@ -129,6 +129,7 @@ export default class LlmPlugin extends Plugin {
 				new NoteContextView(
 					leaf,
 					this.settings,
+					this,
 					this.db,
 					(path) => this.launchNoteChatView(path),
 					(path) => this.launchWorkspaceView(path),
@@ -136,11 +137,11 @@ export default class LlmPlugin extends Plugin {
 		)
 		this.registerView(
 			VIEW_TYPE_WORKSPACE,
-			(leaf) => new WorkspaceView(leaf, this.settings, this.db),
+			(leaf) => new WorkspaceView(leaf, this.settings, this, this.db),
 		)
 		this.registerView(
 			VIEW_TYPE_NOTE_CHAT,
-			(leaf) => new NoteChatView(leaf, this.settings, this.db),
+			(leaf) => new NoteChatView(leaf, this.settings, this, this.db),
 		)
 	}
 
