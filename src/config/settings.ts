@@ -7,6 +7,9 @@ import { logger } from "src/utils/logger"
 export interface LlmPluginSettings {
 	openAIApiKey: string
 	anthropicApikey: string
+	customModelName: string
+	customModelUrl: string
+	customModelApiKey: string
 
 	systemPrompt: string
 	noteContextMinChars: number
@@ -22,6 +25,9 @@ export interface LlmPluginSettings {
 export const DEFAULT_SETTINGS: LlmPluginSettings = {
 	openAIApiKey: "",
 	anthropicApikey: "",
+	customModelName: "",
+	customModelUrl: "",
+	customModelApiKey: "",
 
 	systemPrompt: DEFAULT_SYSTEM_PROMPT,
 	noteContextMinChars: 500,
@@ -42,9 +48,8 @@ const MODELS = [
 	"claude-3-5-sonnet-20241022",
 	"claude-3-opus-20240229",
 	"claude-3-7-sonnet-20250219",
-	"llama-3.3-70b",
 	"deepseek-chat",
-	"deepseek-reasoner",
+	"deepseek-reasoner"
 ]
 
 export class LlmSettingTab extends PluginSettingTab {
@@ -61,17 +66,17 @@ export class LlmSettingTab extends PluginSettingTab {
 		containerEl.empty()
 
 		new Setting(containerEl)
-			.setName("Model for conversationss")
-			.setDesc("The model used to answer questions in the LLM workspace view")
-			.addDropdown((dropdown) => {
-				dropdown
-					.addOptions(modelOptions())
-					.setValue(this.plugin.settings.questionAndAnswerModel)
-					.onChange(async (value) => {
-						this.plugin.settings.questionAndAnswerModel = value
-						await this.plugin.saveSettings()
-					})
-			})
+		.setName("Model for conversations")
+		.setDesc("The model used to answer questions in the LLM workspace view")
+		.addDropdown((dropdown) => {
+			dropdown
+				.addOptions(modelOptions(this.plugin)) // Pass the plugin instance here
+				.setValue(this.plugin.settings.questionAndAnswerModel)
+				.onChange(async (value) => {
+					this.plugin.settings.questionAndAnswerModel = value;
+					await this.plugin.saveSettings();
+				})
+		})
 
 		new Setting(containerEl)
 			.setName("Model for note context")
@@ -156,7 +161,7 @@ export class LlmSettingTab extends PluginSettingTab {
 			openaiLink,
 		)
 		new Setting(containerEl)
-			.setName("JohnGPT API key")
+			.setName("OpenAI API key")
 			.setDesc(openaiApiKeyDesc)
 			.addText((text) =>
 				text
@@ -165,21 +170,21 @@ export class LlmSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.openAIApiKey = value
 						await this.plugin.saveSettings()
-					}),
+			  }),
 			)
 
 		const anthropicApiKeyDesc = document.createDocumentFragment()
 		const anthropicLink = document.createElement("a")
-		anthropicLink.href = "https://platform.deepseek.com"
-		anthropicLink.textContent = "platform.deepseek.com"
+		anthropicLink.href = "https://console.anthropic.com"
+		anthropicLink.textContent = "console.anthropic.com"
 		anthropicApiKeyDesc.append(
-			"Required when using an Deepseek model.",
+			"Required when using an Anthropic model.",
 			document.createElement("br"),
 			"Create a key at ",
 			anthropicLink,
 		)
 		new Setting(containerEl)
-			.setName("Deepseek API key")
+			.setName("Anthropic API key")
 			.setDesc(anthropicApiKeyDesc)
 			.addText((text) =>
 				text
@@ -188,7 +193,46 @@ export class LlmSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.anthropicApikey = value
 						await this.plugin.saveSettings()
-					}),
+			  }),
+			)
+		new Setting(containerEl)
+		.setName("Custom Model Settings")
+		.setHeading();
+		  
+		new Setting(containerEl)
+			.setName("Custom Model Name")
+			.addText((text) => 
+				text
+					.setPlaceholder("my-custom-model")
+					.setValue(this.plugin.settings.customModelName)
+					.onChange(async (value) => {
+						this.plugin.settings.customModelName = value
+						await this.plugin.saveSettings()		
+			  }),
+			)
+		  
+		new Setting(containerEl)
+			.setName("Custom API Base URL")
+			.addText(text =>
+				text
+					.setPlaceholder("https://api.custom-llm.com/v1")
+					.setValue(this.plugin.settings.customModelUrl)
+					.onChange(async (value) => {
+						this.plugin.settings.customModelUrl = value
+						await this.plugin.saveSettings()
+			  }),
+			)
+		  
+		  new Setting(containerEl)
+			.setName("Custom API Key")
+			.addText(text =>
+				text
+					.setPlaceholder("sk-custom-...")
+					.setValue(this.plugin.settings.customModelApiKey)
+					.onChange(async (value) => {
+						this.plugin.settings.customModelApiKey = value
+						await this.plugin.saveSettings()
+			  }),
 			)
 
 		new Setting(containerEl)
@@ -258,9 +302,16 @@ export class LlmSettingTab extends PluginSettingTab {
 	}
 }
 
-function modelOptions(): Record<string, string> {
-	return MODELS.reduce((acc: { [key: string]: string }, model: string) => {
-		acc[model] = model
-		return acc
-	}, {})
+function modelOptions(plugin: LlmPlugin): Record<string, string> {
+	const models = [...MODELS];
+	
+	// Add custom model if it exists in the settings
+	if (plugin.settings.customModelName) {
+		models.push(plugin.settings.customModelName);
+	}
+	
+	return models.reduce((acc: { [key: string]: string }, model: string) => {
+		acc[model] = model;
+		return acc;
+	}, {});
 }
