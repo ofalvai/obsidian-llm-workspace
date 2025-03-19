@@ -83,7 +83,7 @@ export class LlmSettingTab extends PluginSettingTab {
 			.setDesc("The model used to generate note context (summary, key topics)")
 			.addDropdown((dropdown) => {
 				dropdown
-					.addOptions(modelOptions())
+					.addOptions(modelOptions(this.plugin))
 					.setValue(this.plugin.settings.noteContextModel)
 					.onChange(async (value) => {
 						this.plugin.settings.noteContextModel = value
