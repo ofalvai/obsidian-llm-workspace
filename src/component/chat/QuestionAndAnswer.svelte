@@ -32,6 +32,16 @@
 		navigator.clipboard.writeText(text)
 		new Notice("Copied to clipboard", 1000)
 	}
+
+	const handleExplain = (text: string) => {
+		const message = `Please explain this in more detail:\n\n> ${text}`
+		onMessageSubmit(message, [])
+	}
+
+	const handleImprove = (text: string) => {
+		const message = `Please improve this text:\n\n> ${text}`
+		onMessageSubmit(message, [])
+	}
 </script>
 
 <div class="conversation-scroller relative grow pb-36">
@@ -46,6 +56,8 @@
 					}}
 					onCopy={(msg) => copyToClipboard(msg)}
 					onEdit={(msg) => {}}
+					onExplain={handleExplain}
+					onImprove={handleImprove}
 				/>
 			{/if}
 			{#if conversation.queryResponse}
@@ -64,17 +76,17 @@
 						</div>
 					</div>
 				{/if}
-				<div class="flex flex-row items-baseline">
-					<ObsidianIcon
-						iconId="sparkles"
-						size="s"
-						className="mr-2 flex-none relative top-1"
-					/>
-					<ObsidianMarkdown
-						className="grow select-text"
-						source={conversation.queryResponse.text}
-					/>
-				</div>
+				<Message
+					message={{
+						role: "assistant",
+						content: conversation.queryResponse.text,
+						attachedContent: [],
+					}}
+					onCopy={(msg) => copyToClipboard(msg)}
+					onEdit={(msg) => {}}
+					onExplain={handleExplain}
+					onImprove={handleImprove}
+				/>
 				<div class="mb-1 flex w-full flex-row justify-end">
 					<button
 						class="clickable-icon"
@@ -109,6 +121,8 @@
 					message={msg}
 					onCopy={(msg) => copyToClipboard(msg)}
 					onEdit={(msg) => {}}
+					onExplain={handleExplain}
+					onImprove={handleImprove}
 				/>
 			{/each}
 			{#if conversation.isLoading}
