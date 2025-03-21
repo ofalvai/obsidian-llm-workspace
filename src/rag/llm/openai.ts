@@ -17,8 +17,12 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 	private apiKey: string
 	private model: string
 
-	constructor(apiKey: string, model: string) {
-		this.client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
+	constructor(apiKey: string, model: string, baseURL?: string) {
+		this.client = new OpenAI({
+			apiKey,
+			baseURL,
+			dangerouslyAllowBrowser: true 
+		})
 		this.apiKey = apiKey
 		this.model = model
 	}

@@ -47,9 +47,7 @@ const MODELS = [
 	"claude-3-5-haiku-20241022",
 	"claude-3-5-sonnet-20241022",
 	"claude-3-opus-20240229",
-	"claude-3-7-sonnet-20250219",
-	"deepseek-chat",
-	"deepseek-reasoner"
+	"claude-3-7-sonnet-20250219"
 ]
 
 export class LlmSettingTab extends PluginSettingTab {
@@ -195,15 +193,18 @@ export class LlmSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings()
 			  }),
 			)
+		// New custom model section.	
 		new Setting(containerEl)
-		.setName("Custom Model Settings")
+		.setName("Custom OpenAI-Compatible Endpoint")
+		.setDesc("Bring your own model! Connect any OpenAI-compatible LLM")
 		.setHeading();
 		  
 		new Setting(containerEl)
-			.setName("Custom Model Name")
+			.setName("Model Name")
+			.setDesc("Display name for your custom model in the dropdown")
 			.addText((text) => 
 				text
-					.setPlaceholder("my-custom-model")
+					.setPlaceholder("Custom-model")
 					.setValue(this.plugin.settings.customModelName)
 					.onChange(async (value) => {
 						this.plugin.settings.customModelName = value
@@ -212,7 +213,8 @@ export class LlmSettingTab extends PluginSettingTab {
 			)
 		  
 		new Setting(containerEl)
-			.setName("Custom API Base URL")
+			.setName("API Base URL")
+			.setDesc("Endpoint URL for the OpenAI-compatible model")
 			.addText(text =>
 				text
 					.setPlaceholder("https://api.custom-llm.com/v1")
@@ -224,7 +226,8 @@ export class LlmSettingTab extends PluginSettingTab {
 			)
 		  
 		  new Setting(containerEl)
-			.setName("Custom API Key")
+			.setName("API Key")
+			.setDesc("Key for your custom endpoint")
 			.addText(text =>
 				text
 					.setPlaceholder("sk-custom-...")
@@ -302,16 +305,14 @@ export class LlmSettingTab extends PluginSettingTab {
 	}
 }
 
+// Adds the custom model to the model selection dropdown menu.
 function modelOptions(plugin: LlmPlugin): Record<string, string> {
-	const models = [...MODELS];
-	
-	// Add custom model if it exists in the settings
-	if (plugin.settings.customModelName) {
-		models.push(plugin.settings.customModelName);
-	}
-	
-	return models.reduce((acc: { [key: string]: string }, model: string) => {
-		acc[model] = model;
-		return acc;
-	}, {});
+    const models = [...MODELS];
+    
+    // Adds the custom model name, if provided.
+    if (plugin.settings.customModelName) {
+        models.push(plugin.settings.customModelName);
+    }
+    
+    return Object.fromEntries(models.map(model => [model, model]));
 }
