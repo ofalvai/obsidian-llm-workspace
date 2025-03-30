@@ -1,5 +1,5 @@
 import { Notice, Plugin, TFolder, WorkspaceLeaf } from "obsidian"
-import { DEFAULT_SETTINGS, LlmSettingTab, type LlmPluginSettings } from "src/config/settings"
+import { DEFAULT_SETTINGS, type LlmPluginSettings } from "src/config/settings"
 import { VectorStoreIndex } from "src/rag/vectorstore"
 import { LlmDexie } from "src/storage/db"
 import { ObsidianNoteReconciler } from "src/utils/reconciler"
@@ -7,6 +7,7 @@ import { NoteContextView, VIEW_TYPE_NOTE_CONTEXT } from "src/view/NoteContextVie
 import { VIEW_TYPE_WORKSPACE, WorkspaceView } from "src/view/WorkspaceView"
 import { settingsStore } from "./utils/obsidian"
 import { NoteChatView, VIEW_TYPE_NOTE_CHAT } from "./view/NoteChatView"
+import { LlmSettingTab } from "./view/Settings"
 import { showSuggestWorkspaceModal } from "./view/SuggestWorkspaceModal"
 
 export default class LlmPlugin extends Plugin {

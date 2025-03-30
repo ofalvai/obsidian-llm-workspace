@@ -4,16 +4,10 @@
 	import Error from "../Error.svelte"
 	import Loading from "../obsidian/Loading.svelte"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
+	import type { DialogProps } from "./types"
+	import type { ModelConfiguration } from "src/config/settings"
 
-	let {
-		currentModel,
-		doModelSelection,
-		closeDialog,
-	}: {
-		currentModel: string | null
-		doModelSelection: boolean
-		closeDialog: () => void
-	} = $props()
+	let { currentModel, feature, closeDialog }: DialogProps = $props()
 
 	let url = $state("http://localhost:11434")
 	let selectedModel = $state(currentModel ?? "")
@@ -52,14 +46,24 @@
 			},
 		}
 
-		if (doModelSelection) {
-			$pluginStore.settings = {
-				...$pluginStore.settings,
-				// TODO:
-				questionAndAnswerModel: {
-					provider: "Ollama",
-					model: selectedModel,
-				},
+		if (feature) {
+			const newConfig: ModelConfiguration = {
+				provider: "Ollama",
+				model: selectedModel,
+			}
+			switch (feature) {
+				case "questionAndAnswer":
+					$pluginStore.settings = {
+						...$pluginStore.settings,
+						questionAndAnswerModel: newConfig,
+					}
+					break
+				case "noteContext":
+					$pluginStore.settings = {
+						...$pluginStore.settings,
+						noteContextModel: newConfig,
+					}
+					break
 			}
 		}
 
@@ -87,7 +91,7 @@
 		</div>
 	{/if}
 
-	{#if doModelSelection}
+	{#if feature}
 		<label for="model" class="mb-2 mt-4 block font-medium">Model</label>
 		<input id="model" type="text" placeholder="Model" bind:value={selectedModel} />
 		<button class="mod-cta ml-4" onclick={saveSettings} disabled={selectedModel.trim() === ""}

@@ -1,12 +1,8 @@
 <script lang="ts">
 	import { pluginStore } from "src/utils/obsidian"
+	import type { DialogProps } from "./types"
 
-	let {
-		closeDialog,
-	}: {
-		doModelSelection: boolean
-		closeDialog: () => void
-	} = $props()
+	let { closeDialog }: DialogProps = $props()
 
 	let apiKey = $state("")
 	let connectionState: "idle" | "loading" | "success" | "error" = $state("idle")

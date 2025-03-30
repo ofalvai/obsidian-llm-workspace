@@ -32,7 +32,7 @@
 	import type { EmbeddedFileInfo } from "../types"
 	import IndexedFiles from "./IndexedFiles.svelte"
 	import Questions from "./Questions.svelte"
-	import type { OpenAISettings } from "src/config/settings"
+	import type { OpenAISettings } from "src/config/providers"
 
 	let {
 		workspaceFile,

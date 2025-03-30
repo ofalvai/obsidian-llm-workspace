@@ -1,15 +1,15 @@
+import type { LlmPluginSettings } from "src/config/settings"
+import { OllamaChatCompletionClient } from "src/rag/llm/ollama/client"
 import { derived, type Writable } from "svelte/store"
 import type {
 	AnthropicSettings,
-	LlmPluginSettings,
 	OllamaSettings,
 	OpenAISettings,
-} from "../config/settings"
+} from "../config/providers"
 import { AnthropicChatCompletionClient } from "../rag/llm/anthropic"
 import type { StreamingChatCompletionClient } from "../rag/llm/common"
 import { OpenAIChatCompletionClient } from "../rag/llm/openai"
 import { settingsStore } from "../utils/obsidian"
-import { OllamaChatCompletionClient } from "src/rag/llm/ollama/client"
 
 export const llmClient = derived<Writable<LlmPluginSettings>, StreamingChatCompletionClient>(
 	settingsStore,
