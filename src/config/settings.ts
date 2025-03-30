@@ -1,5 +1,5 @@
 import { DEFAULT_SYSTEM_PROMPT } from "./prompts"
-import type { AnthropicSettings, OllamaSettings, OpenAISettings, Provider } from "./providers"
+import type { AnthropicSettings, OllamaSettings, OpenAISettings, Provider, ProviderSettings } from "./providers"
 
 export interface LlmPluginSettings {
 	systemPrompt: string
@@ -12,7 +12,7 @@ export interface LlmPluginSettings {
 
 	promptFolder: string
 
-	providerSettings: Record<Provider, OllamaSettings | OpenAISettings | AnthropicSettings>
+	providerSettings: ProviderSettings
 }
 
 export interface ModelConfiguration {
@@ -40,13 +40,13 @@ export const DEFAULT_SETTINGS: LlmPluginSettings = {
 	promptFolder: "Resources/LLM/Prompts",
 
 	providerSettings: {
-		OpenAI: {
+		openai: {
 			apiKey: "",
 		},
-		Anthropic: {
+		anthropic: {
 			apiKey: "",
 		},
-		Ollama: {
+		ollama: {
 			url: "",
 		},
 	},

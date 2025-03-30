@@ -14,7 +14,7 @@ export class NoteContextView extends ItemView {
 
 	db: LlmDexie
 
-	component!: Record<string, any>
+	component!: Record<string, unknown>
 
 	openNoteChat: (notePath: string) => void
 	openWorkspace: (notePath: string) => void

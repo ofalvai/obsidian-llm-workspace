@@ -114,7 +114,42 @@ export default class LlmPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())
+		const persistedSettings = await this.loadData()
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, persistedSettings)
+
+		// Migrate old settings to new ones
+		if ("anthropicApikey" in persistedSettings) {
+			this.settings.providerSettings.anthropic.apiKey = persistedSettings.anthropicApikey
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			delete (this.settings as any).anthropicApikey
+			await this.saveSettings()
+		}
+
+		if ("openAIApiKey" in persistedSettings) {
+			this.settings.providerSettings.openai.apiKey = persistedSettings.openAIApiKey
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			delete (this.settings as any).openAIApiKey
+			await this.saveSettings()
+		}
+
+		if (typeof persistedSettings.questionAndAnswerModel == "string") {
+			const modelString = persistedSettings.questionAndAnswerModel
+			this.settings.questionAndAnswerModel = {
+				model: modelString,
+				provider: modelString.startsWith("gpt-") ? "OpenAI" : "Anthropic",
+			}
+			await this.saveSettings()
+		}
+
+		if (typeof persistedSettings.noteContextModel == "string") {
+			const modelString = persistedSettings.noteContextModel
+			this.settings.noteContextModel = {
+				model: modelString,
+				provider: modelString.startsWith("gpt-") ? "OpenAI" : "Anthropic",
+			}
+			await this.saveSettings()
+		}
+
 		settingsStore.set(this.settings)
 	}
 

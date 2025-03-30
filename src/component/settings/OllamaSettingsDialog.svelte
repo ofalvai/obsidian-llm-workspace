@@ -40,7 +40,7 @@
 			...$pluginStore.settings,
 			providerSettings: {
 				...$pluginStore.settings.providerSettings,
-				Ollama: {
+				ollama: {
 					url,
 				},
 			},

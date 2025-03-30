@@ -25,7 +25,7 @@
 			...$pluginStore.settings,
 			providerSettings: {
 				...$pluginStore.settings.providerSettings,
-				Anthropic: {
+				anthropic: {
 					apiKey,
 				},
 			},

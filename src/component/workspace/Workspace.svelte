@@ -32,7 +32,6 @@
 	import type { EmbeddedFileInfo } from "../types"
 	import IndexedFiles from "./IndexedFiles.svelte"
 	import Questions from "./Questions.svelte"
-	import type { OpenAISettings } from "src/config/providers"
 
 	let {
 		workspaceFile,
@@ -72,7 +71,7 @@
 		}),
 	)
 	let embeddingClient: EmbeddingClient = $derived(
-		new OpenAIEmbeddingClient(($settingsStore.providerSettings.OpenAI as OpenAISettings).apiKey),
+		new OpenAIEmbeddingClient($settingsStore.providerSettings.openai.apiKey),
 	)
 	let retriever = $derived(
 		new EmbeddingVectorRetriever(vectorStore, embeddingClient, {
