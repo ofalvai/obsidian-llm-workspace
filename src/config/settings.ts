@@ -254,7 +254,6 @@ export class LlmSettingTab extends PluginSettingTab {
 							this.plugin.settings.customModelApiKey = value
 							await this.plugin.saveSettings()
 							this.fetchAvailableModels();
-							await this.display();
 				}),
 				)
 
