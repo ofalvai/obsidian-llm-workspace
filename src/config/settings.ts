@@ -269,6 +269,9 @@ export class LlmSettingTab extends PluginSettingTab {
 							value += "/"
 						}
 						this.plugin.settings.customEmbeddingModelUrl = value
+						if (!this.plugin.settings.customEmbeddingModelUrl || !this.plugin.settings.customEmbeddingModelApiKey) {
+							this.plugin.settings.customEmbeddingModelName = ""
+						}
 						await this.plugin.saveSettings()
 			  }),
 			)
@@ -283,6 +286,9 @@ export class LlmSettingTab extends PluginSettingTab {
 						.setValue(this.plugin.settings.customEmbeddingModelApiKey)
 						.onChange(async (value) => {
 							this.plugin.settings.customEmbeddingModelApiKey = value
+							if (!this.plugin.settings.customEmbeddingModelUrl || !this.plugin.settings.customEmbeddingModelApiKey) {
+								this.plugin.settings.customEmbeddingModelName = ""
+							}
 							await this.plugin.saveSettings()
 				}),
 				)
