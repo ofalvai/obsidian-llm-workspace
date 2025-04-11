@@ -56,12 +56,6 @@ const MODELS = [
 	"claude-3-7-sonnet-20250219"
 ]
 
-function modelOptions(plugin: LlmPlugin): Record<string, string> {
-	const options = new Map<string, string>()
-	MODELS.forEach((model) => options.set(model, model))
-	return Object.fromEntries(options)
-}
-
 export class LlmSettingTab extends PluginSettingTab {
 	plugin: LlmPlugin
 	private fetchedModels: string[] = []
@@ -69,6 +63,7 @@ export class LlmSettingTab extends PluginSettingTab {
 	constructor(app: App, plugin: LlmPlugin) {
 		super(app, plugin)
 		this.plugin = plugin
+		this.fetchAvailableModels()
 	}
 
 	display(): void {
@@ -98,6 +93,20 @@ export class LlmSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.noteContextModel)
 					.onChange(async (value) => {
 						this.plugin.settings.noteContextModel = value
+						await this.plugin.saveSettings()
+					})
+			})
+
+		if (this.plugin.settings.customEmbeddingModelUrl && this.plugin.settings.customEmbeddingModelApiKey)
+			new Setting(containerEl)
+			.setName("Model for embeddings")
+			.setDesc("The model used to generate embeddings (this must be an embeddings model!)")
+			.addDropdown((dropdown) => {
+				dropdown
+					.addOptions(this.modelOptions())
+					.setValue(this.plugin.settings.customEmbeddingModelName)
+					.onChange(async (value) => {
+						this.plugin.settings.customEmbeddingModelName = value
 						await this.plugin.saveSettings()
 					})
 			})
@@ -171,6 +180,7 @@ export class LlmSettingTab extends PluginSettingTab {
 			"Create a key at ",
 			openaiLink,
 		)
+
 		new Setting(containerEl)
 			.setName("OpenAI API key")
 			.setDesc(openaiApiKeyDesc)
@@ -181,7 +191,7 @@ export class LlmSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.openAIApiKey = value
 						await this.plugin.saveSettings()
-			  }),
+			}),
 			)
 
 		const anthropicApiKeyDesc = document.createDocumentFragment()
@@ -204,7 +214,7 @@ export class LlmSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.anthropicApikey = value
 						await this.plugin.saveSettings()
-			  }),
+			}),
 			)
 
 		// New custom model section.	
@@ -228,43 +238,25 @@ export class LlmSettingTab extends PluginSettingTab {
 						}
 						this.plugin.settings.customModelUrl = value
 						await this.plugin.saveSettings()
+						this.fetchAvailableModels();
 			  }),
 			)
-		  
-		new Setting(containerEl)
-			.setName("API Key")
-			.setDesc("Key for your custom endpoint")
-			.addText(text =>
-				text
-					.setPlaceholder("sk-custom-...")
-					.setValue(this.plugin.settings.customModelApiKey)
-					.onChange(async (value) => {
-						this.plugin.settings.customModelApiKey = value
-						await this.plugin.saveSettings()
-			  }),
-			)
-
-		new Setting(containerEl)
-			.setName("Refresh Available Models")
-			.setDesc("Fetch models from your custom endpoint")
-			.addButton(button => 
-				button
-					.setButtonText("Refresh")
-					.onClick(() => this.fetchAvailableModels())
-			)
-			
-		// Custom embedding model section.
-		new Setting(containerEl)
-			.setName("Embedding Model Name")
-			.addText((text) => 
-				text
-					.setPlaceholder("Embedding-model")
-					.setValue(this.plugin.settings.customEmbeddingModelName)
-					.onChange(async (value) => {
-						this.plugin.settings.customEmbeddingModelName = value
-						await this.plugin.saveSettings()		
-			  }),
-			)
+		
+		if (this.plugin.settings.customModelUrl)
+			new Setting(containerEl)
+				.setName("API Key")
+				.setDesc("Key for your custom endpoint")
+				.addText(text =>
+					text
+						.setPlaceholder("sk-custom-...")
+						.setValue(this.plugin.settings.customModelApiKey)
+						.onChange(async (value) => {
+							this.plugin.settings.customModelApiKey = value
+							await this.plugin.saveSettings()
+							this.fetchAvailableModels();
+							await this.display();
+				}),
+				)
 
 		new Setting(containerEl)
 			.setName("Embedding API Base URL")
@@ -282,18 +274,19 @@ export class LlmSettingTab extends PluginSettingTab {
 			  }),
 			)
 
-		new Setting(containerEl)
-			.setName("Embedding API Key")
-			.setDesc("Key for your custom embedding endpoint")
-			.addText(text =>
-				text
-					.setPlaceholder("sk-custom-...")
-					.setValue(this.plugin.settings.customEmbeddingModelApiKey)
-					.onChange(async (value) => {
-						this.plugin.settings.customEmbeddingModelApiKey = value
-						await this.plugin.saveSettings()
-			  }),
-			)
+		if (this.plugin.settings.customEmbeddingModelUrl)
+			new Setting(containerEl)
+				.setName("Embedding API Key")
+				.setDesc("Key for your custom embedding endpoint")
+				.addText(text =>
+					text
+						.setPlaceholder("sk-custom-...")
+						.setValue(this.plugin.settings.customEmbeddingModelApiKey)
+						.onChange(async (value) => {
+							this.plugin.settings.customEmbeddingModelApiKey = value
+							await this.plugin.saveSettings()
+				}),
+				)
 
 		new Setting(containerEl)
 			.setName("Retrieval parameters")
@@ -362,19 +355,20 @@ export class LlmSettingTab extends PluginSettingTab {
 	}
     private modelOptions(): Record<string, string> {
         const options = new Map<string, string>();
-        
-        // Add standard models
-        MODELS.forEach(model => options.set(model, model));
-        
+
         // Add custom endpoint models
-        this.fetchedModels.forEach(model => options.set(model, model));
-        
+		if (this.plugin.settings.customModelUrl && this.plugin.settings.customModelApiKey)
+        	this.fetchedModels.forEach(model => options.set(model, model));
+
+        // Add standard models
+		else
+			MODELS.forEach(model => options.set(model, model));
+
         return Object.fromEntries(options);
     }
 
     private async fetchAvailableModels() {
         if (!this.plugin.settings.customModelUrl || !this.plugin.settings.customModelApiKey) {
-            new Notice("Please set API Base URL and Key first");
             return;
         }
 
@@ -390,7 +384,6 @@ export class LlmSettingTab extends PluginSettingTab {
             new Notice(`Fetched ${this.fetchedModels.length} models from custom endpoint`);
             this.display(); // Refresh UI to show new models
         } catch (error) {
-            new Notice("Failed to fetch models - check console");
             console.error("Model fetch error:", error);
         }
     }
