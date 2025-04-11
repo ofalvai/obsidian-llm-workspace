@@ -214,7 +214,7 @@ export class LlmSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.customModelName)
 					.onChange(async (value) => {
 						this.plugin.settings.customModelName = value
-						await this.plugin.saveSettings()		
+						await this.plugin.saveSettings()
 			  }),
 			)			
 
