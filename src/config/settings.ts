@@ -4,6 +4,8 @@ import { DEFAULT_SYSTEM_PROMPT } from "./prompts"
 import { Pruner } from "src/storage/pruner"
 import { logger } from "src/utils/logger"
 
+import OpenAI from "openai"
+
 export interface LlmPluginSettings {
 	openAIApiKey: string
 	anthropicApikey: string
@@ -384,8 +386,6 @@ export class LlmSettingTab extends PluginSettingTab {
 					})
 			})
 	}
-}
-
     private modelOptions(): Record<string, string> {
         const options = new Map<string, string>();
         
@@ -420,3 +420,6 @@ export class LlmSettingTab extends PluginSettingTab {
             console.error("Model fetch error:", error);
         }
     }
+}
+
+
