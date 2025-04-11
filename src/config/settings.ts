@@ -54,6 +54,12 @@ const MODELS = [
 	"claude-3-7-sonnet-20250219"
 ]
 
+function modelOptions(plugin: LlmPlugin): Record<string, string> {
+	const options = new Map<string, string>()
+	MODELS.forEach((model) => options.set(model, model))
+	return Object.fromEntries(options)
+}
+
 export class LlmSettingTab extends PluginSettingTab {
 	plugin: LlmPlugin
 	private fetchedModels: string[] = []
@@ -73,7 +79,7 @@ export class LlmSettingTab extends PluginSettingTab {
 		.setDesc("The model used to answer questions in the LLM workspace view")
 		.addDropdown((dropdown) => {
 			dropdown
-				.addOptions(modelOptions(this.plugin)) // Pass the plugin instance here
+				.addOptions(this.modelOptions())
 				.setValue(this.plugin.settings.questionAndAnswerModel)
 				.onChange(async (value) => {
 					this.plugin.settings.questionAndAnswerModel = value;
@@ -380,37 +386,37 @@ export class LlmSettingTab extends PluginSettingTab {
 	}
 }
 
-private async fetchAvailableModels() {
-    if (!this.plugin.settings.customModelUrl || !this.plugin.settings.customModelApiKey) {
-        new Notice("Please set API Base URL and Key first");
-        return;
+    private modelOptions(): Record<string, string> {
+        const options = new Map<string, string>();
+        
+        // Add standard models
+        MODELS.forEach(model => options.set(model, model));
+        
+        // Add custom endpoint models
+        this.fetchedModels.forEach(model => options.set(model, model));
+        
+        return Object.fromEntries(options);
     }
 
-    try {
-        const client = new OpenAI({
-            apiKey: this.plugin.settings.customModelApiKey,
-            baseURL: this.plugin.settings.customModelUrl,
-            dangerouslyAllowBrowser: true
-        });
+    private async fetchAvailableModels() {
+        if (!this.plugin.settings.customModelUrl || !this.plugin.settings.customModelApiKey) {
+            new Notice("Please set API Base URL and Key first");
+            return;
+        }
 
-        const response = await client.models.list();
-        this.fetchedModels = response.data.map(m => m.id);
-        new Notice(`Fetched ${this.fetchedModels.length} models from custom endpoint`);
-        this.display(); // Refresh UI to show new models
-    } catch (error) {
-        new Notice("Failed to fetch models - check console");
-        console.error("Model fetch error:", error);
+        try {
+            const client = new OpenAI({
+                apiKey: this.plugin.settings.customModelApiKey,
+                baseURL: this.plugin.settings.customModelUrl,
+                dangerouslyAllowBrowser: true
+            });
+
+            const response = await client.models.list();
+            this.fetchedModels = response.data.map(m => m.id);
+            new Notice(`Fetched ${this.fetchedModels.length} models from custom endpoint`);
+            this.display(); // Refresh UI to show new models
+        } catch (error) {
+            new Notice("Failed to fetch models - check console");
+            console.error("Model fetch error:", error);
+        }
     }
-}
-
-private modelOptions(): Record<string, string> {
-    const options = new Map<string, string>();
-    
-    // Add standard models
-    MODELS.forEach(model => options.set(model, model));
-    
-    // Add custom endpoint models
-    this.fetchedModels.forEach(model => options.set(model, model));
-    
-    return Object.fromEntries(options);
-}
