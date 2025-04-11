@@ -213,32 +213,6 @@ export class LlmSettingTab extends PluginSettingTab {
 		.setDesc("Bring your own model! Connect any OpenAI-compatible LLM")
 		.setHeading();
 		  
-		new Setting(containerEl)
-			.setName("Conversation Model Name")
-			.setDesc("Refresh the settings menu to display the custom chat model in the dropdown list.")
-			.addText((text) => 
-				text
-					.setPlaceholder("Custom-model")
-					.setValue(this.plugin.settings.customModelName)
-					.onChange(async (value) => {
-						this.plugin.settings.customModelName = value
-						await this.plugin.saveSettings()
-			  }),
-			)			
-
-		new Setting(containerEl)
-			.setName("Note Context Model Name")
-			.setDesc("Refresh the settings menu to display the custom chat model in the dropdown list.")
-			.addText((text) => 
-				text
-					.setPlaceholder("Custom Note Taking model")
-					.setValue(this.plugin.settings.customNoteModelName)
-					.onChange(async (value) => {
-						this.plugin.settings.customNoteModelName = value
-						await this.plugin.saveSettings()		
-			  }),
-			)			
-		  
 
 
 		new Setting(containerEl)

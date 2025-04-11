@@ -146,7 +146,7 @@ function temperature(t: Temperature): number {
 	}
 }
 
-const IMPROVE_QUERY_MODEL = get(settingsStore)?.customModelName || "gpt-4o-mini-2024-07-18"
+const IMPROVE_QUERY_MODEL = get(settingsStore)?.noteContextModel || "gpt-4o-mini-2024-07-18"
 const IMPROVE_QUERY_TEMP = 0.1
 const EMBEDDING_MODEL = "text-embedding-3-small"
 const customEmbeddingModel = get(settingsStore)?.customEmbeddingModelName || EMBEDDING_MODEL
