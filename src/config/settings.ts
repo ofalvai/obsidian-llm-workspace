@@ -7,13 +7,11 @@ import { logger } from "src/utils/logger"
 export interface LlmPluginSettings {
 	openAIApiKey: string
 	anthropicApikey: string
-	customModelName: string
 	customModelUrl: string
 	customModelApiKey: string
 	customEmbeddingModelName: string
 	customEmbeddingModelUrl: string
 	customEmbeddingModelApiKey: string
-	customNoteModelName: string
 
 	systemPrompt: string
 	noteContextMinChars: number
@@ -29,13 +27,11 @@ export interface LlmPluginSettings {
 export const DEFAULT_SETTINGS: LlmPluginSettings = {
 	openAIApiKey: "",
 	anthropicApikey: "",
-	customModelName: "",
 	customModelUrl: "",
 	customModelApiKey: "",
 	customEmbeddingModelName: "",
 	customEmbeddingModelUrl: "",
 	customEmbeddingModelApiKey: "",
-	customNoteModelName: "",
 
 	systemPrompt: DEFAULT_SYSTEM_PROMPT,
 	noteContextMinChars: 500,
@@ -60,6 +56,7 @@ const MODELS = [
 
 export class LlmSettingTab extends PluginSettingTab {
 	plugin: LlmPlugin
+	private fetchedModels: string[] = []
 
 	constructor(app: App, plugin: LlmPlugin) {
 		super(app, plugin)
@@ -89,7 +86,7 @@ export class LlmSettingTab extends PluginSettingTab {
 			.setDesc("The model used to generate note context (summary, key topics)")
 			.addDropdown((dropdown) => {
 				dropdown
-					.addOptions(modelOptions(this.plugin))
+					.addOptions(this.modelOptions())
 					.setValue(this.plugin.settings.noteContextModel)
 					.onChange(async (value) => {
 						this.plugin.settings.noteContextModel = value
@@ -264,6 +261,15 @@ export class LlmSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings()
 			  }),
 			)
+
+		new Setting(containerEl)
+			.setName("Refresh Available Models")
+			.setDesc("Fetch models from your custom endpoint")
+			.addButton(button => 
+				button
+					.setButtonText("Refresh")
+					.onClick(() => this.fetchAvailableModels())
+			)
 			
 		// Custom embedding model section.
 		new Setting(containerEl)
@@ -374,18 +380,37 @@ export class LlmSettingTab extends PluginSettingTab {
 	}
 }
 
-// Adds the custom model to the model selection dropdown menu.
-function modelOptions(plugin: LlmPlugin): Record<string, string> {
-    const models = [...MODELS];
-    
-    // Adds the custom model name, if provided.
-    if (plugin.settings.customModelName) {
-        models.push(plugin.settings.customModelName);
+private async fetchAvailableModels() {
+    if (!this.plugin.settings.customModelUrl || !this.plugin.settings.customModelApiKey) {
+        new Notice("Please set API Base URL and Key first");
+        return;
     }
-    
-	// Adds the custom note taking model name, if provided.
-    if (plugin.settings.customNoteModelName) {
-        models.push(plugin.settings.customNoteModelName);
+
+    try {
+        const client = new OpenAI({
+            apiKey: this.plugin.settings.customModelApiKey,
+            baseURL: this.plugin.settings.customModelUrl,
+            dangerouslyAllowBrowser: true
+        });
+
+        const response = await client.models.list();
+        this.fetchedModels = response.data.map(m => m.id);
+        new Notice(`Fetched ${this.fetchedModels.length} models from custom endpoint`);
+        this.display(); // Refresh UI to show new models
+    } catch (error) {
+        new Notice("Failed to fetch models - check console");
+        console.error("Model fetch error:", error);
     }
-    return Object.fromEntries(models.map(model => [model, model]));
+}
+
+private modelOptions(): Record<string, string> {
+    const options = new Map<string, string>();
+    
+    // Add standard models
+    MODELS.forEach(model => options.set(model, model));
+    
+    // Add custom endpoint models
+    this.fetchedModels.forEach(model => options.set(model, model));
+    
+    return Object.fromEntries(options);
 }
