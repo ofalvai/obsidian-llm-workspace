@@ -45,7 +45,7 @@ User query: ${query}
 Answer:`
 }
 
-export const messageWithAttachmens = (message: string, attachments: Node[]) => {
+export const messageWithAttachments = (message: string, attachments: Node[]) => {
 	let content = message
 	if (attachments.length > 0) {
 		content += `\n\nAdditional context is attached below:\n<context>\n`

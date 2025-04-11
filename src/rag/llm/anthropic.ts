@@ -8,7 +8,7 @@ import {
 } from "./common"
 import { iterSSEMessages } from "../../utils/sse"
 import { nodeStreamingFetch } from "src/utils/node"
-import { messageWithAttachmens } from "src/config/prompts"
+import { messageWithAttachments } from "src/config/prompts"
 
 interface Message {
 	id: string
@@ -110,7 +110,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 				messages: messages.slice(1).map((message) => {
 					return {
 						role: message.role,
-						content: messageWithAttachmens(message.content, message.attachedContent),
+						content: messageWithAttachments(message.content, message.attachedContent),
 					}
 				}),
 			}),
@@ -232,7 +232,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 				messages: messages.slice(1).map((message) => {
 					return {
 						role: message.role,
-						content: messageWithAttachmens(message.content, message.attachedContent),
+						content: messageWithAttachments(message.content, message.attachedContent),
 					}
 				}),
 			}),

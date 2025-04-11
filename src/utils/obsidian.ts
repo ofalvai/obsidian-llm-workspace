@@ -2,6 +2,7 @@ import path from "node:path"
 import { type App, type CachedMetadata, type View } from "obsidian"
 import type { LlmPluginSettings } from "src/config/settings"
 import { writable } from "svelte/store"
+import { DEFAULT_SETTINGS } from "src/config/settings"
 
 export type FilePath = string
 
@@ -47,6 +48,6 @@ export function addWorkspaceProperty(frontmatter: any) {
 	frontmatter[frontmatterKeyCategory] = frontmatterValueWorkspace
 }
 
-export const settingsStore = writable<LlmPluginSettings>()
+export const settingsStore = writable<LlmPluginSettings>(DEFAULT_SETTINGS)
 export const appStore = writable<App>()
 export const viewStore = writable<View>()

@@ -10,6 +10,9 @@ export interface LlmPluginSettings {
 	customModelName: string
 	customModelUrl: string
 	customModelApiKey: string
+	customEmbeddingModelName: string
+	customEmbeddingModelUrl: string
+	customEmbeddingModelApiKey: string
 
 	systemPrompt: string
 	noteContextMinChars: number
@@ -28,6 +31,9 @@ export const DEFAULT_SETTINGS: LlmPluginSettings = {
 	customModelName: "",
 	customModelUrl: "",
 	customModelApiKey: "",
+	customEmbeddingModelName: "",
+	customEmbeddingModelUrl: "",
+	customEmbeddingModelApiKey: "",
 
 	systemPrompt: DEFAULT_SYSTEM_PROMPT,
 	noteContextMinChars: 500,
@@ -193,6 +199,7 @@ export class LlmSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings()
 			  }),
 			)
+
 		// New custom model section.	
 		new Setting(containerEl)
 		.setName("Custom OpenAI-Compatible Endpoint")
@@ -200,8 +207,8 @@ export class LlmSettingTab extends PluginSettingTab {
 		.setHeading();
 		  
 		new Setting(containerEl)
-			.setName("Model Name")
-			.setDesc("Display name for your custom model in the dropdown")
+			.setName("Conversation Model Name")
+			.setDesc("Refresh the settings menu to display the custom chat model in the dropdown list.")
 			.addText((text) => 
 				text
 					.setPlaceholder("Custom-model")
@@ -210,22 +217,25 @@ export class LlmSettingTab extends PluginSettingTab {
 						this.plugin.settings.customModelName = value
 						await this.plugin.saveSettings()		
 			  }),
-			)
+			)			
 		  
 		new Setting(containerEl)
 			.setName("API Base URL")
 			.setDesc("Endpoint URL for the OpenAI-compatible model")
 			.addText(text =>
 				text
-					.setPlaceholder("https://api.custom-llm.com/v1")
+					.setPlaceholder("https://api.custom-llm.com/v1/")
 					.setValue(this.plugin.settings.customModelUrl)
 					.onChange(async (value) => {
+						if (value.endsWith("/v1") && !value.endsWith("/v1/")) {
+							value += "/"
+						}
 						this.plugin.settings.customModelUrl = value
 						await this.plugin.saveSettings()
 			  }),
 			)
 		  
-		  new Setting(containerEl)
+		new Setting(containerEl)
 			.setName("API Key")
 			.setDesc("Key for your custom endpoint")
 			.addText(text =>
@@ -234,6 +244,48 @@ export class LlmSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.customModelApiKey)
 					.onChange(async (value) => {
 						this.plugin.settings.customModelApiKey = value
+						await this.plugin.saveSettings()
+			  }),
+			)
+			
+		// Custom embedding model section.
+		new Setting(containerEl)
+			.setName("Embedding Model Name")
+			.addText((text) => 
+				text
+					.setPlaceholder("Embedding-model")
+					.setValue(this.plugin.settings.customEmbeddingModelName)
+					.onChange(async (value) => {
+						this.plugin.settings.customEmbeddingModelName = value
+						await this.plugin.saveSettings()		
+			  }),
+			)
+
+		new Setting(containerEl)
+			.setName("Embedding API Base URL")
+			.setDesc("Endpoint URL for the OpenAI-compatible embedding model")
+			.addText(text =>
+				text
+					.setPlaceholder("https://api.custom-llm.com/v1/")
+					.setValue(this.plugin.settings.customEmbeddingModelUrl)
+					.onChange(async (value) => {
+						if (value.endsWith("/v1") && !value.endsWith("/v1/")) {
+							value += "/"
+						}
+						this.plugin.settings.customEmbeddingModelUrl = value
+						await this.plugin.saveSettings()
+			  }),
+			)
+
+		new Setting(containerEl)
+			.setName("Embedding API Key")
+			.setDesc("Key for your custom embedding endpoint")
+			.addText(text =>
+				text
+					.setPlaceholder("sk-custom-...")
+					.setValue(this.plugin.settings.customEmbeddingModelApiKey)
+					.onChange(async (value) => {
+						this.plugin.settings.customEmbeddingModelApiKey = value
 						await this.plugin.saveSettings()
 			  }),
 			)

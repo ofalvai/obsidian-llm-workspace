@@ -1,6 +1,9 @@
 import OpenAI from "openai"
+import { get } from "svelte/store"
+import type { LlmPluginSettings } from "../../config/settings.ts"
+import { settingsStore } from "src/utils/obsidian"
 import type { ChatCompletionMessageParam } from "openai/resources/index.mjs"
-import { messageWithAttachmens, SELF_QUERY_EXAMPLES, SELF_QUERY_PROMPT } from "src/config/prompts"
+import { messageWithAttachments, SELF_QUERY_EXAMPLES, SELF_QUERY_PROMPT } from "src/config/prompts"
 import { nodeRepresentation, type Node } from "../node"
 import {
 	type ChatMessage,
@@ -12,6 +15,7 @@ import {
 	type Temperature,
 } from "./common"
 
+
 export class OpenAIChatCompletionClient implements StreamingChatCompletionClient {
 	private client: OpenAI
 	private apiKey: string
@@ -20,7 +24,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 	constructor(apiKey: string, model: string, baseURL?: string) {
 		this.client = new OpenAI({
 			apiKey,
-			baseURL,
+			baseURL: get(settingsStore).customModelUrl || undefined,
 			dangerouslyAllowBrowser: true 
 		})
 		this.apiKey = apiKey
@@ -43,7 +47,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 			messages: messages.map((message) => {
 				return {
 					role: message.role,
-					content: messageWithAttachmens(message.content, message.attachedContent),
+					content: messageWithAttachments(message.content, message.attachedContent),
 				}
 			}),
 			stream_options: { include_usage: true },
@@ -83,7 +87,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 			messages: messages.map((message) => {
 				return {
 					role: message.role,
-					content: messageWithAttachmens(message.content, message.attachedContent),
+					content: messageWithAttachments(message.content, message.attachedContent),
 				}
 			}),
 			max_tokens: options.maxTokens,
@@ -142,44 +146,87 @@ function temperature(t: Temperature): number {
 	}
 }
 
-const IMPROVE_QUERY_MODEL = "gpt-4o-mini-2024-07-18"
+const IMPROVE_QUERY_MODEL = get(settingsStore)?.customModelName || "gpt-4o-mini-2024-07-18"
 const IMPROVE_QUERY_TEMP = 0.1
 const EMBEDDING_MODEL = "text-embedding-3-small"
+const customEmbeddingModel = get(settingsStore)?.customEmbeddingModelName || EMBEDDING_MODEL
 
 export class OpenAIEmbeddingClient implements EmbeddingClient {
-	private client: OpenAI
+	private client: OpenAI | undefined
 	private apiKey: string
+	private model: string
+	private improveQueryModel: string
+	private baseURL: string | undefined
 
-	constructor(apiKey: string) {
-		this.client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
-		this.apiKey = apiKey
+	constructor(
+		apiKey: string,
+		improveQueryModel: string,
+		baseURL: string = "" // Initialize with an empty string
+	) {
+		this.apiKey = apiKey;  // Store API key
+		this.improveQueryModel = improveQueryModel // Chat model for RAG query improvement
+		this.baseURL = baseURL;
+		this.model = customEmbeddingModel || EMBEDDING_MODEL; // use default value initially
+		this.initialize() // Start the initialization process
+	}
+
+	private async initialize() {
+		await this.applySettings()
+		await this.initializeClient()
+	}
+
+    private async applySettings() {
+		this.apiKey = get(settingsStore).customEmbeddingModelApiKey || this.apiKey
+		this.improveQueryModel = get(settingsStore).noteContextModel || this.improveQueryModel
+		this.model = get(settingsStore).customEmbeddingModelName || this.model
+		this.baseURL = get(settingsStore).customEmbeddingModelUrl || this.baseURL
+    }
+
+	public async initializeClient() {
+        this.client = new OpenAI({ apiKey: this.apiKey, baseURL: this.baseURL, dangerouslyAllowBrowser: true })
+        console.log("[Embedding] Initialized client with base URL:", this.baseURL)
 	}
 
 	async embedNode(node: Node): Promise<number[]> {
-		if (this.apiKey === "")
-			throw new Error(
-				"OpenAI API key is not set. Note embeddings always use the OpenAI API and need an API key regardless of the LLM setting.",
-			)
+		if (!this.client) {
+			throw new Error("OpenAI client not initialized yet.  Please wait for settings to load.")
+		}
 
-		const response = await this.client.embeddings.create({
-			input: nodeRepresentation(node),
-			model: EMBEDDING_MODEL,
-		})
+		console.log("[Embedding] Using model:", this.model) // debugging line
+		console.log("[Embedding] Using base URL:", this.baseURL) // debugging line
+		console.log("[Embedding] Using API Key:", this.apiKey) // debugging line
+		console.log("[Embedding] Using improveQueryModel:", this.improveQueryModel) // debugging line
 
-		return response.data[0].embedding
-	}
-
-	async embedQuery(query: string): Promise<QueryEmbedding> {
-		if (this.apiKey === "")
+		if (this.apiKey === "") {
 			throw new Error(
 				"OpenAI API key is not set. Embeddings always use the OpenAI API and need an API key regardless of the LLM setting.",
 			)
+		}
 
-		const improvedQuery = await this.improveQuery(query)
+		const response = await this.client.embeddings.create({
+			input: nodeRepresentation(node),
+			model: this.model,
+		})
+
+		return response.data[0].embedding;
+	}
+
+	async embedQuery(query: string): Promise<QueryEmbedding> {
+		if (!this.client) {
+			throw new Error("OpenAI client not initialized yet. Please wait for settings to load.")
+		}
+		if (this.apiKey === "") {
+			throw new Error(
+				"OpenAI API key is not set. Embeddings always use the OpenAI API and need an API key regardless of the LLM setting.",
+			)
+		}
+
+		const improvedQuery = await this.improveQuery(query);
 		const response = await this.client.embeddings.create({
 			input: improvedQuery,
-			model: EMBEDDING_MODEL,
+			model: this.model,
 		})
+
 		return {
 			originalQuery: query,
 			improvedQuery: improvedQuery,
@@ -197,19 +244,23 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 				return [
 					{ role: "user", content: example.input },
 					{ role: "assistant", content: example.output },
-				]
+				];
 			}),
 			{
 				role: "user",
 				content: query,
 			},
-		] as ChatCompletionMessageParam[]
+		] as ChatCompletionMessageParam[];
 
+		if (!this.client) {
+			throw new Error("OpenAI client not initialized yet. Please wait for settings to load.");
+		}
 		const completion = await this.client.chat.completions.create({
 			messages,
-			model: IMPROVE_QUERY_MODEL,
+			model: this.improveQueryModel,
 			temperature: IMPROVE_QUERY_TEMP,
 		})
-		return completion.choices[0].message.content!
+
+		return completion.choices[0].message.content!;
 	}
 }
