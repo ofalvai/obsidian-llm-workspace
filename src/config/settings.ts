@@ -13,6 +13,7 @@ export interface LlmPluginSettings {
 	customEmbeddingModelName: string
 	customEmbeddingModelUrl: string
 	customEmbeddingModelApiKey: string
+	customNoteModelName: string
 
 	systemPrompt: string
 	noteContextMinChars: number
@@ -34,6 +35,7 @@ export const DEFAULT_SETTINGS: LlmPluginSettings = {
 	customEmbeddingModelName: "",
 	customEmbeddingModelUrl: "",
 	customEmbeddingModelApiKey: "",
+	customNoteModelName: "",
 
 	systemPrompt: DEFAULT_SYSTEM_PROMPT,
 	noteContextMinChars: 500,
@@ -218,7 +220,22 @@ export class LlmSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings()		
 			  }),
 			)			
+
+		new Setting(containerEl)
+			.setName("Note Context Model Name")
+			.setDesc("Refresh the settings menu to display the custom chat model in the dropdown list.")
+			.addText((text) => 
+				text
+					.setPlaceholder("Custom Note Taking model")
+					.setValue(this.plugin.settings.customNoteModelName)
+					.onChange(async (value) => {
+						this.plugin.settings.customNoteModelName = value
+						await this.plugin.saveSettings()		
+			  }),
+			)			
 		  
+
+
 		new Setting(containerEl)
 			.setName("API Base URL")
 			.setDesc("Endpoint URL for the OpenAI-compatible model")
@@ -366,5 +383,9 @@ function modelOptions(plugin: LlmPlugin): Record<string, string> {
         models.push(plugin.settings.customModelName);
     }
     
+	// Adds the custom note taking model name, if provided.
+    if (plugin.settings.customNoteModelName) {
+        models.push(plugin.settings.customNoteModelName);
+    }
     return Object.fromEntries(models.map(model => [model, model]));
 }
