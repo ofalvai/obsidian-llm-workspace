@@ -59,6 +59,7 @@ const MODELS = [
 export class LlmSettingTab extends PluginSettingTab {
 	plugin: LlmPlugin
 	private fetchedModels: string[] = []
+	private fetchedEmbeddingModels: string[] = []
 
 	constructor(app: App, plugin: LlmPlugin) {
 		super(app, plugin)
@@ -103,7 +104,7 @@ export class LlmSettingTab extends PluginSettingTab {
 			.setDesc("The model used to generate embeddings (this must be an embeddings model!)")
 			.addDropdown((dropdown) => {
 				dropdown
-					.addOptions(this.modelOptions())
+					.addOptions(this.embeddingModelOptions())
 					.setValue(this.plugin.settings.customEmbeddingModelName)
 					.onChange(async (value) => {
 						this.plugin.settings.customEmbeddingModelName = value
@@ -273,25 +274,26 @@ export class LlmSettingTab extends PluginSettingTab {
 							this.plugin.settings.customEmbeddingModelName = ""
 						}
 						await this.plugin.saveSettings()
+						this.fetchAvailableModels();
 			  }),
 			)
 
-		if (this.plugin.settings.customEmbeddingModelUrl)
-			new Setting(containerEl)
-				.setName("Embedding API Key")
-				.setDesc("Key for your custom embedding endpoint")
-				.addText(text =>
-					text
-						.setPlaceholder("sk-custom-...")
-						.setValue(this.plugin.settings.customEmbeddingModelApiKey)
-						.onChange(async (value) => {
-							this.plugin.settings.customEmbeddingModelApiKey = value
-							if (!this.plugin.settings.customEmbeddingModelUrl || !this.plugin.settings.customEmbeddingModelApiKey) {
-								this.plugin.settings.customEmbeddingModelName = ""
-							}
-							await this.plugin.saveSettings()
-				}),
-				)
+		new Setting(containerEl)
+			.setName("Embedding API Key")
+			.setDesc("Key for your custom embedding endpoint")
+			.addText(text =>
+				text
+					.setPlaceholder("sk-custom-...")
+					.setValue(this.plugin.settings.customEmbeddingModelApiKey)
+					.onChange(async (value) => {
+						this.plugin.settings.customEmbeddingModelApiKey = value
+						if (!this.plugin.settings.customEmbeddingModelUrl || !this.plugin.settings.customEmbeddingModelApiKey) {
+							this.plugin.settings.customEmbeddingModelName = ""
+						}
+						await this.plugin.saveSettings()
+						this.fetchAvailableModels();
+			}),
+			)
 
 		new Setting(containerEl)
 			.setName("Retrieval parameters")
@@ -358,12 +360,27 @@ export class LlmSettingTab extends PluginSettingTab {
 					})
 			})
 	}
-    private modelOptions(): Record<string, string> {
+
+	private modelOptions(): Record<string, string> {
         const options = new Map<string, string>();
 
         // Add custom endpoint models
 		if (this.plugin.settings.customModelUrl && this.plugin.settings.customModelApiKey)
-        	this.fetchedModels.forEach(model => options.set(model, model));
+			this.fetchedModels.forEach(model => options.set(model, model));
+
+        // Add standard models
+		else
+			MODELS.forEach(model => options.set(model, model));
+
+        return Object.fromEntries(options);
+    }
+
+	private embeddingModelOptions(): Record<string, string> {
+        const options = new Map<string, string>();
+
+        // Add custom endpoint models
+		if (this.plugin.settings.customEmbeddingModelUrl && this.plugin.settings.customEmbeddingModelApiKey)
+			this.fetchedEmbeddingModels.forEach(model => options.set(model, model));
 
         // Add standard models
 		else
@@ -373,24 +390,38 @@ export class LlmSettingTab extends PluginSettingTab {
     }
 
     private async fetchAvailableModels() {
-        if (!this.plugin.settings.customModelUrl || !this.plugin.settings.customModelApiKey) {
-            return;
-        }
+        if (this.plugin.settings.customModelUrl && this.plugin.settings.customModelApiKey) {
+			try {
+				const client = new OpenAI({
+					apiKey: this.plugin.settings.customModelApiKey,
+					baseURL: this.plugin.settings.customModelUrl,
+					dangerouslyAllowBrowser: true
+				});
 
-        try {
-            const client = new OpenAI({
-                apiKey: this.plugin.settings.customModelApiKey,
-                baseURL: this.plugin.settings.customModelUrl,
-                dangerouslyAllowBrowser: true
-            });
+				const response = await client.models.list();
+				this.fetchedModels = response.data.map(m => m.id);
+				new Notice(`Fetched ${this.fetchedModels.length} models from custom endpoint`);
+				this.display(); // Refresh UI to show new models
+			} catch (error) {
+				console.error("Model fetch error:", error);
+			}
+		}
+        if (this.plugin.settings.customEmbeddingModelUrl && this.plugin.settings.customEmbeddingModelApiKey) {
+			try {
+				const client = new OpenAI({
+					apiKey: this.plugin.settings.customEmbeddingModelApiKey,
+					baseURL: this.plugin.settings.customEmbeddingModelUrl,
+					dangerouslyAllowBrowser: true
+				});
 
-            const response = await client.models.list();
-            this.fetchedModels = response.data.map(m => m.id);
-            new Notice(`Fetched ${this.fetchedModels.length} models from custom endpoint`);
-            this.display(); // Refresh UI to show new models
-        } catch (error) {
-            console.error("Model fetch error:", error);
-        }
+				const response = await client.models.list();
+				this.fetchedEmbeddingModels = response.data.map(m => m.id);
+				new Notice(`Fetched ${this.fetchedModels.length} models from custom endpoint`);
+				this.display(); // Refresh UI to show new models
+			} catch (error) {
+				console.error("Model fetch error:", error);
+			}
+		}
     }
 }
 
