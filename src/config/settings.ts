@@ -101,7 +101,7 @@ export class LlmSettingTab extends PluginSettingTab {
 		if (this.plugin.settings.customEmbeddingModelUrl && this.plugin.settings.customEmbeddingModelApiKey)
 			new Setting(containerEl)
 			.setName("Model for embeddings")
-			.setDesc("The model used to generate embeddings (this must be an embeddings model!)")
+			.setDesc("The model used to generate embeddings (this must be an embedding model!)")
 			.addDropdown((dropdown) => {
 				dropdown
 					.addOptions(this.embeddingModelOptions())
@@ -240,23 +240,26 @@ export class LlmSettingTab extends PluginSettingTab {
 						this.plugin.settings.customModelUrl = value
 						await this.plugin.saveSettings()
 						this.fetchAvailableModels();
+						if (this.fetchedModels)
+							new Notice(`Fetched ${this.fetchedModels.length} models from custom endpoint`);
 			  }),
 			)
-		
-		if (this.plugin.settings.customModelUrl)
-			new Setting(containerEl)
-				.setName("API Key")
-				.setDesc("Key for your custom endpoint")
-				.addText(text =>
-					text
-						.setPlaceholder("sk-custom-...")
-						.setValue(this.plugin.settings.customModelApiKey)
-						.onChange(async (value) => {
-							this.plugin.settings.customModelApiKey = value
-							await this.plugin.saveSettings()
-							this.fetchAvailableModels();
-				}),
-				)
+
+		new Setting(containerEl)
+			.setName("API Key")
+			.setDesc("Key for your custom endpoint")
+			.addText(text =>
+				text
+					.setPlaceholder("sk-custom-...")
+					.setValue(this.plugin.settings.customModelApiKey)
+					.onChange(async (value) => {
+						this.plugin.settings.customModelApiKey = value
+						await this.plugin.saveSettings()
+						this.fetchAvailableModels();
+						if (this.fetchedModels)
+							new Notice(`Fetched ${this.fetchedModels.length} models from custom endpoint`);
+			}),
+			)
 
 		new Setting(containerEl)
 			.setName("Embedding API Base URL")
@@ -275,6 +278,8 @@ export class LlmSettingTab extends PluginSettingTab {
 						}
 						await this.plugin.saveSettings()
 						this.fetchAvailableModels();
+						if (this.fetchedEmbeddingModels)
+							new Notice(`Fetched ${this.fetchedEmbeddingModels.length} embedding models from custom endpoint`);
 			  }),
 			)
 
@@ -292,6 +297,8 @@ export class LlmSettingTab extends PluginSettingTab {
 						}
 						await this.plugin.saveSettings()
 						this.fetchAvailableModels();
+						if (this.fetchedEmbeddingModels)
+							new Notice(`Fetched ${this.fetchedEmbeddingModels.length} embedding models from custom endpoint`);
 			}),
 			)
 
@@ -400,7 +407,6 @@ export class LlmSettingTab extends PluginSettingTab {
 
 				const response = await client.models.list();
 				this.fetchedModels = response.data.map(m => m.id);
-				new Notice(`Fetched ${this.fetchedModels.length} models from custom endpoint`);
 				this.display(); // Refresh UI to show new models
 			} catch (error) {
 				console.error("Model fetch error:", error);
@@ -416,7 +422,6 @@ export class LlmSettingTab extends PluginSettingTab {
 
 				const response = await client.models.list();
 				this.fetchedEmbeddingModels = response.data.map(m => m.id);
-				new Notice(`Fetched ${this.fetchedModels.length} models from custom endpoint`);
 				this.display(); // Refresh UI to show new models
 			} catch (error) {
 				console.error("Model fetch error:", error);

@@ -71,7 +71,7 @@
 		}),
 	)
 	let embeddingClient: EmbeddingClient = $derived(
-		new OpenAIEmbeddingClient($settingsStore.openAIApiKey, baseURL=$settingsStore.customEmbeddingModelUrl),
+		new OpenAIEmbeddingClient($settingsStore.customEmbeddingModelApiKey || $settingsStore.openAIApiKey),
 	)
 	let retriever = $derived(
 		new EmbeddingVectorRetriever(vectorStore, embeddingClient, {
