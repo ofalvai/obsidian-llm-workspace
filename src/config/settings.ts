@@ -4,16 +4,16 @@ import { DEFAULT_SYSTEM_PROMPT } from "./prompts"
 import { Pruner } from "src/storage/pruner"
 import { logger } from "src/utils/logger"
 
+import OpenAI from "openai"
+
 export interface LlmPluginSettings {
 	openAIApiKey: string
 	anthropicApikey: string
-	customModelName: string
 	customModelUrl: string
 	customModelApiKey: string
 	customEmbeddingModelName: string
 	customEmbeddingModelUrl: string
 	customEmbeddingModelApiKey: string
-	customNoteModelName: string
 
 	systemPrompt: string
 	noteContextMinChars: number
@@ -29,13 +29,11 @@ export interface LlmPluginSettings {
 export const DEFAULT_SETTINGS: LlmPluginSettings = {
 	openAIApiKey: "",
 	anthropicApikey: "",
-	customModelName: "",
 	customModelUrl: "",
 	customModelApiKey: "",
 	customEmbeddingModelName: "",
 	customEmbeddingModelUrl: "",
 	customEmbeddingModelApiKey: "",
-	customNoteModelName: "",
 
 	systemPrompt: DEFAULT_SYSTEM_PROMPT,
 	noteContextMinChars: 500,
@@ -60,10 +58,13 @@ const MODELS = [
 
 export class LlmSettingTab extends PluginSettingTab {
 	plugin: LlmPlugin
+	private fetchedModels: string[] = []
+	private fetchedEmbeddingModels: string[] = []
 
 	constructor(app: App, plugin: LlmPlugin) {
 		super(app, plugin)
 		this.plugin = plugin
+		this.fetchAvailableModels()
 	}
 
 	display(): void {
@@ -76,7 +77,7 @@ export class LlmSettingTab extends PluginSettingTab {
 		.setDesc("The model used to answer questions in the LLM workspace view")
 		.addDropdown((dropdown) => {
 			dropdown
-				.addOptions(modelOptions(this.plugin)) // Pass the plugin instance here
+				.addOptions(this.modelOptions())
 				.setValue(this.plugin.settings.questionAndAnswerModel)
 				.onChange(async (value) => {
 					this.plugin.settings.questionAndAnswerModel = value;
@@ -89,10 +90,24 @@ export class LlmSettingTab extends PluginSettingTab {
 			.setDesc("The model used to generate note context (summary, key topics)")
 			.addDropdown((dropdown) => {
 				dropdown
-					.addOptions(modelOptions(this.plugin))
+					.addOptions(this.modelOptions())
 					.setValue(this.plugin.settings.noteContextModel)
 					.onChange(async (value) => {
 						this.plugin.settings.noteContextModel = value
+						await this.plugin.saveSettings()
+					})
+			})
+
+		if (this.plugin.settings.customEmbeddingModelUrl && this.plugin.settings.customEmbeddingModelApiKey)
+			new Setting(containerEl)
+			.setName("Model for embeddings")
+			.setDesc("The model used to generate embeddings (this must be an embedding model!)")
+			.addDropdown((dropdown) => {
+				dropdown
+					.addOptions(this.embeddingModelOptions())
+					.setValue(this.plugin.settings.customEmbeddingModelName)
+					.onChange(async (value) => {
+						this.plugin.settings.customEmbeddingModelName = value
 						await this.plugin.saveSettings()
 					})
 			})
@@ -166,6 +181,7 @@ export class LlmSettingTab extends PluginSettingTab {
 			"Create a key at ",
 			openaiLink,
 		)
+
 		new Setting(containerEl)
 			.setName("OpenAI API key")
 			.setDesc(openaiApiKeyDesc)
@@ -176,7 +192,7 @@ export class LlmSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.openAIApiKey = value
 						await this.plugin.saveSettings()
-			  }),
+			}),
 			)
 
 		const anthropicApiKeyDesc = document.createDocumentFragment()
@@ -199,7 +215,7 @@ export class LlmSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.anthropicApikey = value
 						await this.plugin.saveSettings()
-			  }),
+			}),
 			)
 
 		// New custom model section.	
@@ -207,32 +223,6 @@ export class LlmSettingTab extends PluginSettingTab {
 		.setName("Custom OpenAI-Compatible Endpoint")
 		.setDesc("Bring your own model! Connect any OpenAI-compatible LLM")
 		.setHeading();
-		  
-		new Setting(containerEl)
-			.setName("Conversation Model Name")
-			.setDesc("Refresh the settings menu to display the custom chat model in the dropdown list.")
-			.addText((text) => 
-				text
-					.setPlaceholder("Custom-model")
-					.setValue(this.plugin.settings.customModelName)
-					.onChange(async (value) => {
-						this.plugin.settings.customModelName = value
-						await this.plugin.saveSettings()		
-			  }),
-			)			
-
-		new Setting(containerEl)
-			.setName("Note Context Model Name")
-			.setDesc("Refresh the settings menu to display the custom chat model in the dropdown list.")
-			.addText((text) => 
-				text
-					.setPlaceholder("Custom Note Taking model")
-					.setValue(this.plugin.settings.customNoteModelName)
-					.onChange(async (value) => {
-						this.plugin.settings.customNoteModelName = value
-						await this.plugin.saveSettings()		
-			  }),
-			)			
 		  
 
 
@@ -249,9 +239,12 @@ export class LlmSettingTab extends PluginSettingTab {
 						}
 						this.plugin.settings.customModelUrl = value
 						await this.plugin.saveSettings()
+						this.fetchAvailableModels();
+						if (this.fetchedModels)
+							new Notice(`Fetched ${this.fetchedModels.length} models from custom endpoint`);
 			  }),
 			)
-		  
+
 		new Setting(containerEl)
 			.setName("API Key")
 			.setDesc("Key for your custom endpoint")
@@ -262,20 +255,10 @@ export class LlmSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.customModelApiKey = value
 						await this.plugin.saveSettings()
-			  }),
-			)
-			
-		// Custom embedding model section.
-		new Setting(containerEl)
-			.setName("Embedding Model Name")
-			.addText((text) => 
-				text
-					.setPlaceholder("Embedding-model")
-					.setValue(this.plugin.settings.customEmbeddingModelName)
-					.onChange(async (value) => {
-						this.plugin.settings.customEmbeddingModelName = value
-						await this.plugin.saveSettings()		
-			  }),
+						this.fetchAvailableModels();
+						if (this.fetchedModels)
+							new Notice(`Fetched ${this.fetchedModels.length} models from custom endpoint`);
+			}),
 			)
 
 		new Setting(containerEl)
@@ -290,7 +273,13 @@ export class LlmSettingTab extends PluginSettingTab {
 							value += "/"
 						}
 						this.plugin.settings.customEmbeddingModelUrl = value
+						if (!this.plugin.settings.customEmbeddingModelUrl || !this.plugin.settings.customEmbeddingModelApiKey) {
+							this.plugin.settings.customEmbeddingModelName = ""
+						}
 						await this.plugin.saveSettings()
+						this.fetchAvailableModels();
+						if (this.fetchedEmbeddingModels)
+							new Notice(`Fetched ${this.fetchedEmbeddingModels.length} embedding models from custom endpoint`);
 			  }),
 			)
 
@@ -303,8 +292,14 @@ export class LlmSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.customEmbeddingModelApiKey)
 					.onChange(async (value) => {
 						this.plugin.settings.customEmbeddingModelApiKey = value
+						if (!this.plugin.settings.customEmbeddingModelUrl || !this.plugin.settings.customEmbeddingModelApiKey) {
+							this.plugin.settings.customEmbeddingModelName = ""
+						}
 						await this.plugin.saveSettings()
-			  }),
+						this.fetchAvailableModels();
+						if (this.fetchedEmbeddingModels)
+							new Notice(`Fetched ${this.fetchedEmbeddingModels.length} embedding models from custom endpoint`);
+			}),
 			)
 
 		new Setting(containerEl)
@@ -372,20 +367,67 @@ export class LlmSettingTab extends PluginSettingTab {
 					})
 			})
 	}
+
+	private modelOptions(): Record<string, string> {
+        const options = new Map<string, string>();
+
+        // Add custom endpoint models
+		if (this.plugin.settings.customModelUrl && this.plugin.settings.customModelApiKey)
+			this.fetchedModels.forEach(model => options.set(model, model));
+
+        // Add standard models
+		else
+			MODELS.forEach(model => options.set(model, model));
+
+        return Object.fromEntries(options);
+    }
+
+	private embeddingModelOptions(): Record<string, string> {
+        const options = new Map<string, string>();
+
+        // Add custom endpoint models
+		if (this.plugin.settings.customEmbeddingModelUrl && this.plugin.settings.customEmbeddingModelApiKey)
+			this.fetchedEmbeddingModels.forEach(model => options.set(model, model));
+
+        // Add standard models
+		else
+			MODELS.forEach(model => options.set(model, model));
+
+        return Object.fromEntries(options);
+    }
+
+    private async fetchAvailableModels() {
+        if (this.plugin.settings.customModelUrl && this.plugin.settings.customModelApiKey) {
+			try {
+				const client = new OpenAI({
+					apiKey: this.plugin.settings.customModelApiKey,
+					baseURL: this.plugin.settings.customModelUrl,
+					dangerouslyAllowBrowser: true
+				});
+
+				const response = await client.models.list();
+				this.fetchedModels = response.data.map(m => m.id);
+				this.display(); // Refresh UI to show new models
+			} catch (error) {
+				console.error("Model fetch error:", error);
+			}
+		}
+        if (this.plugin.settings.customEmbeddingModelUrl && this.plugin.settings.customEmbeddingModelApiKey) {
+			try {
+				const client = new OpenAI({
+					apiKey: this.plugin.settings.customEmbeddingModelApiKey,
+					baseURL: this.plugin.settings.customEmbeddingModelUrl,
+					dangerouslyAllowBrowser: true
+				});
+
+				const response = await client.models.list();
+				this.fetchedEmbeddingModels = response.data.map(m => m.id);
+				this.display(); // Refresh UI to show new models
+			} catch (error) {
+				console.error("Model fetch error:", error);
+			}
+		}
+    }
 }
 
-// Adds the custom model to the model selection dropdown menu.
-function modelOptions(plugin: LlmPlugin): Record<string, string> {
-    const models = [...MODELS];
-    
-    // Adds the custom model name, if provided.
-    if (plugin.settings.customModelName) {
-        models.push(plugin.settings.customModelName);
-    }
-    
-	// Adds the custom note taking model name, if provided.
-    if (plugin.settings.customNoteModelName) {
-        models.push(plugin.settings.customNoteModelName);
-    }
-    return Object.fromEntries(models.map(model => [model, model]));
-}
+

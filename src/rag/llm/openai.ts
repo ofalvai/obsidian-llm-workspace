@@ -23,11 +23,11 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 
 	constructor(apiKey: string, model: string, baseURL?: string) {
 		this.client = new OpenAI({
-			apiKey,
+			apiKey: get(settingsStore).customModelApiKey || undefined,
 			baseURL: get(settingsStore).customModelUrl || undefined,
 			dangerouslyAllowBrowser: true 
 		})
-		this.apiKey = apiKey
+		this.apiKey = get(settingsStore).customModelApiKey
 		this.model = model
 	}
 
@@ -146,13 +146,14 @@ function temperature(t: Temperature): number {
 	}
 }
 
-const IMPROVE_QUERY_MODEL = get(settingsStore)?.customModelName || "gpt-4o-mini-2024-07-18"
+const IMPROVE_QUERY_MODEL = get(settingsStore)?.noteContextModel || "gpt-4o-mini-2024-07-18"
 const IMPROVE_QUERY_TEMP = 0.1
 const EMBEDDING_MODEL = "text-embedding-3-small"
 const customEmbeddingModel = get(settingsStore)?.customEmbeddingModelName || EMBEDDING_MODEL
 
 export class OpenAIEmbeddingClient implements EmbeddingClient {
 	private client: OpenAI | undefined
+	private llm_client: OpenAI | undefined
 	private apiKey: string
 	private model: string
 	private improveQueryModel: string
@@ -183,19 +184,14 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
     }
 
 	public async initializeClient() {
-        this.client = new OpenAI({ apiKey: this.apiKey, baseURL: this.baseURL, dangerouslyAllowBrowser: true })
-        console.log("[Embedding] Initialized client with base URL:", this.baseURL)
+        this.client = new OpenAI({ apiKey: get(settingsStore).customEmbeddingModelApiKey || this.apiKey, baseURL: get(settingsStore).customEmbeddingModelUrl || undefined, dangerouslyAllowBrowser: true })
+		this.llm_client = new OpenAI({ apiKey: get(settingsStore).customModelApiKey || this.apiKey, baseURL: get(settingsStore).customModelUrl || undefined, dangerouslyAllowBrowser: true })
 	}
 
 	async embedNode(node: Node): Promise<number[]> {
 		if (!this.client) {
 			throw new Error("OpenAI client not initialized yet.  Please wait for settings to load.")
 		}
-
-		console.log("[Embedding] Using model:", this.model) // debugging line
-		console.log("[Embedding] Using base URL:", this.baseURL) // debugging line
-		console.log("[Embedding] Using API Key:", this.apiKey) // debugging line
-		console.log("[Embedding] Using improveQueryModel:", this.improveQueryModel) // debugging line
 
 		if (this.apiKey === "") {
 			throw new Error(
@@ -255,7 +251,10 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 		if (!this.client) {
 			throw new Error("OpenAI client not initialized yet. Please wait for settings to load.");
 		}
-		const completion = await this.client.chat.completions.create({
+		if (!this.llm_client) {
+			throw new Error("OpenAI LLM client not initialized yet. Please wait for settings to load.");
+		}
+		const completion = await this.llm_client.chat.completions.create({
 			messages,
 			model: this.improveQueryModel,
 			temperature: IMPROVE_QUERY_TEMP,
