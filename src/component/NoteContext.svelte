@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { liveQuery } from "dexie"
 	import { TFile } from "obsidian"
-	import { llmClient } from "src/llm-features/client"
+	import { llmClient } from "src/llm-features/llm-client"
 	import { extractKeyTopics, noteSummary } from "src/llm-features/note-context"
 	import type { LlmDexie } from "src/storage/db"
 	import { appStore, settingsStore } from "src/utils/obsidian"

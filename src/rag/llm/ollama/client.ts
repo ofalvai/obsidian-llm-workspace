@@ -3,12 +3,15 @@ import type {
 	ChatMessage,
 	ChatStreamEvent,
 	CompletionOptions,
+	EmbeddingClient,
+	QueryEmbedding,
 	StreamingChatCompletionClient,
 	Temperature,
 } from "../common"
 import type { ChatResponse, StreamEvent } from "./types"
+import type { Node } from "src/rag/node"
 
-export class OllamaChatCompletionClient implements StreamingChatCompletionClient {
+export class OllamaClient implements StreamingChatCompletionClient, EmbeddingClient {
 	private url: string
 	private model: string
 
@@ -202,6 +205,13 @@ export class OllamaChatCompletionClient implements StreamingChatCompletionClient
 			return Promise.reject(resp.text)
 		}
 		return resp
+	}
+
+	embedNode(node: Node): Promise<number[]> {
+		throw new Error("Method not implemented.")
+	}
+	embedQuery(query: string): Promise<QueryEmbedding> {
+		throw new Error("Method not implemented.")
 	}
 }
 

@@ -138,17 +138,21 @@ function temperature(t: Temperature): number {
 	}
 }
 
-const IMPROVE_QUERY_MODEL = "gpt-4o-mini-2024-07-18"
+// Note: this model is hardcoded here because it's possible to configure non-OpenAI models for other features,
+// so we can't just use the current LLM model here.
+// TODO: or we could make this feature depend on a ChatCompletionClient instance.
+const IMPROVE_QUERY_MODEL = "gpt-4o-mini"
 const IMPROVE_QUERY_TEMP = 0.1
-const EMBEDDING_MODEL = "text-embedding-3-small"
 
 export class OpenAIEmbeddingClient implements EmbeddingClient {
 	private client: OpenAI
 	private apiKey: string
+	private embeddingModel: string
 
-	constructor(apiKey: string) {
+	constructor(apiKey: string, embeddingModel: string) {
 		this.client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
 		this.apiKey = apiKey
+		this.embeddingModel = embeddingModel
 	}
 
 	async embedNode(node: Node): Promise<number[]> {
@@ -159,7 +163,7 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 
 		const response = await this.client.embeddings.create({
 			input: nodeRepresentation(node),
-			model: EMBEDDING_MODEL,
+			model: this.embeddingModel,
 		})
 
 		return response.data[0].embedding
@@ -174,7 +178,7 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 		const improvedQuery = await this.improveQuery(query)
 		const response = await this.client.embeddings.create({
 			input: improvedQuery,
-			model: EMBEDDING_MODEL,
+			model: this.embeddingModel,
 		})
 		return {
 			originalQuery: query,

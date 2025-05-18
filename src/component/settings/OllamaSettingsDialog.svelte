@@ -1,11 +1,11 @@
 <script lang="ts">
+	import type { ModelConfiguration } from "src/config/settings"
 	import { listLoadableModels } from "src/rag/llm/ollama/models"
 	import { pluginStore } from "src/utils/obsidian"
-	import Error from "../Error.svelte"
+	import ErrorComponent from "../ErrorComponent.svelte"
 	import Loading from "../obsidian/Loading.svelte"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 	import type { DialogProps } from "./types"
-	import type { ModelConfiguration } from "src/config/settings"
 
 	let { currentModel, feature, closeDialog }: DialogProps = $props()
 
@@ -64,6 +64,14 @@
 						noteContextModel: newConfig,
 					}
 					break
+				case "embedding":
+					$pluginStore.settings = {
+						...$pluginStore.settings,
+						embeddingModel: newConfig,
+					}
+					break
+				default:
+					throw new Error("Tried to save settings for unknown feature: " + feature)
 			}
 		}
 
@@ -77,7 +85,7 @@
 
 <div>
 	<label for="url" class="mb-2 block font-medium">Server URL</label>
-	<input id="url" type="text" placeholder="Server URL" bind:value={url} />
+	<input id="url" class="w-80" type="text" placeholder="Server URL" bind:value={url} />
 	<button class="ml-4" onclick={() => testConnection()}> Test connection </button>
 	{#if localModels.length > 0}
 		<ObsidianIcon iconId="check" size="l" color="success" className="ml-2 relative top-1" />
@@ -87,13 +95,13 @@
 		<Loading size="s" />
 	{:else if loadError !== null}
 		<div class="my-4">
-			<Error title="Connection error" body={loadError} />
+			<ErrorComponent title="Connection error" body={loadError} />
 		</div>
 	{/if}
 
 	{#if feature}
 		<label for="model" class="mb-2 mt-4 block font-medium">Model</label>
-		<input id="model" type="text" placeholder="Model" bind:value={selectedModel} />
+		<input id="model" class="w-80" type="text" placeholder="Model" bind:value={selectedModel} />
 		<button class="mod-cta ml-4" onclick={saveSettings} disabled={selectedModel.trim() === ""}
 			>Select model
 		</button>

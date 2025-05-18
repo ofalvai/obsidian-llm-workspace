@@ -37,7 +37,7 @@
 	}
 </script>
 
-<input placeholder="API key" bind:value={apiKey} />
+<input class="w-80" placeholder="API key" bind:value={apiKey} />
 
 <button onclick={() => testConnection()}>Test connection</button>
 
@@ -48,5 +48,3 @@
 {/if}
 
 <button onclick={saveSettings}>Save</button>
-
-<p>Important notes:</p>

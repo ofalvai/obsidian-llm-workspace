@@ -1,5 +1,5 @@
 import type { LlmPluginSettings } from "src/config/settings"
-import { OllamaChatCompletionClient } from "src/rag/llm/ollama/client"
+import { OllamaClient } from "src/rag/llm/ollama/client"
 import { derived, type Writable } from "svelte/store"
 import { AnthropicChatCompletionClient } from "../rag/llm/anthropic"
 import type { StreamingChatCompletionClient } from "../rag/llm/common"
@@ -23,7 +23,7 @@ export const llmClient = derived<Writable<LlmPluginSettings>, StreamingChatCompl
 					modelConfig.model,
 				)
 			case "Ollama":
-				return new OllamaChatCompletionClient(
+				return new OllamaClient(
 					$settingsStore.providerSettings.ollama.url,
 					modelConfig.model,
 				)

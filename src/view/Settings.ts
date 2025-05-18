@@ -1,11 +1,18 @@
 import { App, Modal, Notice, PluginSettingTab, Setting } from "obsidian"
 import AnthropicSettingsDialog from "src/component/settings/AnthropicSettingsDialog.svelte"
+import EmbeddingChangeDialog from "src/component/settings/EmbeddingChangeDialog.svelte"
 import OllamaSettingsDialog from "src/component/settings/OllamaSettingsDialog.svelte"
 import OpenAiSettingsDialog from "src/component/settings/OpenAISettingsDialog.svelte"
 import type { DialogProps } from "src/component/settings/types"
 import type { Provider } from "src/config/providers"
-import { MODEL_CONFIGS, type Feature, type ModelConfiguration } from "src/config/settings"
+import {
+	EMBEDDING_MODEL_CONFIGS,
+	MODEL_CONFIGS,
+	type Feature,
+	type ModelConfiguration,
+} from "src/config/settings"
 import type LlmPlugin from "src/main"
+import { VectorStoreIndex } from "src/rag/vectorstore"
 import { Pruner } from "src/storage/pruner"
 import { logger } from "src/utils/logger"
 import { mount, unmount, type Component } from "svelte"
@@ -55,7 +62,7 @@ export class LlmSettingTab extends PluginSettingTab {
 			.setDesc("The model used to answer questions in the LLM workspace view")
 			.addDropdown((dropdown) => {
 				dropdown
-					.addOptions(modelConfigToDropdownOptions())
+					.addOptions(modelConfigToDropdownOptions(MODEL_CONFIGS))
 					.setValue(
 						modelConfigToDropdownValue(this.plugin.settings.questionAndAnswerModel),
 					)
@@ -79,7 +86,7 @@ export class LlmSettingTab extends PluginSettingTab {
 			.setDesc("The model used to generate note context (summary, key topics)")
 			.addDropdown((dropdown) => {
 				dropdown
-					.addOptions(modelConfigToDropdownOptions())
+					.addOptions(modelConfigToDropdownOptions(MODEL_CONFIGS))
 					.setValue(modelConfigToDropdownValue(this.plugin.settings.noteContextModel))
 					.onChange(async (value) => {
 						await this.handleModelChange(value, "noteContext")
@@ -97,6 +104,51 @@ export class LlmSettingTab extends PluginSettingTab {
 			noteContextModelExtraSettingsEl,
 		)
 		this.initModelExtraSettings("noteContext", noteContextModelExtraSettingsEl)
+
+		const embeddingModelSetting = new Setting(containerEl)
+			.setName("Model for document embedding")
+			.setDesc(
+				"The model used to compute embeddings of documents and finding relevant ones for the conversation.",
+			)
+			.addDropdown((dropdown) => {
+				dropdown
+					.addOptions(modelConfigToDropdownOptions(EMBEDDING_MODEL_CONFIGS))
+					.setValue(modelConfigToDropdownValue(this.plugin.settings.embeddingModel))
+					.onChange(async (value) => {
+						const vectorStore = new VectorStoreIndex(this.plugin.db)
+						const onConfirm = async () => {
+							await vectorStore.deleteAllFiles()
+							modal.close()
+							await this.handleModelChange(value, "embedding")
+						}
+						const modal = new Modal(this.app)
+						modal.setTitle("Danger zone")
+
+						const componentInstance = mount(EmbeddingChangeDialog, {
+							target: modal.contentEl,
+							props: {
+								onConfirm,
+								stats: await vectorStore.stats(),
+								currentModelConfig: this.plugin.settings.embeddingModel,
+							},
+						})
+						modal.onClose = () => unmount(componentInstance)
+						modal.open()
+
+
+						if (PROVIDERS_WITH_CUSTOM_SETTINGS.has(value as Provider)) {
+							embeddingModelExtraSettingsEl.style.display = "flex"
+						} else {
+							embeddingModelExtraSettingsEl.style.display = "none"
+						}
+					})
+			})
+		const embeddingModelExtraSettingsEl = document.createElement("div")
+		embeddingModelSetting.settingEl.insertAdjacentElement(
+			"afterend",
+			embeddingModelExtraSettingsEl,
+		)
+		this.initModelExtraSettings("embedding", embeddingModelExtraSettingsEl)
 
 		new Setting(containerEl)
 			.setName("Prompt folder location")
@@ -236,6 +288,8 @@ export class LlmSettingTab extends PluginSettingTab {
 
 	openProviderSettingsModal(provider: Provider, feature: Feature | null): void {
 		let currentModelOfFeature = null
+		// If we are in the context of a feature, and the feature's current setting is this same provider,
+		// we open the modal with the current model
 		if (feature && this.modelConfigOfFeature(feature).provider == provider) {
 			currentModelOfFeature = this.modelConfigOfFeature(feature).model
 		}
@@ -262,7 +316,8 @@ export class LlmSettingTab extends PluginSettingTab {
 	}
 
 	handleModelChange = async (value: string, feature: Feature) => {
-		const modelConfig = dropdownValueToModelConfig(value)
+		const allConfigs = feature == "embedding" ? EMBEDDING_MODEL_CONFIGS : MODEL_CONFIGS
+		const modelConfig = dropdownValueToModelConfig(allConfigs, value)
 		if (modelConfig) {
 			switch (feature) {
 				case "questionAndAnswer":
@@ -271,6 +326,13 @@ export class LlmSettingTab extends PluginSettingTab {
 				case "noteContext":
 					this.plugin.settings.noteContextModel = modelConfig
 					break
+				case "embedding":
+					this.plugin.settings.embeddingModel = modelConfig
+					break
+				default:
+					throw new Error(
+						`Unsupported feature encountered when changing model of feature ${feature}: ${modelConfig}`,
+					)
 			}
 			await this.plugin.saveSettings()
 		} else if (PROVIDERS_WITH_CUSTOM_SETTINGS.has(value as Provider)) {
@@ -287,6 +349,9 @@ export class LlmSettingTab extends PluginSettingTab {
 			case "noteContext":
 				selectedModelProvider = this.plugin.settings.noteContextModel
 				break
+			case "embedding":
+				selectedModelProvider = this.plugin.settings.embeddingModel
+				break
 		}
 		return selectedModelProvider
 	}
@@ -294,8 +359,8 @@ export class LlmSettingTab extends PluginSettingTab {
 
 // key: unique ID
 // value: display label
-function modelConfigToDropdownOptions(): Record<string, string> {
-	const selectableModels = MODEL_CONFIGS.reduce(
+function modelConfigToDropdownOptions(configs: ModelConfiguration[]): Record<string, string> {
+	const selectableModels = configs.reduce(
 		(acc: { [key: string]: string }, config: ModelConfiguration) => {
 			acc[config.model] = config.model
 			return acc
@@ -309,8 +374,11 @@ function modelConfigToDropdownOptions(): Record<string, string> {
 	return selectableModels
 }
 
-function dropdownValueToModelConfig(key: string): ModelConfiguration | null {
-	return MODEL_CONFIGS.find((model) => model.model === key) || null
+function dropdownValueToModelConfig(
+	configs: ModelConfiguration[],
+	key: string,
+): ModelConfiguration | null {
+	return configs.find((model) => model.model === key) || null
 }
 
 function modelConfigToDropdownValue(config: ModelConfiguration): string {

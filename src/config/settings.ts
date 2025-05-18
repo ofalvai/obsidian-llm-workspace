@@ -1,5 +1,5 @@
 import { DEFAULT_SYSTEM_PROMPT } from "./prompts"
-import type { AnthropicSettings, OllamaSettings, OpenAISettings, Provider, ProviderSettings } from "./providers"
+import type { Provider, ProviderSettings } from "./providers"
 
 export interface LlmPluginSettings {
 	systemPrompt: string
@@ -9,6 +9,7 @@ export interface LlmPluginSettings {
 
 	questionAndAnswerModel: ModelConfiguration
 	noteContextModel: ModelConfiguration
+	embeddingModel: ModelConfiguration
 
 	promptFolder: string
 
@@ -20,7 +21,7 @@ export interface ModelConfiguration {
 	model: string
 }
 
-export type Feature = "questionAndAnswer" | "noteContext"
+export type Feature = "questionAndAnswer" | "noteContext" | "embedding"
 
 export const DEFAULT_SETTINGS: LlmPluginSettings = {
 	systemPrompt: DEFAULT_SYSTEM_PROMPT,
@@ -35,6 +36,10 @@ export const DEFAULT_SETTINGS: LlmPluginSettings = {
 	noteContextModel: {
 		provider: "OpenAI",
 		model: "gpt-4o-mini-2024-07-18",
+	},
+	embeddingModel: {
+		provider: "OpenAI",
+		model: "text-embedding-3-small"
 	},
 
 	promptFolder: "Resources/LLM/Prompts",
@@ -60,4 +65,9 @@ export const MODEL_CONFIGS: ModelConfiguration[] = [
 	{ provider: "Anthropic", model: "claude-3-sonnet-20240229" },
 	{ provider: "Anthropic", model: "claude-3-5-sonnet-20241022" },
 	{ provider: "Anthropic", model: "claude-3-opus-20240229" },
+]
+
+export const EMBEDDING_MODEL_CONFIGS: ModelConfiguration[] = [
+	{ provider: "OpenAI", model: "text-embedding-3-small" },
+	{ provider: "OpenAI", model: "text-embedding-3" },
 ]
