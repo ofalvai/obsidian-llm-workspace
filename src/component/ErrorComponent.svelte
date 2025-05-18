@@ -3,7 +3,7 @@
 	export let body: string
 </script>
 
-<div class="rounded bg-error p-2 text-on-accent">
-	<p class="font-medium">{title}</p>
-	<p class="text-sm">{body}</p>
+<div class="rounded bg-error mt-2 mb-2 p-2 text-on-accent">
+	<div class="font-medium">{title}</div>
+	<div class="text-sm pt-1">{body}</div>
 </div>
