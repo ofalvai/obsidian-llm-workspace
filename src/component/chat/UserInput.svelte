@@ -85,7 +85,7 @@
 			onclick={() => textarea.focus()}
 		>
 			<button
-				class="flex h-fit rounded border border-solid border-border bg-primary p-0 px-1 py-0.5 text-xs !shadow-none hover:shadow-none"
+				class="flex! h-fit! rounded! border! border-solid! border-border! bg-primary! p-0! px-1! py-0.5! text-xs! !shadow-none hover:shadow-none"
 				aria-label="Insert prompt"
 				onclick={(e) => {
 					e.preventDefault()
@@ -99,19 +99,19 @@
 					e.preventDefault()
 					onFileAttach(textarea.selectionEnd, false)
 				}}
-				class="flex h-fit rounded border border-solid border-border bg-primary p-0 px-1 py-0.5 text-xs !shadow-none hover:shadow-none"
+				class="flex! h-fit! rounded! border! border-solid! border-border! bg-primary! p-0! px-1! py-0.5! text-xs! !shadow-none hover:shadow-none"
 			>
 				Add context...
 			</button>
 			{#each attachedFiles as file (file.basename)}
 				<div
-					class="flex max-w-40 flex-row items-center rounded border border-solid border-border bg-primary px-1 py-0.5"
+					class="flex max-w-40 flex-row items-center rounded border! border-solid! border-border! bg-primary! px-1 py-0.5"
 				>
 					<div class="line-clamp-1 text-xs">
 						{file.basename}
 					</div>
 					<button
-						class="ml-1 h-fit w-fit bg-transparent p-0 !shadow-none hover:shadow-none"
+						class="ml-1! h-fit! w-fit! bg-transparent! p-0! !shadow-none hover:shadow-none"
 						onclick={() => attachedFiles.remove(file)}
 					>
 						<ObsidianIcon iconId="x" size="s" />
@@ -121,7 +121,7 @@
 		</div>
 		<!-- svelte-ignore a11y_autofocus -->
 		<textarea
-			class="text-normal w-full resize-y bg-secondary pb-8 pt-9"
+			class="text-normal w-full resize-y bg-secondary pb-8! pt-9!"
 			autofocus
 			bind:this={textarea}
 			bind:value={query}
