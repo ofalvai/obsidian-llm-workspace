@@ -36,3 +36,7 @@ export interface DoneEvent {
 export interface ChatResponse {
 	message: Message
 }
+
+export interface EmbeddingResponse {
+	embeddings: number[][]	
+}

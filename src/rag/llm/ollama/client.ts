@@ -8,8 +8,8 @@ import type {
 	StreamingChatCompletionClient,
 	Temperature,
 } from "../common"
-import type { ChatResponse, StreamEvent } from "./types"
-import type { Node } from "src/rag/node"
+import type { ChatResponse, EmbeddingResponse, StreamEvent } from "./types"
+import { nodeRepresentation, type Node } from "src/rag/node"
 
 export class OllamaClient implements StreamingChatCompletionClient, EmbeddingClient {
 	private url: string
@@ -141,7 +141,7 @@ export class OllamaClient implements StreamingChatCompletionClient, EmbeddingCli
 		}
 
 		try {
-			const response = await this.makeRequest(messages, options)
+			const response = await this.makeChatRequest(messages, options)
 			const chatResponse = (await response.json()) as ChatResponse
 			return {
 				content: chatResponse.message.content,
@@ -168,7 +168,7 @@ export class OllamaClient implements StreamingChatCompletionClient, EmbeddingCli
 			{ role: "assistant", content: "{", attachedContent: [] }, // force valid JSON output
 		]
 
-		const response = await this.makeRequest(messages, options)
+		const response = await this.makeChatRequest(messages, options)
 		const chatResponse = (await response.json()) as ChatResponse
 		try {
 			return JSON.parse("{" + chatResponse.message.content) as T
@@ -179,7 +179,10 @@ export class OllamaClient implements StreamingChatCompletionClient, EmbeddingCli
 		}
 	}
 
-	async makeRequest(messages: ChatMessage[], options: CompletionOptions): Promise<Response> {
+	private async makeChatRequest(
+		messages: ChatMessage[],
+		options: CompletionOptions,
+	): Promise<Response> {
 		const resp = await fetch(`${this.url}/api/chat`, {
 			method: "POST",
 			headers: {
@@ -207,12 +210,82 @@ export class OllamaClient implements StreamingChatCompletionClient, EmbeddingCli
 		return resp
 	}
 
-	embedNode(node: Node): Promise<number[]> {
-		throw new Error("Method not implemented.")
+	async embedNode(node: Node): Promise<number[]> {
+		if (this.url === "") {
+			throw new Error("Ollama URL is not set")
+		}
+
+		const resp = await this.makeEmbeddingRequest(nodeRepresentation(node))
+		const embeddingResponse = (await resp.json()) as EmbeddingResponse
+
+		if (embeddingResponse.embeddings.length === 0) {
+			throw new Error("Ollama returned no embeddings")
+		}
+		return embeddingResponse.embeddings[0]
 	}
-	embedQuery(query: string): Promise<QueryEmbedding> {
-		throw new Error("Method not implemented.")
+	async embedQuery(query: string): Promise<QueryEmbedding> {
+		if (this.url === "") {
+			throw new Error("Ollama URL is not set")
+		}
+
+		// const resp = await this.makeEmbeddingRequest(nodeRepresentation(node))
+		// const embeddingResponse = (await resp.json()) as EmbeddingResponse
+
+		// if (embeddingResponse.embeddings.length === 0) {
+		// 	throw new Error("Ollama returned no embeddings")
+		// }
+		// return embeddingResponse.embeddings[0]
+
+		throw new Error("Ollama embedding not implemented")
 	}
+
+	private async makeEmbeddingRequest(input: string): Promise<Response> {
+		const resp = await fetch(`${this.url}/api/embed`, {
+			method: "POST",
+			headers: {
+				"content-type": "application/json",
+			},
+			body: JSON.stringify({
+				model: this.model,
+				input: input,
+				truncate: false,
+			}),
+		})
+
+		if (resp.status < 200 || resp.status >= 400) {
+			const respJson = await resp.json()
+			if (respJson.error) {
+				return Promise.reject("Ollama response: " + respJson.error)
+			}
+			return Promise.reject(resp.text)
+		}
+		return resp
+	}
+
+	// private async improveQuery(query: string): Promise<string> {
+		// const messages = [
+		// 	{
+		// 		role: "system",
+		// 		content: SELF_QUERY_PROMPT,
+		// 	},
+		// 	...SELF_QUERY_EXAMPLES.flatMap((example) => {
+		// 		return [
+		// 			{ role: "user", content: example.input },
+		// 			{ role: "assistant", content: example.output },
+		// 		]
+		// 	}),
+		// 	{
+		// 		role: "user",
+		// 		content: query,
+		// 	},
+		// ] as ChatCompletionMessageParam[]
+		// const completion = await this.client.chat.completions.create({
+		// 	messages,
+		// 	model: IMPROVE_QUERY_MODEL,
+		// 	temperature: IMPROVE_QUERY_TEMP,
+		// })
+		// return completion.choices[0].message.content!
+	// }
 }
 
 function temperature(t: Temperature): number {
