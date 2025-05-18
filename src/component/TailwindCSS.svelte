@@ -1,5 +1,5 @@
 <style global lang="postcss">
-	@tailwind base;
-	@tailwind components;
-	@tailwind utilities;
+	@layer theme, base, components, utilities;
+	@import "tailwindcss/theme.css" layer(theme);
+	@import "tailwindcss/utilities.css" layer(utilities);
 </style>

@@ -2,7 +2,7 @@ import esbuild from "esbuild"
 import process from "process"
 import esbuildSvelte from "esbuild-svelte"
 import fs from 'node:fs'
-import tailwindcss from "tailwindcss"
+import tailwindcss from "@tailwindcss/postcss"
 import { sveltePreprocess } from "svelte-preprocess"
 
 const jsBanner = `/*
