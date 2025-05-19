@@ -6,15 +6,33 @@ import { OpenAIChatCompletionClient } from "../rag/llm/openai"
 import { settingsStore } from "../utils/obsidian"
 
 export const llmClient = derived<Writable<LlmPluginSettings>, StreamingChatCompletionClient>(
-	settingsStore,
-	($settingsStore) => {
-		const model = $settingsStore.questionAndAnswerModel
-		if (model.startsWith("gpt")) {
-			return new OpenAIChatCompletionClient($settingsStore.openAIApiKey, model)
-		} else if (model.startsWith("claude")) {
-			return new AnthropicChatCompletionClient($settingsStore.anthropicApikey, model)
-		} else {
-			throw new Error("Invalid model: " + model)
-		}
-	},
-)
+    settingsStore,
+    ($settingsStore) => {
+        const model = $settingsStore.questionAndAnswerModel;
+
+        // Custom endpoint takes priority if configured
+        if ($settingsStore.customModelUrl) {
+            return new OpenAIChatCompletionClient(
+                $settingsStore.customModelApiKey,
+                model,
+                $settingsStore.customModelUrl
+            );
+        }
+
+        // Standard model handling
+        if (model.startsWith("gpt")) {
+            return new OpenAIChatCompletionClient(
+                $settingsStore.openAIApiKey,
+                model
+            );
+        } else if (model.startsWith("claude")) {
+            return new AnthropicChatCompletionClient(
+                $settingsStore.anthropicApikey,
+                model
+            );
+        }
+
+        throw new Error(`Unsupported model: ${model}`);
+    }
+);
+
