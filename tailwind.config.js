@@ -67,6 +67,7 @@ module.exports = {
 		"height",
 		"inset", // top, right, bottom, left
 		"justifyContent",
+		"lineClamp",
 		"margin",
 		"minHeight",
 		"minWidth",

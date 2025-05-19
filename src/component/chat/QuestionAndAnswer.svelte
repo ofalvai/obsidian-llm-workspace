@@ -34,7 +34,7 @@
 	}
 </script>
 
-<div class="conversation-scroller relative grow pb-36">
+<div class="conversation-scroller relative grow pb-40">
 	{#if conversation}
 		<div class="grow">
 			{#if conversation.initialUserQuery}
