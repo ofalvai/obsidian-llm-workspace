@@ -1,8 +1,8 @@
 import OpenAI from "openai"
-import type { ChatCompletionMessageParam } from "openai/resources/index.mjs"
 import { messageWithAttachmens, SELF_QUERY_EXAMPLES, SELF_QUERY_PROMPT } from "src/config/prompts"
 import { nodeRepresentation, type Node } from "../node"
 import {
+	type ChatCompletionClient,
 	type ChatMessage,
 	type ChatStreamEvent,
 	type CompletionOptions,
@@ -138,19 +138,15 @@ function temperature(t: Temperature): number {
 	}
 }
 
-// Note: this model is hardcoded here because it's possible to configure non-OpenAI models for other features,
-// so we can't just use the current LLM model here.
-// TODO: or we could make this feature depend on a ChatCompletionClient instance.
-const IMPROVE_QUERY_MODEL = "gpt-4o-mini"
-const IMPROVE_QUERY_TEMP = 0.1
-
 export class OpenAIEmbeddingClient implements EmbeddingClient {
-	private client: OpenAI
+	private openaiClient: OpenAI
+	private chatClient: ChatCompletionClient
 	private apiKey: string
 	private embeddingModel: string
 
-	constructor(apiKey: string, embeddingModel: string) {
-		this.client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
+	constructor(apiKey: string, embeddingModel: string, chatClient: ChatCompletionClient) {
+		this.openaiClient = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
+		this.chatClient = chatClient
 		this.apiKey = apiKey
 		this.embeddingModel = embeddingModel
 	}
@@ -161,7 +157,7 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 				"OpenAI API key is not set. Note embeddings always use the OpenAI API and need an API key regardless of the LLM setting.",
 			)
 
-		const response = await this.client.embeddings.create({
+		const response = await this.openaiClient.embeddings.create({
 			input: nodeRepresentation(node),
 			model: this.embeddingModel,
 		})
@@ -176,7 +172,7 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 			)
 
 		const improvedQuery = await this.improveQuery(query)
-		const response = await this.client.embeddings.create({
+		const response = await this.openaiClient.embeddings.create({
 			input: improvedQuery,
 			model: this.embeddingModel,
 		})
@@ -188,28 +184,29 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 	}
 
 	private async improveQuery(query: string): Promise<string> {
-		const messages = [
+		const messages: ChatMessage[] = [
 			{
 				role: "system",
 				content: SELF_QUERY_PROMPT,
+				attachedContent: [],
 			},
-			...SELF_QUERY_EXAMPLES.flatMap((example) => {
+			...SELF_QUERY_EXAMPLES.flatMap<ChatMessage>((example) => {
 				return [
-					{ role: "user", content: example.input },
-					{ role: "assistant", content: example.output },
+					{ role: "user", content: example.input, attachedContent: [] },
+					{ role: "assistant", content: example.output, attachedContent: [] },
 				]
 			}),
 			{
 				role: "user",
 				content: query,
+				attachedContent: [],
 			},
-		] as ChatCompletionMessageParam[]
+		]
 
-		const completion = await this.client.chat.completions.create({
-			messages,
-			model: IMPROVE_QUERY_MODEL,
-			temperature: IMPROVE_QUERY_TEMP,
+		const completion = await this.chatClient.createChatCompletion(messages, {
+			temperature: "precise",
+			maxTokens: 500,
 		})
-		return completion.choices[0].message.content!
+		return completion.content
 	}
 }
