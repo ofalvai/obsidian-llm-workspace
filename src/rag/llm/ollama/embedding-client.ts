@@ -92,7 +92,7 @@ export class OllamaEmbeddingClient implements EmbeddingClient {
 
 		const response = await this.chatClient.createChatCompletion(messages, {
 			temperature: "precise",
-			maxTokens: 1024,
+			maxTokens: 500,
 		})
 		return response.content
 	}

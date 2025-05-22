@@ -2,6 +2,7 @@
 	import type { ModelConfiguration } from "src/config/settings"
 	import { listLoadableModels } from "src/rag/llm/ollama/models"
 	import { pluginStore } from "src/utils/obsidian"
+	import { slide } from "svelte/transition"
 	import ErrorComponent from "../ErrorComponent.svelte"
 	import Loading from "../obsidian/Loading.svelte"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
@@ -86,7 +87,13 @@
 <div>
 	<label for="url" class="mb-2 block font-medium">Server URL</label>
 	<input id="url" class="w-80" type="text" placeholder="Server URL" bind:value={url} />
-	<button class="ml-4" onclick={() => testConnection()}> Test connection </button>
+	<button class="ml-4" onclick={() => testConnection()}>
+		{#if feature}
+			List models
+		{:else}
+			Test connection
+		{/if}
+	</button>
 	{#if localModels.length > 0}
 		<ObsidianIcon iconId="check" size="l" color="success" className="ml-2 relative top-1" />
 	{/if}
@@ -100,34 +107,49 @@
 	{/if}
 
 	{#if feature}
-		<label for="model" class="mb-2 mt-4 block font-medium">Model</label>
+		<label for="model" class="mb-2 mt-4 block font-medium">
+			{#if feature === "questionAndAnswer"}
+				Model for conversations
+			{:else if feature === "noteContext"}
+				Model for note context
+			{:else if feature === "embedding"}
+				Model for embeddings
+			{/if}
+		</label>
 		<input id="model" class="w-80" type="text" placeholder="Model" bind:value={selectedModel} />
 		<button class="mod-cta ml-4" onclick={saveSettings} disabled={selectedModel.trim() === ""}
 			>Select model
 		</button>
 
 		{#if localModels.length > 1}
-			<p>Available models:</p>
-			<ul>
-				{#each localModels as model}
-					<!-- svelte-ignore a11y_click_events_have_key_events -->
-					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-					<li
-						class="cursor-pointer select-text font-mono"
-						onclick={() => (selectedModel = model)}
-					>
-						{model}
-					</li>
-				{/each}
-			</ul>
+			<div class="text-sm" transition:slide={{ axis: "y", duration: 200 }}>
+				<p>Available models:</p>
+				<ul>
+					{#each localModels as model}
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
+						<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+						<li
+							class="cursor-pointer select-text font-mono"
+							onclick={() => (selectedModel = model)}
+						>
+							{model}
+						</li>
+					{/each}
+				</ul>
+			</div>
 		{/if}
 	{/if}
 </div>
 
-<p>Important notes:</p>
-
-<p>Options sent for each request:</p>
-<ul>
-	<li>temperature</li>
-	<li>maxTokens</li>
-</ul>
+<div class="text-sm">
+	<p>
+		You can customize model-specific settings in the <a
+			href="https://github.com/ollama/ollama/blob/main/docs/modelfile.md#parameter"
+			>Ollama Modelfile</a
+		>. Requests override the following parameters:
+	</p>
+	<ul>
+		<li><code>temperature</code></li>
+		<li><code>num_predict</code></li>
+	</ul>
+</div>

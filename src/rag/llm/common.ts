@@ -43,6 +43,10 @@ export type Temperature = "balanced" | "creative" | "precise"
 
 export interface CompletionOptions {
 	temperature: Temperature
+	// Note: as of May 2025:
+	// OpenAI doesn't require this param
+	// Anthropic requires it
+	// Ollama doesn't require it
 	maxTokens: number
 }
 
