@@ -202,8 +202,6 @@ export class LlmSettingTab extends PluginSettingTab {
 				})
 			})
 
-		new Setting(containerEl).setName("API keys").setHeading()
-
 		new Setting(containerEl).setName("Retrieval parameters").setHeading()
 
 		new Setting(containerEl)
