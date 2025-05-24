@@ -15,6 +15,7 @@ import type LlmPlugin from "src/main"
 import { VectorStoreIndex } from "src/rag/vectorstore"
 import { Pruner } from "src/storage/pruner"
 import { logger } from "src/utils/logger"
+import { pluginStore } from "src/utils/obsidian"
 import { mount, unmount, type Component } from "svelte"
 
 const PROVIDER_COMPONENT_MAP: Map<Provider, Component<DialogProps>> = new Map([
@@ -34,6 +35,8 @@ export class LlmSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
+		pluginStore.set(this.plugin)
+
 		const { containerEl } = this
 
 		containerEl.empty()

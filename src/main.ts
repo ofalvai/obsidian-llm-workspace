@@ -117,7 +117,13 @@ export default class LlmPlugin extends Plugin {
 		const persistedSettings = await this.loadData()
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, persistedSettings)
 
+		
 		// Migrate old settings to new ones
+		if (!persistedSettings) {
+			settingsStore.set(this.settings)
+			return
+		}
+
 		if ("anthropicApikey" in persistedSettings) {
 			this.settings.providerSettings.anthropic.apiKey = persistedSettings.anthropicApikey
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any

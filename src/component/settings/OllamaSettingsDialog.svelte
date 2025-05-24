@@ -7,6 +7,7 @@
 	import Loading from "../obsidian/Loading.svelte"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 	import type { DialogProps } from "./types"
+	import { onMount } from "svelte"
 
 	let { currentModel, feature, closeDialog }: DialogProps = $props()
 
@@ -16,6 +17,13 @@
 	let loading = $state(false)
 	let localModels: string[] | null = $state(null)
 	let loadError: string | null = $state(null)
+
+	onMount(() => {
+		if (url && url != "") {
+			// Pre-populate model list if a URL is already set
+			testConnection()
+		}
+	})
 
 	const testConnection = async () => {
 		try {
@@ -133,7 +141,7 @@
 						<!-- svelte-ignore a11y_click_events_have_key_events -->
 						<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 						<li
-							class="cursor-pointer select-text font-mono"
+							class="cursor-pointer select-text font-mono my-1"
 							onclick={() => (selectedModel = model)}
 						>
 							{model}
