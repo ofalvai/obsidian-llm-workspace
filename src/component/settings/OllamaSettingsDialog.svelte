@@ -14,7 +14,7 @@
 	let selectedModel = $state(currentModel ?? "")
 
 	let loading = $state(false)
-	let localModels: string[] = $state([])
+	let localModels: string[] | null = $state(null)
 	let loadError: string | null = $state(null)
 
 	const testConnection = async () => {
@@ -94,7 +94,11 @@
 			Test connection
 		{/if}
 	</button>
-	{#if localModels.length > 0}
+	{#if localModels && localModels.length === 0 }
+		<div class="my-4">
+			No models found. Make sure your Ollama instance has some models downloaded.
+		</div>
+	{:else if localModels && localModels.length > 0}
 		<ObsidianIcon iconId="check" size="l" color="success" className="ml-2 relative top-1" />
 	{/if}
 
@@ -121,7 +125,7 @@
 			>Select model
 		</button>
 
-		{#if localModels.length > 1}
+		{#if localModels && localModels.length > 1}
 			<div class="text-sm" transition:slide={{ axis: "y", duration: 200 }}>
 				<p>Available models:</p>
 				<ul>
