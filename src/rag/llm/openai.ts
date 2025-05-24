@@ -12,6 +12,12 @@ import {
 	type Temperature,
 } from "./common"
 
+export const testConnection = async (apiKey: string): Promise<boolean> => {
+	const client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
+	const list = await client.models.list()
+	return list.data.length > 0
+}
+
 export class OpenAIChatCompletionClient implements StreamingChatCompletionClient {
 	private client: OpenAI
 	private apiKey: string
