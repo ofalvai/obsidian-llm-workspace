@@ -1,5 +1,6 @@
 import type { IncomingMessage } from "node:http"
 import { request } from "node:https"
+import { request as httpRequest } from "node:http"
 import { Readable } from "node:stream"
 import { logger } from "./logger"
 
@@ -18,7 +19,8 @@ export async function nodeStreamingFetch(url: string, options: any = {}): Promis
 			read() {},
 		})
 
-		const req = request(url, requestOptions, (res: IncomingMessage) => {
+		const requestFn = url.startsWith("http://") ? httpRequest : request
+		const req = requestFn(url, requestOptions, (res: IncomingMessage) => {
 			if (res.statusCode !== 200) {
 				let body = ""
 				res.on("readable", () => {

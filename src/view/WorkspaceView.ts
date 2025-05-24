@@ -1,8 +1,15 @@
 import { ItemView, WorkspaceLeaf, type ViewStateResult } from "obsidian"
 import Workspace from "src/component/workspace/Workspace.svelte"
 import type { LlmPluginSettings } from "src/config/settings"
+import type LlmPlugin from "src/main"
 import { LlmDexie } from "src/storage/db"
-import { addWorkspaceProperty, appStore, settingsStore, viewStore } from "src/utils/obsidian"
+import {
+	addWorkspaceProperty,
+	appStore,
+	pluginStore,
+	settingsStore,
+	viewStore,
+} from "src/utils/obsidian"
 import { mount, unmount } from "svelte"
 
 export const VIEW_TYPE_WORKSPACE = "llm-workspace-view"
@@ -15,6 +22,7 @@ export type WorkspaceViewState = {
 
 export class WorkspaceView extends ItemView {
 	settings: LlmPluginSettings
+	plugin: LlmPlugin
 
 	db: LlmDexie
 
@@ -25,9 +33,10 @@ export class WorkspaceView extends ItemView {
 	viewTitle = "LLM Workspace"
 	navigation = false
 
-	constructor(leaf: WorkspaceLeaf, settings: LlmPluginSettings, db: LlmDexie) {
+	constructor(leaf: WorkspaceLeaf, settings: LlmPluginSettings, plugin: LlmPlugin, db: LlmDexie) {
 		super(leaf)
 		this.settings = settings
+		this.plugin = plugin
 		this.db = db
 	}
 
@@ -47,6 +56,7 @@ export class WorkspaceView extends ItemView {
 		settingsStore.set(this.settings)
 		appStore.set(this.app)
 		viewStore.set(this)
+		pluginStore.set(this.plugin)
 
 		this.addAction("file-input", "Open workspace note", () => {
 			if (this.filePath) {
@@ -91,7 +101,7 @@ export class WorkspaceView extends ItemView {
 			target: this.contentEl,
 			props: {
 				workspaceFile: file,
-				db: this.db,		
+				db: this.db,
 			},
 		})
 
@@ -106,7 +116,7 @@ export class WorkspaceView extends ItemView {
 
 		try {
 			await this.app.fileManager.processFrontMatter(file, addWorkspaceProperty)
-		} catch(e) {
+		} catch (e) {
 			console.warn("Failed to add workspace property to frontmatter", e)
 		}
 
