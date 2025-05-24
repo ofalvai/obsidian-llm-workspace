@@ -9,6 +9,11 @@ export interface NodeSimilarity {
 	similarity: number
 }
 
+export interface VectorStoreStats {
+	nodeCount: number
+	workspaceCount: number
+}
+
 export class VectorStoreIndex {
 	private db: LlmDexie
 
@@ -57,6 +62,22 @@ export class VectorStoreIndex {
 
 	async deleteFiles(...path: FilePath[]): Promise<number> {
 		return await this.db.vectorStore.where("node.parent").anyOf(path).delete()
+	}
+
+	async deleteAllFiles(): Promise<void> {
+		return await this.db.vectorStore.clear()
+	}
+
+	async stats(): Promise<VectorStoreStats> {
+		const nodeCount = await this.db.vectorStore.count()
+		const workspaceCount = await this.db.vectorStore
+			.orderBy("includedInWorkspace")
+			.uniqueKeys()
+			.then((keys) => keys.length)
+		return {
+			nodeCount,
+			workspaceCount,
+		}
 	}
 
 	async updateWorkspacePath(old: FilePath, new_: FilePath): Promise<void> {

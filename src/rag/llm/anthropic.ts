@@ -63,6 +63,31 @@ interface MessageStopEvent {
 	type: "message_stop"
 }
 
+export const testConnection = async (apiKey: string): Promise<boolean> => {
+	if (!apiKey) {
+		return Promise.reject("No API key provided")
+	}
+
+	const response = await requestUrl({
+		url: "https://api.anthropic.com/v1/models",
+		method: "GET",
+		headers: {
+			"anthropic-version": "2023-06-01",
+			"x-api-key": apiKey,
+		},
+		throw: false, // We handle the error ourselves, default handling swallows the error
+	})
+	if (response.status < 200 || response.status >= 400) {
+		if (response.json && response.json.error) {
+			return Promise.reject(
+				"Failed to connect to Anthropic API: " + response.json.error.message,
+			)
+		}
+		return Promise.reject("Failed to connect to Anthropic API: " + response.text)
+	}
+	return response.json && response.json.data && response.json.data.length > 0
+}
+
 // We are using the REST API directly because the Anthropic SDK refuses to run
 // in the browser context: https://github.com/anthropics/anthropic-sdk-typescript/issues/28
 export class AnthropicChatCompletionClient implements StreamingChatCompletionClient {
@@ -173,7 +198,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 			throw new Error("First message must be the system role, got " + messages[0].role)
 		}
 		try {
-			const response = await this.makeRequest(messages, options, false)
+			const response = await this.makeRequest(messages, options)
 			const newMessage = (await response.json) as Message
 			return {
 				content: newMessage.content[0].text,
@@ -197,7 +222,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 			{ role: "user", content: userPrompt, attachedContent: [] },
 			{ role: "assistant", content: "{", attachedContent: [] }, // force valid JSON output
 		]
-		const response = await this.makeRequest(messages, options, false)
+		const response = await this.makeRequest(messages, options)
 		const newMessage = (await response.json) as Message
 		try {
 			return JSON.parse("{" + newMessage.content[0].text) as T
@@ -211,7 +236,6 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 	async makeRequest(
 		messages: ChatMessage[],
 		options: CompletionOptions,
-		stream: boolean,
 	): Promise<RequestUrlResponse> {
 		// Anthropic API doesn't set CORS headers correctly, so we can't use the new fetch API here.
 		// Obsidian's requestUrl() doesn't enforce CORS.
@@ -224,7 +248,7 @@ export class AnthropicChatCompletionClient implements StreamingChatCompletionCli
 				"x-api-key": this.apiKey,
 			},
 			body: JSON.stringify({
-				stream: stream,
+				stream: false,
 				model: this.model,
 				temperature: temperature(options.temperature),
 				max_tokens: options.maxTokens,

@@ -39,6 +39,7 @@ const commonOptions = {
 	entryPoints: ["src/main.ts"],
 	bundle: true,
 	external: [
+		"node:http",
 		"node:https",
 		"node:stream",
 		"node:path",

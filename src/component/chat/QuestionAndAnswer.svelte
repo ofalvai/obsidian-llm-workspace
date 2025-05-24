@@ -2,7 +2,7 @@
 	import { Notice, TFile } from "obsidian"
 	import type { Conversation } from "src/rag/conversation"
 	import type { QueryResponse } from "src/rag/synthesizer"
-	import Error from "../Error.svelte"
+	import ErrorComponent from "../ErrorComponent.svelte"
 	import Loading from "../obsidian/Loading.svelte"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
 	import ObsidianMarkdown from "../obsidian/ObsidianMarkdown.svelte"
@@ -138,7 +138,7 @@
 				</div>
 			{/if}
 			{#if conversation.error}
-				<Error body={conversation.error} />
+				<ErrorComponent body={conversation.error} />
 			{/if}
 		</div>
 	{:else}

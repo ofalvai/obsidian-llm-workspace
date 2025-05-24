@@ -93,5 +93,5 @@ Response format: JSON with the following schema:
 		}
 	]
 }
-Remember, certain characters need to be escaped in JSON strings.
+Remember, certain characters need to be escaped in JSON strings. Also, JSON doesn't support comments, so don't include any in your response.
 `

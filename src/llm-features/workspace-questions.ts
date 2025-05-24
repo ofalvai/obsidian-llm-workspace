@@ -25,7 +25,7 @@ export async function workspaceQuestions(
 
 	const options: CompletionOptions = {
 		temperature: "creative",
-		maxTokens: 1024,
+		maxTokens: 4096,
 	}
 	const result = await client.createJSONCompletion<WorkspaceQuestionHolder>(
 		WORKSPACE_QUESTIONS_PROMPT,
