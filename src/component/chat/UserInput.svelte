@@ -17,9 +17,8 @@
 		onNewConversation: () => void
 	} = $props()
 
-	const keyboardHint = "⇧ + ⏎: line break"
-	const rowCountDefault = 2
-	const rowCountExpanded = 8
+	const rowCountDefault = 1
+	const rowCountExpanded = 5
 
 	let textarea: HTMLTextAreaElement
 	let query = $state("")
@@ -153,11 +152,7 @@
 					onInlineInclude(cursorPos, true)
 				}
 			}}
-			placeholder={(isConversationActive
-				? "Continue conversation..."
-				: "Start a question...") +
-				"\n" +
-				keyboardHint}
+			placeholder={isConversationActive ? "Continue conversation..." : "Start a question..."}
 		></textarea>
 		<!-- Bottom toolbar -->
 		<!-- svelte-ignore a11y_click_events_have_key_events -->

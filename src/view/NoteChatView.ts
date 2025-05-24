@@ -1,8 +1,9 @@
 import { ItemView, WorkspaceLeaf, type ViewStateResult } from "obsidian"
 import NoteChat from "src/component/NoteChat.svelte"
 import type { LlmPluginSettings } from "src/config/settings"
+import type LlmPlugin from "src/main"
 import { LlmDexie } from "src/storage/db"
-import { appStore, settingsStore, viewStore } from "src/utils/obsidian"
+import { appStore, pluginStore, settingsStore, viewStore } from "src/utils/obsidian"
 import { mount, unmount } from "svelte"
 
 export const VIEW_TYPE_NOTE_CHAT = "llm-note-chat-view"
@@ -15,18 +16,20 @@ export type NoteChatViewState = {
 
 export class NoteChatView extends ItemView {
 	settings: LlmPluginSettings
+	plugin: LlmPlugin
 
 	db: LlmDexie
 
 	filePath?: string
 
-	component!: Record<string, any>
+	component!: Record<string, unknown>
 	viewTitle = "LLM note chat"
 	navigation = false
 
-	constructor(leaf: WorkspaceLeaf, settings: LlmPluginSettings, db: LlmDexie) {
+	constructor(leaf: WorkspaceLeaf, settings: LlmPluginSettings, plugin: LlmPlugin, db: LlmDexie) {
 		super(leaf)
 		this.settings = settings
+		this.plugin = plugin
 		this.db = db
 	}
 
@@ -46,6 +49,7 @@ export class NoteChatView extends ItemView {
 		settingsStore.set(this.settings)
 		appStore.set(this.app)
 		viewStore.set(this)
+		pluginStore.set(this.plugin)
 
 		this.addAction("file-input", "Open note", () => {
 			if (this.filePath) {

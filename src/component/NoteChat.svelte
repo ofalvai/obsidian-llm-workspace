@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { TFile } from "obsidian"
-	import { llmClient } from "src/llm-features/client"
+	import { llmClient } from "src/llm-features/llm-client"
 	import { conversationStore } from "src/llm-features/conversation"
 	import type { CompletionOptions } from "src/rag/llm/common"
 	import { SingleNoteQueryEngine, type QueryEngine } from "src/rag/query-engine"

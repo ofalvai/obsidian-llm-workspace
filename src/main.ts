@@ -1,5 +1,5 @@
 import { Notice, Plugin, TFolder, WorkspaceLeaf } from "obsidian"
-import { DEFAULT_SETTINGS, LlmSettingTab, type LlmPluginSettings } from "src/config/settings"
+import { DEFAULT_SETTINGS, type LlmPluginSettings } from "src/config/settings"
 import { VectorStoreIndex } from "src/rag/vectorstore"
 import { LlmDexie } from "src/storage/db"
 import { ObsidianNoteReconciler } from "src/utils/reconciler"
@@ -7,6 +7,7 @@ import { NoteContextView, VIEW_TYPE_NOTE_CONTEXT } from "src/view/NoteContextVie
 import { VIEW_TYPE_WORKSPACE, WorkspaceView } from "src/view/WorkspaceView"
 import { settingsStore } from "./utils/obsidian"
 import { NoteChatView, VIEW_TYPE_NOTE_CHAT } from "./view/NoteChatView"
+import { LlmSettingTab } from "./view/Settings"
 import { showSuggestWorkspaceModal } from "./view/SuggestWorkspaceModal"
 
 export default class LlmPlugin extends Plugin {
@@ -113,7 +114,48 @@ export default class LlmPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())
+		const persistedSettings = await this.loadData()
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, persistedSettings)
+
+		
+		// Migrate old settings to new ones
+		if (!persistedSettings) {
+			settingsStore.set(this.settings)
+			return
+		}
+
+		if ("anthropicApikey" in persistedSettings) {
+			this.settings.providerSettings.anthropic.apiKey = persistedSettings.anthropicApikey
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			delete (this.settings as any).anthropicApikey
+			await this.saveSettings()
+		}
+
+		if ("openAIApiKey" in persistedSettings) {
+			this.settings.providerSettings.openai.apiKey = persistedSettings.openAIApiKey
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			delete (this.settings as any).openAIApiKey
+			await this.saveSettings()
+		}
+
+		if (typeof persistedSettings.questionAndAnswerModel == "string") {
+			const modelString = persistedSettings.questionAndAnswerModel
+			this.settings.questionAndAnswerModel = {
+				model: modelString,
+				provider: modelString.startsWith("gpt-") ? "OpenAI" : "Anthropic",
+			}
+			await this.saveSettings()
+		}
+
+		if (typeof persistedSettings.noteContextModel == "string") {
+			const modelString = persistedSettings.noteContextModel
+			this.settings.noteContextModel = {
+				model: modelString,
+				provider: modelString.startsWith("gpt-") ? "OpenAI" : "Anthropic",
+			}
+			await this.saveSettings()
+		}
+
 		settingsStore.set(this.settings)
 	}
 
@@ -129,6 +171,7 @@ export default class LlmPlugin extends Plugin {
 				new NoteContextView(
 					leaf,
 					this.settings,
+					this,
 					this.db,
 					(path) => this.launchNoteChatView(path),
 					(path) => this.launchWorkspaceView(path),
@@ -136,11 +179,11 @@ export default class LlmPlugin extends Plugin {
 		)
 		this.registerView(
 			VIEW_TYPE_WORKSPACE,
-			(leaf) => new WorkspaceView(leaf, this.settings, this.db),
+			(leaf) => new WorkspaceView(leaf, this.settings, this, this.db),
 		)
 		this.registerView(
 			VIEW_TYPE_NOTE_CHAT,
-			(leaf) => new NoteChatView(leaf, this.settings, this.db),
+			(leaf) => new NoteChatView(leaf, this.settings, this, this.db),
 		)
 	}
 

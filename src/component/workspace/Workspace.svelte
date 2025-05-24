@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { liveQuery } from "dexie"
 	import { Notice, TFile } from "obsidian"
-	import { llmClient } from "src/llm-features/client"
 	import { conversationStore } from "src/llm-features/conversation"
+	import { embeddingClient } from "src/llm-features/embedding-client"
+	import { llmClient } from "src/llm-features/llm-client"
 	import {
 		workspaceQuestions,
 		type WorkspaceQuestion,
 	} from "src/llm-features/workspace-questions"
-	import type { CompletionOptions, EmbeddingClient } from "src/rag/llm/common"
-	import { OpenAIEmbeddingClient } from "src/rag/llm/openai"
+	import type { CompletionOptions } from "src/rag/llm/common"
 	import { NodeParser } from "src/rag/node"
 	import { RetrieverQueryEngine, type QueryEngine } from "src/rag/query-engine"
 	import { EmbeddingVectorRetriever } from "src/rag/retriever"
@@ -24,7 +24,7 @@
 		settingsStore,
 	} from "src/utils/obsidian"
 	import { readable } from "svelte/store"
-	import Error from "../Error.svelte"
+	import ErrorComponent from "../ErrorComponent.svelte"
 	import TailwindCss from "../TailwindCSS.svelte"
 	import ConfigValue from "../chat/ConfigValue.svelte"
 	import ConversationStyle from "../chat/ConversationStyle.svelte"
@@ -70,11 +70,8 @@
 			paragraphSeparator: "\n\n",
 		}),
 	)
-	let embeddingClient: EmbeddingClient = $derived(
-		new OpenAIEmbeddingClient($settingsStore.openAIApiKey),
-	)
 	let retriever = $derived(
-		new EmbeddingVectorRetriever(vectorStore, embeddingClient, {
+		new EmbeddingVectorRetriever(vectorStore, $embeddingClient, {
 			limit: $settingsStore.retrievedNodeCount,
 		}),
 	)
@@ -212,7 +209,7 @@
 
 			for (let i = 0; i < nodes.length; i++) {
 				const node = nodes[i]
-				const embedding = await embeddingClient.embedNode(node)
+				const embedding = await $embeddingClient.embedNode(node)
 				await vectorStore.addNode(node, embedding, workspaceFile.path)
 				indexingProgress = (100 * (i + 2)) / nodes.length
 			}
@@ -235,7 +232,7 @@
 			}
 			const text = await $appStore.vault.cachedRead(file)
 			for (const node of nodeParser.parse(text, file.path)) {
-				const embedding = await embeddingClient.embedNode(node)
+				const embedding = await $embeddingClient.embedNode(node)
 				await vectorStore.addNode(node, embedding, workspaceFile.path)
 			}
 		} catch (e) {
@@ -283,7 +280,7 @@
 			onRebuildAll={rebuildAll}
 		/>
 		{#if indexingError}
-			<Error body={indexingError.toString()} />
+			<ErrorComponent body={indexingError.toString()} />
 		{/if}
 		<QuestionAndAnswer
 			conversation={$conversation}

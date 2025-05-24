@@ -45,6 +45,7 @@ module.exports = {
 		"borderWidth",
 		"borderColor",
 		"borderRadius",
+		"borderSpacing",
 		"boxShadow",
 		"cursor",
 		"display",
