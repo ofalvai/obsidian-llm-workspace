@@ -63,6 +63,31 @@ interface MessageStopEvent {
 	type: "message_stop"
 }
 
+export const testConnection = async (apiKey: string): Promise<boolean> => {
+	if (!apiKey) {
+		return Promise.reject("No API key provided")
+	}
+
+	const response = await requestUrl({
+		url: "https://api.anthropic.com/v1/models",
+		method: "GET",
+		headers: {
+			"anthropic-version": "2023-06-01",
+			"x-api-key": apiKey,
+		},
+		throw: false, // We handle the error ourselves, default handling swallows the error
+	})
+	if (response.status < 200 || response.status >= 400) {
+		if (response.json && response.json.error) {
+			return Promise.reject(
+				"Failed to connect to Anthropic API: " + response.json.error.message,
+			)
+		}
+		return Promise.reject("Failed to connect to Anthropic API: " + response.text)
+	}
+	return response.json && response.json.data && response.json.data.length > 0
+}
+
 // We are using the REST API directly because the Anthropic SDK refuses to run
 // in the browser context: https://github.com/anthropics/anthropic-sdk-typescript/issues/28
 export class AnthropicChatCompletionClient implements StreamingChatCompletionClient {

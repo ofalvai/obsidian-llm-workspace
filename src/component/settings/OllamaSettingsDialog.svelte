@@ -146,7 +146,7 @@
 		You can customize model-specific settings in the <a
 			href="https://github.com/ollama/ollama/blob/main/docs/modelfile.md#parameter"
 			>Ollama Modelfile</a
-		>. Requests override the following parameters:
+		>. The following parameters are sent in LLM requests:
 	</p>
 	<ul>
 		<li><code>temperature</code></li>
