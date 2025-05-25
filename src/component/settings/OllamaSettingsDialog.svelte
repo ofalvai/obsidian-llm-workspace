@@ -88,8 +88,6 @@
 
 		closeDialog()
 	}
-
-	// If too many requests are sent to the server, it will respond with a 503 error indicating the server is overloaded. You can adjust how many requests may be queue by setting OLLAMA_MAX_QUEUE.
 </script>
 
 <div>
