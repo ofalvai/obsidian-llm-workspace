@@ -39,7 +39,7 @@ export const DEFAULT_SETTINGS: LlmPluginSettings = {
 	},
 	embeddingModel: {
 		provider: "OpenAI",
-		model: "text-embedding-3-small"
+		model: "text-embedding-3-small",
 	},
 
 	promptFolder: "Resources/LLM/Prompts",
@@ -61,10 +61,10 @@ export const MODEL_CONFIGS: ModelConfiguration[] = [
 	{ provider: "OpenAI", model: "gpt-4-turbo-2024-04-09" },
 	{ provider: "OpenAI", model: "gpt-4o-2024-08-06" },
 	{ provider: "OpenAI", model: "gpt-4o-mini-2024-07-18" },
-  { provider: "Anthropic", model: "claude-3-5-haiku-20241022" },
+	{ provider: "Anthropic", model: "claude-3-5-haiku-20241022" },
 	{ provider: "Anthropic", model: "claude-3-5-sonnet-20241022" },
 	{ provider: "Anthropic", model: "claude-3-opus-20240229" },
-  { provider: "Anthropic", model: "claude-3-7-sonnet-20250219" },
+	{ provider: "Anthropic", model: "claude-3-7-sonnet-20250219" },
 ]
 
 export const EMBEDDING_MODEL_CONFIGS: ModelConfiguration[] = [

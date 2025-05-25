@@ -8,7 +8,7 @@ export default defineConfig({
 		exclude: ["node_modules", "out", ".obsidian"],
 
 		// Use threads for better performance
-		threads: true,
+		pool: "threads",
 
 		coverage: {
 			provider: "v8",

@@ -1,4 +1,4 @@
-import type { Vault, Workspace } from "obsidian"
+import type { Vault } from "obsidian"
 import type { EmbeddedFileInfo } from "src/component/types"
 import { WORKSPACE_QUESTIONS_PROMPT } from "src/config/prompts"
 import type { ChatCompletionClient, CompletionOptions } from "src/rag/llm/common"
