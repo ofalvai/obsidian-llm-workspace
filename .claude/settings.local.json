@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(pnpm test:*)",
-      "WebFetch(domain:vite.dev)"
+      "WebFetch(domain:vite.dev)",
+      "Bash(pnpm run lint:*)"
     ],
     "deny": []
   }
