@@ -27,6 +27,12 @@ export const llmClient = derived<Writable<LlmPluginSettings>, StreamingChatCompl
 					$settingsStore.providerSettings.ollama.url,
 					modelConfig.model,
 				)
+			case "OpenAICompatible":
+				return new OpenAIChatCompletionClient(
+					$settingsStore.providerSettings.openaiCompatible.apiKey,
+					modelConfig.model,
+					$settingsStore.providerSettings.openaiCompatible.url,
+				)
 			default:
 				throw new Error("Unrecognized provider: " + provider)
 		}

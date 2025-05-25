@@ -54,6 +54,10 @@ export const DEFAULT_SETTINGS: LlmPluginSettings = {
 		ollama: {
 			url: "",
 		},
+		openaiCompatible: {
+			url: "",
+			apiKey: "",
+		},
 	},
 }
 
@@ -64,9 +68,11 @@ export const MODEL_CONFIGS: ModelConfiguration[] = [
 	{ provider: "Anthropic", model: "claude-3-7-sonnet-20250219" },
 	{ provider: "Anthropic", model: "claude-sonnet-4-20250514" },
 	{ provider: "Anthropic", model: "claude-opus-4-20250514" },
+	{ provider: "OpenAICompatible", model: "openai-compatible-model" },
 ]
 
 export const EMBEDDING_MODEL_CONFIGS: ModelConfiguration[] = [
 	{ provider: "OpenAI", model: "text-embedding-3-small" },
 	{ provider: "OpenAI", model: "text-embedding-3" },
+	{ provider: "OpenAICompatible", model: "openai-compatible-embedding" },
 ]

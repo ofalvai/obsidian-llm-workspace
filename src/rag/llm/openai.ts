@@ -12,8 +12,8 @@ import {
 	type Temperature,
 } from "./common"
 
-export const testConnection = async (apiKey: string): Promise<boolean> => {
-	const client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
+export const testConnection = async (apiKey: string, baseUrl?: string): Promise<boolean> => {
+	const client = new OpenAI({ apiKey, baseURL: baseUrl, dangerouslyAllowBrowser: true })
 	const list = await client.models.list()
 	return list.data.length > 0
 }
@@ -23,8 +23,8 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 	private apiKey: string
 	private model: string
 
-	constructor(apiKey: string, model: string) {
-		this.client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
+	constructor(apiKey: string, model: string, baseUrl?: string) {
+		this.client = new OpenAI({ apiKey, baseURL: baseUrl, dangerouslyAllowBrowser: true })
 		this.apiKey = apiKey
 		this.model = model
 	}
@@ -150,8 +150,8 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 	private apiKey: string
 	private embeddingModel: string
 
-	constructor(apiKey: string, embeddingModel: string, chatClient: ChatCompletionClient) {
-		this.openaiClient = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
+	constructor(apiKey: string, embeddingModel: string, chatClient: ChatCompletionClient, baseUrl?: string) {
+		this.openaiClient = new OpenAI({ apiKey, baseURL: baseUrl, dangerouslyAllowBrowser: true })
 		this.chatClient = chatClient
 		this.apiKey = apiKey
 		this.embeddingModel = embeddingModel
