@@ -92,7 +92,7 @@ export class VectorStoreIndex {
 	}
 }
 
-function cosineSimilarity(a: number[], b: number[]): number {
+export function cosineSimilarity(a: number[], b: number[]): number {
 	// Assuming both vectors are normalized to [0..1]
 	let dotProduct = 0
 	for (let i = 0; i < a.length; i++) {
