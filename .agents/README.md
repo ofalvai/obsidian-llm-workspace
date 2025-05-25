@@ -2,6 +2,8 @@
 
 See user-facing docs at the root README.md.
 
+See overall architecture and dev workflow at [Architecture.md](./Architecture.md).
+
 ### Core Components
 
 **RAG Pipeline** (`src/rag/`):

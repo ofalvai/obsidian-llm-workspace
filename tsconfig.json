@@ -1,4 +1,5 @@
 {
+	"extends": "@tsconfig/svelte/tsconfig.json",
 	"compilerOptions": {
 		"allowJs": true,
 		"allowSyntheticDefaultImports": true,
@@ -25,10 +26,9 @@
 			"node"
 		]
 	},
-	"extends": "@tsconfig/svelte/tsconfig.json",
 	"include": [
 		"**/*.ts",
 		"**/*.tsx",
-		"**/*.svelte",
+		"**/*.svelte"
 	]
 }

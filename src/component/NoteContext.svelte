@@ -33,6 +33,7 @@
 			openFile = f
 		}
 		$appStore.workspace.on("file-open", onOpen)
+		// @ts-expect-error: "file-open" event's signature doesn't match `unknown[]` because of the `TFile | null` type
 		return () => $appStore.workspace.off("file-open", onOpen)
 	})
 
@@ -93,7 +94,7 @@
 	}
 
 	$effect(() => {
-		if (!openFile || $settingsStore.openAIApiKey === "") {
+		if (!openFile) {
 			return
 		}
 
