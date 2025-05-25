@@ -1,4 +1,27 @@
 
+<a name="1.1.0"></a>
+## [1.1.0](https://github.com/ofalvai/obsidian-llm-plugin/compare/1.0.2...1.1.0) (2025-05-25)
+
+### Features
+
+* Add Claude 3.7 Sonnet, replace Claude 3 Haiku with 3.5 Haiku ([393ee92](https://github.com/ofalvai/obsidian-llm-plugin/commit/393ee9297515b77126384e7418bd6bcdef74e553))
+* Redesign UserInput component ([2431447](https://github.com/ofalvai/obsidian-llm-plugin/commit/2431447e29f111a0fed6e8bacdccffc4bf6411cc))
+* Ollama integration ([#92](https://github.com/ofalvai/obsidian-llm-plugin/issues/92)) ([ef9fb64](https://github.com/ofalvai/obsidian-llm-plugin/commit/ef9fb64192bb071cf5e65c437a0fffb6163c819a))
+* Use latest flagship Anthropic models ([d82309a](https://github.com/ofalvai/obsidian-llm-plugin/commit/d82309adfe13f7497fc30b98fabe4d8b74cfa6ab))
+* Use latest flagship OpenAI models ([3fe3e1a](https://github.com/ofalvai/obsidian-llm-plugin/commit/3fe3e1a516b87b3ad0c1b556691cf78d89cb7594))
+
+### Chore
+
+* Update changelog ([87a3622](https://github.com/ofalvai/obsidian-llm-plugin/commit/87a3622a2f49cb66383e2b0b59274884c02b26e9))
+* Set up Vitest ([9fb036d](https://github.com/ofalvai/obsidian-llm-plugin/commit/9fb036db20ee23714e3f8d2172aadf006d2b6a0e))
+* Add VectorStore tests ([6ddf0a2](https://github.com/ofalvai/obsidian-llm-plugin/commit/6ddf0a2bf8277d97570c66b641d7e25bc9bf16dc))
+* Add conversationStore tests ([6b86398](https://github.com/ofalvai/obsidian-llm-plugin/commit/6b86398d887b82bdccb398964514a3735654c7cf))
+* Set up agent docs for Claude Code and Copilot ([e8e8599](https://github.com/ofalvai/obsidian-llm-plugin/commit/e8e85999c57d4f55c4bf8881c4a723610576490e))
+* Add workspace-questions tests ([0e03c40](https://github.com/ofalvai/obsidian-llm-plugin/commit/0e03c40b86c741a452e77b0c8cf5064eeedd9400))
+* Fix type checking issues ([758121a](https://github.com/ofalvai/obsidian-llm-plugin/commit/758121aff3df539d270196fafb39d7b36e9e48b4))
+* Upgrade Svelte ([33d6352](https://github.com/ofalvai/obsidian-llm-plugin/commit/33d63525192cd51f243e43eb06e6ad7fbffd81e9))
+
+
 <a name="1.0.2"></a>
 ## [1.0.2](https://github.com/ofalvai/obsidian-llm-plugin/compare/1.0.1...1.0.2) (2024-11-29)
 
@@ -24,12 +47,24 @@
 
 ### Chore
 
-* Rename repo in readme ([2648fc0](https://github.com/ofalvai/obsidian-llm-plugin/commit/2648fc0f33d95ed5d21738ed0054646a46be38e5))
-* add more documentation ([d3aa452](https://github.com/ofalvai/obsidian-llm-plugin/commit/d3aa452bdd5b3d16f5f3e343c241aae4726bea10))
 * Tooling fixes ([cce1aab](https://github.com/ofalvai/obsidian-llm-plugin/commit/cce1aab9e75441ac3c4afee1d8619305f81bfbc4))
+* add more documentation ([d3aa452](https://github.com/ofalvai/obsidian-llm-plugin/commit/d3aa452bdd5b3d16f5f3e343c241aae4726bea10))
+* Rename repo in readme ([2648fc0](https://github.com/ofalvai/obsidian-llm-plugin/commit/2648fc0f33d95ed5d21738ed0054646a46be38e5))
 
 
 <a name="1.0.0"></a>
 ## 1.0.0 (2024-11-17)
 
+### Pull Requests
+
+* Merge pull request [#38](https://github.com/ofalvai/obsidian-llm-plugin/issues/38) from ofalvai/renovate/postcss-8.x-lockfile
+* Merge pull request [#37](https://github.com/ofalvai/obsidian-llm-plugin/issues/37) from ofalvai/renovate/node-16.x-lockfile
+* Merge pull request [#48](https://github.com/ofalvai/obsidian-llm-plugin/issues/48) from ofalvai/renovate/typescript-eslint-monorepo
+* Merge pull request [#36](https://github.com/ofalvai/obsidian-llm-plugin/issues/36) from ofalvai/renovate/tsconfig-svelte-5.x-lockfile
+* Merge pull request [#39](https://github.com/ofalvai/obsidian-llm-plugin/issues/39) from ofalvai/renovate/prettier-plugin-svelte-3.x-lockfile
+* Merge pull request [#42](https://github.com/ofalvai/obsidian-llm-plugin/issues/42) from ofalvai/renovate/svelte-preprocess-5.x-lockfile
+* Merge pull request [#43](https://github.com/ofalvai/obsidian-llm-plugin/issues/43) from ofalvai/renovate/tailwindcss-3.x-lockfile
+* Merge pull request [#49](https://github.com/ofalvai/obsidian-llm-plugin/issues/49) from ofalvai/renovate/openai-4.x-lockfile
+* Merge pull request [#47](https://github.com/ofalvai/obsidian-llm-plugin/issues/47) from ofalvai/renovate/esbuild-0.x
+* Merge pull request [#46](https://github.com/ofalvai/obsidian-llm-plugin/issues/46) from ofalvai/svelte-5
 

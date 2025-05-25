@@ -5,7 +5,7 @@
 {{ range .CommitGroups -}}
 ### {{ .Title }}
 
-{{ range .Commits -}}
+{{ range .Commits | reverse -}}
 * {{ .Subject }} ([{{ .Hash.Short }}]({{ $.Info.RepositoryURL }}/commit/{{ .Hash.Long }}))
 {{ end }}
 {{ end -}}
