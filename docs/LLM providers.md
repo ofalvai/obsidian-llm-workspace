@@ -23,3 +23,20 @@ Features:
 
 - ✅ Streaming responses
 - ✅ Chat and embedding models
+
+### OpenAI-compatible
+
+This provider allows connecting to an API that offers OpenAI-compatible LLM APIs, served by arbitrary models.
+
+Features:
+
+- ✅ Streaming responses
+- ✅ Chat and embedding models
+- ✅ Custom base URL
+
+Configuration:
+
+- Server URL: The base URL of the OpenAI-compatible API.
+- API Key: The access token for the OpenAI-compatible API.
+
+To configure the OpenAI-compatible provider, go to the plugin settings and enter the Server URL and API Key. You can then list available models and select one for use.

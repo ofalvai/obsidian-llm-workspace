@@ -3,6 +3,7 @@ import AnthropicSettingsDialog from "src/component/settings/AnthropicSettingsDia
 import EmbeddingChangeDialog from "src/component/settings/EmbeddingChangeDialog.svelte"
 import OllamaSettingsDialog from "src/component/settings/OllamaSettingsDialog.svelte"
 import OpenAiSettingsDialog from "src/component/settings/OpenAISettingsDialog.svelte"
+import OpenAICompatibleSettingsDialog from "src/component/settings/OpenAICompatibleSettingsDialog.svelte"
 import type { DialogProps } from "src/component/settings/types"
 import type { Provider } from "src/config/providers"
 import {
@@ -22,9 +23,10 @@ const PROVIDER_COMPONENT_MAP: Map<Provider, Component<DialogProps>> = new Map([
 	["Ollama", OllamaSettingsDialog],
 	["OpenAI", OpenAiSettingsDialog],
 	["Anthropic", AnthropicSettingsDialog],
+	["OpenAICompatible", OpenAICompatibleSettingsDialog],
 ])
 
-const PROVIDERS_WITH_CUSTOM_SETTINGS = new Set<Provider>(["Ollama"])
+const PROVIDERS_WITH_CUSTOM_SETTINGS = new Set<Provider>(["Ollama", "OpenAICompatible"])
 
 export class LlmSettingTab extends PluginSettingTab {
 	plugin: LlmPlugin
@@ -57,6 +59,9 @@ export class LlmSettingTab extends PluginSettingTab {
 			.addButton((button) => {
 				button.setButtonText("Ollama").onClick(() => {
 					this.openProviderSettingsModal("Ollama", null)
+				})
+				button.setButtonText("OpenAICompatible").onClick(() => {
+					this.openProviderSettingsModal("OpenAICompatible", null)
 				})
 			})
 
