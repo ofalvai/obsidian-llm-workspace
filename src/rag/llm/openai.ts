@@ -49,7 +49,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 				}
 			}),
 			stream_options: { include_usage: true },
-			max_tokens: options.maxTokens,
+			max_completion_tokens: options.maxTokens,
 			temperature: temperature(options.temperature),
 		})
 
@@ -88,7 +88,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 					content: messageWithAttachmens(message.content, message.attachedContent),
 				}
 			}),
-			max_tokens: options.maxTokens,
+			max_completion_tokens: options.maxTokens,
 			temperature: temperature(options.temperature),
 		})
 
@@ -119,7 +119,7 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 				},
 			],
 			response_format: { type: "json_object" },
-			max_tokens: options.maxTokens,
+			max_completion_tokens: options.maxTokens,
 			temperature: temperature(options.temperature),
 		})
 

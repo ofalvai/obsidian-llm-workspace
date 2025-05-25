@@ -31,11 +31,11 @@ export const DEFAULT_SETTINGS: LlmPluginSettings = {
 
 	questionAndAnswerModel: {
 		provider: "OpenAI",
-		model: "gpt-4o-mini-2024-07-18",
+		model: "gpt-4.1-mini-2025-04-14",
 	},
 	noteContextModel: {
 		provider: "OpenAI",
-		model: "gpt-4o-mini-2024-07-18",
+		model: "gpt-4.1-mini-2025-04-14",
 	},
 	embeddingModel: {
 		provider: "OpenAI",
@@ -58,9 +58,8 @@ export const DEFAULT_SETTINGS: LlmPluginSettings = {
 }
 
 export const MODEL_CONFIGS: ModelConfiguration[] = [
-	{ provider: "OpenAI", model: "gpt-4-turbo-2024-04-09" },
-	{ provider: "OpenAI", model: "gpt-4o-2024-08-06" },
-	{ provider: "OpenAI", model: "gpt-4o-mini-2024-07-18" },
+	{ provider: "OpenAI", model: "gpt-4.1-mini-2025-04-14" },
+	{ provider: "OpenAI", model: "gpt-4.1-2025-04-14" },
 	{ provider: "Anthropic", model: "claude-3-5-haiku-20241022" },
 	{ provider: "Anthropic", model: "claude-3-7-sonnet-20250219" },
 	{ provider: "Anthropic", model: "claude-sonnet-4-20250514" },
