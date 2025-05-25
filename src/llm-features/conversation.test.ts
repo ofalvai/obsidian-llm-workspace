@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, vi, beforeEach } from "vitest"
 import { get } from "svelte/store"
-import { conversationStore } from "./conversation"
-import type { QueryEngine } from "../rag/query-engine"
-import type { StreamingChatCompletionClient, ChatStreamEvent } from "../rag/llm/common"
-import type { QueryResponse } from "../rag/synthesizer"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+import type { ChatStreamEvent, StreamingChatCompletionClient } from "../rag/llm/common"
 import type { Node } from "../rag/node"
+import type { QueryEngine } from "../rag/query-engine"
+import type { QueryResponse } from "../rag/synthesizer"
+import { conversationStore } from "./conversation"
 
 // Mock the .last() method on Array prototype for testing
 declare global {
@@ -44,9 +44,9 @@ describe("conversationStore", () => {
 	describe("resetConversation", () => {
 		it("should reset the conversation to null", () => {
 			const store = conversationStore(mockQueryEngine, mockChatClient, mockCompletionOptions)
-			
+
 			store.resetConversation()
-			
+
 			expect(get(store)).toBeNull()
 		})
 	})
@@ -80,7 +80,10 @@ describe("conversationStore", () => {
 				error: null,
 			})
 
-			expect(mockQueryEngine.query).toHaveBeenCalledWith("What is the answer?", attachedContent)
+			expect(mockQueryEngine.query).toHaveBeenCalledWith(
+				"What is the answer?",
+				attachedContent,
+			)
 		})
 
 		it("should handle multiple query updates during streaming", async () => {
@@ -106,7 +109,7 @@ describe("conversationStore", () => {
 			vi.mocked(mockQueryEngine.query).mockReturnValue(mockIterator)
 
 			const store = conversationStore(mockQueryEngine, mockChatClient, mockCompletionOptions)
-			
+
 			await store.submitMessage("What is the answer?", [])
 
 			const conversation = get(store)
@@ -124,11 +127,13 @@ describe("conversationStore", () => {
 			vi.mocked(mockQueryEngine.query).mockReturnValue(mockIterator)
 
 			const store = conversationStore(mockQueryEngine, mockChatClient, mockCompletionOptions)
-			
+
 			await store.submitMessage("What is the answer?", [])
 
 			const conversation = get(store)
-			expect(conversation?.error?.message).toBe("Unauthorized. Did you set the right API key?")
+			expect(conversation?.error?.message).toBe(
+				"Unauthorized. Did you set the right API key?",
+			)
 			expect(conversation?.isLoading).toBe(false)
 		})
 
@@ -142,7 +147,7 @@ describe("conversationStore", () => {
 			vi.mocked(mockQueryEngine.query).mockReturnValue(mockIterator)
 
 			const store = conversationStore(mockQueryEngine, mockChatClient, mockCompletionOptions)
-			
+
 			await store.submitMessage("What is the answer?", [])
 
 			const conversation = get(store)
@@ -182,7 +187,9 @@ describe("conversationStore", () => {
 				}
 			})()
 
-			vi.mocked(mockChatClient.createStreamingChatCompletion).mockReturnValue(mockStreamIterator)
+			vi.mocked(mockChatClient.createStreamingChatCompletion).mockReturnValue(
+				mockStreamIterator,
+			)
 
 			// Submit follow-up message
 			await store.submitMessage("Tell me more", [])
@@ -225,7 +232,7 @@ describe("conversationStore", () => {
 						attachedContent: [],
 					},
 				],
-				mockCompletionOptions
+				mockCompletionOptions,
 			)
 		})
 
@@ -258,7 +265,9 @@ describe("conversationStore", () => {
 				}
 			})()
 
-			vi.mocked(mockChatClient.createStreamingChatCompletion).mockReturnValue(mockStreamIterator)
+			vi.mocked(mockChatClient.createStreamingChatCompletion).mockReturnValue(
+				mockStreamIterator,
+			)
 
 			await store.submitMessage("Tell me more", [])
 
@@ -289,7 +298,9 @@ describe("conversationStore", () => {
 				throw streamingError
 			})()
 
-			vi.mocked(mockChatClient.createStreamingChatCompletion).mockReturnValue(mockStreamIterator)
+			vi.mocked(mockChatClient.createStreamingChatCompletion).mockReturnValue(
+				mockStreamIterator,
+			)
 
 			await store.submitMessage("Tell me more", [])
 
