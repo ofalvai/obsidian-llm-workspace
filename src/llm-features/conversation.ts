@@ -7,6 +7,7 @@ import type {
 } from "../rag/llm/common"
 import type { QueryEngine } from "../rag/query-engine"
 import type { Node } from "src/rag/node"
+import { logger } from "src/utils/logger"
 
 export type ConversationStore = Readable<Conversation | null> & {
 	submitMessage: (newMessage: string, attachedContent: Node[]) => Promise<void>
@@ -43,7 +44,7 @@ export const conversationStore = (
 				conversation.isLoading = false
 				store.set(conversation)
 			} catch (e) {
-				console.error(e)
+				logger.error("QueryEngine invoke error", "conversationStore", e)
 				conversation.isLoading = false
 				if (e instanceof Error && e.message === "Unexpected status code: 401") {
 					conversation.error = new Error("Unauthorized. Did you set the right API key?")
