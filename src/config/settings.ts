@@ -62,9 +62,9 @@ export const MODEL_CONFIGS: ModelConfiguration[] = [
 	{ provider: "OpenAI", model: "gpt-4o-2024-08-06" },
 	{ provider: "OpenAI", model: "gpt-4o-mini-2024-07-18" },
 	{ provider: "Anthropic", model: "claude-3-5-haiku-20241022" },
-	{ provider: "Anthropic", model: "claude-3-5-sonnet-20241022" },
-	{ provider: "Anthropic", model: "claude-3-opus-20240229" },
 	{ provider: "Anthropic", model: "claude-3-7-sonnet-20250219" },
+	{ provider: "Anthropic", model: "claude-sonnet-4-20250514" },
+	{ provider: "Anthropic", model: "claude-opus-4-20250514" },
 ]
 
 export const EMBEDDING_MODEL_CONFIGS: ModelConfiguration[] = [
