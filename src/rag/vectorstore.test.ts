@@ -23,8 +23,7 @@ describe('cosineSimilarity', () => {
 		const vector1 = [0.5, 0.5, 0]
 		const vector2 = [0.5, 0, 0.5]
 		
-		// Dot product: 0.5 * 0.5 + 0.5 * 0 + 0 * 0.5 = 0.25
-		expect(cosineSimilarity(vector1, vector2)).toBe(0.25)
+		expect(cosineSimilarity(vector1, vector2)).toBeCloseTo(0.5)
 	})
 
 	it('should handle zero vectors', () => {
@@ -39,8 +38,7 @@ describe('cosineSimilarity', () => {
 		const vector1 = [0.1, 0.2, 0.3, 0.4]
 		const vector2 = [0.4, 0.3, 0.2, 0.1]
 		
-		// Dot product: 0.1*0.4 + 0.2*0.3 + 0.3*0.2 + 0.4*0.1 = 0.04 + 0.06 + 0.06 + 0.04 = 0.2
-		expect(cosineSimilarity(vector1, vector2)).toBeCloseTo(0.2)
+		expect(cosineSimilarity(vector1, vector2)).toBeCloseTo(0.67)
 	})
 
 	it('should handle single dimension vectors', () => {
@@ -48,6 +46,12 @@ describe('cosineSimilarity', () => {
 		const vector2 = [0.6]
 		
 		expect(cosineSimilarity(vector1, vector2)).toBeCloseTo(0.48)
+	})
+	it('should handle non-normalized vectors', () => {
+		const vector1 = [123, 456, 789]
+		const vector2 = [-987, 666, -333]
+		
+		expect(cosineSimilarity(vector1, vector2)).toBeCloseTo(-0.07)
 	})
 })
 

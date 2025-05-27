@@ -1,19 +1,19 @@
 <script lang="ts">
 	import { liveQuery } from "dexie"
 	import { TFile } from "obsidian"
-	import { llmClient } from "src/llm-features/llm-client"
+	import { noteContextLlmClient } from "src/llm-features/llm-client"
 	import { extractKeyTopics, noteSummary } from "src/llm-features/note-context"
 	import type { LlmDexie } from "src/storage/db"
-	import { appStore, settingsStore } from "src/utils/obsidian"
-	import TailwindCss from "./TailwindCSS.svelte"
-	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
 	import {
 		deleteNoteDerivedData,
 		getNoteDerivedData,
 		updateNoteKeyTopics,
 		updateNoteSummary,
 	} from "src/storage/note-context"
+	import { appStore, settingsStore } from "src/utils/obsidian"
+	import TailwindCss from "./TailwindCSS.svelte"
 	import Loading from "./obsidian/Loading.svelte"
+	import ObsidianIcon from "./obsidian/ObsidianIcon.svelte"
 
 	let {
 		db,
@@ -70,7 +70,7 @@
 
 		try {
 			networkLoading = true
-			const summary = await noteSummary(text, $llmClient)
+			const summary = await noteSummary(text, $noteContextLlmClient)
 			await updateNoteSummary(db, f.path, summary)
 		} catch (e) {
 			console.error(e)
@@ -84,7 +84,7 @@
 
 		try {
 			networkLoading = true
-			const topics = await extractKeyTopics(text, $llmClient)
+			const topics = await extractKeyTopics(text, $noteContextLlmClient)
 			await updateNoteKeyTopics(db, f.path, topics)
 		} catch (e) {
 			console.error(e)

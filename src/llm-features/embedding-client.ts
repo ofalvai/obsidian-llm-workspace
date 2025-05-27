@@ -22,6 +22,13 @@ export const embeddingClient = derived(
 					modelConfig.model,
 					$llmClient,
 				)
+			case "OpenAI-compatible":
+				return new OpenAIEmbeddingClient(
+					$settingsStore.providerSettings.openaiCompatible.apiKey,
+					modelConfig.model,
+					$llmClient,
+					$settingsStore.providerSettings.openaiCompatible.baseUrl,
+				)
 			default:
 				throw new Error("Unrecognized provider: " + provider)
 		}

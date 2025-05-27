@@ -20,7 +20,7 @@
 	"packageManager": "pnpm@9.6.0",
 	"dependencies": {
 		"dexie": "4.0.8",
-		"openai": "^4.67.0"
+		"openai": "^4.103.0"
 	},
 	"devDependencies": {
 		"@stylistic/eslint-plugin-js": "^2.8.0",

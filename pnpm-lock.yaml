@@ -12,8 +12,8 @@ importers:
         specifier: 4.0.8
         version: 4.0.8
       openai:
-        specifier: ^4.67.0
-        version: 4.67.1
+        specifier: ^4.103.0
+        version: 4.103.0
     devDependencies:
       '@stylistic/eslint-plugin-js':
         specifier: ^2.8.0
@@ -1232,12 +1232,15 @@ packages:
   once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
 
-  openai@4.67.1:
-    resolution: {integrity: sha512-2YbRFy6qaYRJabK2zLMn4txrB2xBy0KP5g/eoqeSPTT31mIJMnkT75toagvfE555IKa2RdrzJrZwdDsUipsAMw==}
+  openai@4.103.0:
+    resolution: {integrity: sha512-eWcz9kdurkGOFDtd5ySS5y251H2uBgq9+1a2lTBnjMMzlexJ40Am5t6Mu76SSE87VvitPa0dkIAp75F+dZVC0g==}
     hasBin: true
     peerDependencies:
+      ws: ^8.18.0
       zod: ^3.23.8
     peerDependenciesMeta:
+      ws:
+        optional: true
       zod:
         optional: true
 
@@ -2770,7 +2773,7 @@ snapshots:
     dependencies:
       wrappy: 1.0.2
 
-  openai@4.67.1:
+  openai@4.103.0:
     dependencies:
       '@types/node': 18.19.54
       '@types/node-fetch': 2.6.11
