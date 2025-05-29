@@ -54,6 +54,10 @@ export const DEFAULT_SETTINGS: LlmPluginSettings = {
 		ollama: {
 			url: "",
 		},
+		openaiCompatible: {
+			baseUrl: "",
+			apiKey: "",
+		},
 	},
 }
 

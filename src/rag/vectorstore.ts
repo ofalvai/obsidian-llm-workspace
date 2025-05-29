@@ -4,7 +4,7 @@ import type { FilePath } from "src/utils/obsidian"
 
 export interface NodeSimilarity {
 	node: Node
-	
+
 	// cosine similarity between the query and the node, in the [0..1] range
 	similarity: number
 }
@@ -32,7 +32,7 @@ export class VectorStoreIndex {
 	async query(
 		queryEmbedding: number[],
 		workspaceFilePath: string,
-		limit: number
+		limit: number,
 	): Promise<NodeSimilarity[]> {
 		const vectorStoreEntries = await this.db.vectorStore
 			.where("includedInWorkspace")
@@ -86,17 +86,37 @@ export class VectorStoreIndex {
 			.equals(old)
 			.modify((entry: VectorStoreEntry) => {
 				entry.includedInWorkspace = entry.includedInWorkspace.map((path) =>
-					path === old ? new_ : path
+					path === old ? new_ : path,
 				)
 			})
 	}
 }
 
 export function cosineSimilarity(a: number[], b: number[]): number {
-	// Assuming both vectors are normalized to [0..1]
+	if (a.length !== b.length) {
+		return 0
+	}
+
+	if (a.length === 1) {
+		return a[0] * b[0] // For single dimension, just return the product
+	}
+
 	let dotProduct = 0
+	let magnitudeA = 0
+	let magnitudeB = 0
+
 	for (let i = 0; i < a.length; i++) {
 		dotProduct += a[i] * b[i]
+		magnitudeA += a[i] * a[i]
+		magnitudeB += b[i] * b[i]
 	}
-	return dotProduct
+
+	magnitudeA = Math.sqrt(magnitudeA)
+	magnitudeB = Math.sqrt(magnitudeB)
+
+	if (magnitudeA === 0 || magnitudeB === 0) {
+		return 0
+	}
+
+	return dotProduct / (magnitudeA * magnitudeB)
 }

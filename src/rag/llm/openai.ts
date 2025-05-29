@@ -12,32 +12,52 @@ import {
 	type Temperature,
 } from "./common"
 
-export const testConnection = async (apiKey: string): Promise<boolean> => {
-	const client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
+export const testConnection = async (apiKey: string, baseURL?: string): Promise<boolean> => {
+	const client = new OpenAI({ apiKey, baseURL, dangerouslyAllowBrowser: true })
 	const list = await client.models.list()
 	return list.data.length > 0
+}
+
+export const listAvailableModels = async (baseUrl: string, apiKey: string): Promise<string[]> => {
+	const client = new OpenAI({ baseURL: baseUrl, apiKey, dangerouslyAllowBrowser: true })
+	try {
+		const list = await client.models.list()
+		return list.data.map((model) => model.id)
+	} catch (error) {
+		console.error("Failed to list models from OpenAI-compatible API:", error)
+		return []
+	}
 }
 
 export class OpenAIChatCompletionClient implements StreamingChatCompletionClient {
 	private client: OpenAI
 	private apiKey: string
+	private isCustomBaseURL: boolean
 	private model: string
 
-	constructor(apiKey: string, model: string) {
-		this.client = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
+	constructor(apiKey: string, model: string, baseURL?: string) {
+		let _baseURL = baseURL
+		if (baseURL && !baseURL?.endsWith("/v1")) {
+			_baseURL = baseURL + "/v1"
+		}
+		this.client = new OpenAI({ apiKey, baseURL: _baseURL, dangerouslyAllowBrowser: true })
 		this.apiKey = apiKey
+		this.isCustomBaseURL = _baseURL !== undefined
 		this.model = model
 	}
 
 	get displayName(): string {
-		return `OpenAI ${this.model}`
+		return this.isCustomBaseURL
+			? `${this.model} via OpenAI-compatible API`
+			: `OpenAI ${this.model}`
 	}
 
 	async *createStreamingChatCompletion(
 		messages: ChatMessage[],
 		options: CompletionOptions,
 	): AsyncGenerator<ChatStreamEvent> {
-		if (this.apiKey === "") throw new Error("OpenAI API key is not set")
+		if (!this.isCustomBaseURL && this.apiKey === "")
+			throw new Error("OpenAI API key is not set")
 
 		const stream = await this.client.chat.completions.create({
 			model: this.model,
@@ -78,7 +98,8 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 		messages: ChatMessage[],
 		options: CompletionOptions,
 	): Promise<ChatMessage> {
-		if (this.apiKey === "") throw new Error("OpenAI API key is not set")
+		if (!this.isCustomBaseURL && this.apiKey === "")
+			throw new Error("OpenAI API key is not set")
 
 		const response = await this.client.chat.completions.create({
 			model: this.model,
@@ -104,7 +125,8 @@ export class OpenAIChatCompletionClient implements StreamingChatCompletionClient
 		userPrompt: string,
 		options: CompletionOptions,
 	): Promise<T> {
-		if (this.apiKey === "") throw new Error("OpenAI API key is not set")
+		if (!this.isCustomBaseURL && this.apiKey === "")
+			throw new Error("OpenAI API key is not set")
 
 		const response = await this.client.chat.completions.create({
 			model: this.model,
@@ -149,38 +171,55 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 	private chatClient: ChatCompletionClient
 	private apiKey: string
 	private embeddingModel: string
+	private isCustomBaseURL: boolean
 
-	constructor(apiKey: string, embeddingModel: string, chatClient: ChatCompletionClient) {
-		this.openaiClient = new OpenAI({ apiKey, dangerouslyAllowBrowser: true })
+	constructor(
+		apiKey: string,
+		embeddingModel: string,
+		chatClient: ChatCompletionClient,
+		baseURL?: string,
+	) {
+		this.openaiClient = new OpenAI({ apiKey, baseURL, dangerouslyAllowBrowser: true })
 		this.chatClient = chatClient
 		this.apiKey = apiKey
 		this.embeddingModel = embeddingModel
+		this.isCustomBaseURL = baseURL !== undefined
 	}
 
 	async embedNode(node: Node): Promise<number[]> {
-		if (this.apiKey === "")
-			throw new Error(
-				"OpenAI API key is not set. Note embeddings always use the OpenAI API and need an API key regardless of the LLM setting.",
-			)
+		if (!this.isCustomBaseURL && this.apiKey === "")
+			throw new Error("OpenAI API key is not set. Please set it in the plugin settings.")
 
 		const response = await this.openaiClient.embeddings.create({
 			input: nodeRepresentation(node),
 			model: this.embeddingModel,
+
+			// OpenAI client library automatically converts embeddings to base64 format
+			// unless "float" is requested explicitly.
+			// This is normally not an issue, but it breaks compatibility with some OpenAI-compatible APIs
+			// that still expect float32 arrays.
+			// https://github.com/openai/openai-node/pull/1312
+			encoding_format: "float",
 		})
 
 		return response.data[0].embedding
 	}
 
 	async embedQuery(query: string): Promise<QueryEmbedding> {
-		if (this.apiKey === "")
-			throw new Error(
-				"OpenAI API key is not set. Embeddings always use the OpenAI API and need an API key regardless of the LLM setting.",
-			)
+		if (!this.isCustomBaseURL && this.apiKey === "")
+			throw new Error("OpenAI API key is not set. Please set it in the plugin settings.")
 
 		const improvedQuery = await this.improveQuery(query)
 		const response = await this.openaiClient.embeddings.create({
 			input: improvedQuery,
 			model: this.embeddingModel,
+
+			// OpenAI client library automatically converts embeddings to base64 format
+			// unless "float" is requested explicitly.
+			// This is normally not an issue, but it breaks compatibility with some OpenAI-compatible APIs
+			// that still expect float32 arrays.
+			// https://github.com/openai/openai-node/pull/1312
+			encoding_format: "float",
 		})
 		return {
 			originalQuery: query,
