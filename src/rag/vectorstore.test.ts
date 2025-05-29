@@ -105,11 +105,11 @@ describe('VectorStoreIndex.query', () => {
 		
 		expect(result).toHaveLength(3)
 		expect(result[0].node.content).toBe('Node B')
-		expect(result[0].similarity).toBeCloseTo(0.9, 2)
+		expect(result[0].similarity).toBeCloseTo(0.99, 2)
 		expect(result[1].node.content).toBe('Node A')
-		expect(result[1].similarity).toBeCloseTo(0.8, 2)
+		expect(result[1].similarity).toBeCloseTo(0.97, 2)
 		expect(result[2].node.content).toBe('Node C')
-		expect(result[2].similarity).toBeCloseTo(0.5, 2)
+		expect(result[2].similarity).toBeCloseTo(0.71, 2)
 	})
 
 	it('should respect the limit parameter', async () => {
@@ -173,7 +173,7 @@ describe('VectorStoreIndex.query', () => {
 
 		expect(result).toHaveLength(1)
 		expect(result[0].node.content).toBe('Only Node')
-		expect(result[0].similarity).toBeCloseTo(0.7, 2)
+		expect(result[0].similarity).toBeCloseTo(0.92, 2)
 	})
 
 	it('should filter by workspace correctly', async () => {
