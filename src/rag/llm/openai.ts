@@ -194,9 +194,12 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 			input: nodeRepresentation(node),
 			model: this.embeddingModel,
 
-			// This optimization is often not available in OpenAI-compatible APIs
+			// OpenAI client library automatically converts embeddings to base64 format
+			// unless "float" is requested explicitly.
+			// This is normally not an issue, but it breaks compatibility with some OpenAI-compatible APIs
+			// that still expect float32 arrays.
 			// https://github.com/openai/openai-node/pull/1312
-			encoding_format: this.isCustomBaseURL ? "float" : "base64",
+			encoding_format: "float",
 		})
 
 		return response.data[0].embedding
@@ -211,9 +214,12 @@ export class OpenAIEmbeddingClient implements EmbeddingClient {
 			input: improvedQuery,
 			model: this.embeddingModel,
 
-			// This optimization is often not available in OpenAI-compatible APIs
+			// OpenAI client library automatically converts embeddings to base64 format
+			// unless "float" is requested explicitly.
+			// This is normally not an issue, but it breaks compatibility with some OpenAI-compatible APIs
+			// that still expect float32 arrays.
 			// https://github.com/openai/openai-node/pull/1312
-			encoding_format: this.isCustomBaseURL ? "float" : "base64",
+			encoding_format: "float",
 		})
 		return {
 			originalQuery: query,
