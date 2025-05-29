@@ -23,16 +23,16 @@
 		"openai": "^4.103.0"
 	},
 	"devDependencies": {
-		"@stylistic/eslint-plugin-js": "^2.8.0",
-		"@tailwindcss/postcss": "^4.1.7",
+		"@eslint/js": "^9.27.0",
+		"@tailwindcss/postcss": "^4.1.8",
 		"@tsconfig/svelte": "^5.0.2",
-		"@types/node": "^16.11.6",
-		"@typescript-eslint/eslint-plugin": "8.8.0",
-		"@typescript-eslint/parser": "8.8.0",
+		"@types/node": "^20.17.52",
 		"@vitest/ui": "^3.1.4",
-		"esbuild": "0.25.0",
-		"esbuild-svelte": "^0.8.1",
-		"eslint-plugin-svelte": "^2.44.0",
+		"esbuild": "0.25.5",
+		"esbuild-svelte": "^0.9.3",
+		"eslint": "^9.27.0",
+		"eslint-plugin-svelte": "^3.9.0",
+		"globals": "^16.2.0",
 		"obsidian": "1.7.2",
 		"postcss": "^8.4.35",
 		"prettier-plugin-svelte": "^3.2.2",
@@ -41,8 +41,9 @@
 		"svelte-check": "^4.2.1",
 		"svelte-preprocess": "^6.0.0",
 		"tailwindcss": "^4.1.7",
-		"tslib": "2.7.0",
-		"typescript": "5.6.2",
+		"tslib": "2.8.1",
+		"typescript": "5.8.3",
+		"typescript-eslint": "^8.33.0",
 		"vitest": "^3.1.4"
 	}
 }
