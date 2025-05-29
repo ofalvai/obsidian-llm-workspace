@@ -33,7 +33,7 @@
 		"eslint": "^9.27.0",
 		"eslint-plugin-svelte": "^3.9.0",
 		"globals": "^16.2.0",
-		"obsidian": "1.7.2",
+		"obsidian": "1.8.7",
 		"postcss": "^8.4.35",
 		"prettier-plugin-svelte": "^3.2.2",
 		"prettier-plugin-tailwindcss": "^0.6.11",

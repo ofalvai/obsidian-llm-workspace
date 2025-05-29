@@ -46,8 +46,8 @@ importers:
         specifier: ^16.2.0
         version: 16.2.0
       obsidian:
-        specifier: 1.7.2
-        version: 1.7.2(@codemirror/state@6.4.1)(@codemirror/view@6.26.0)
+        specifier: 1.8.7
+        version: 1.8.7(@codemirror/state@6.4.1)(@codemirror/view@6.26.0)
       postcss:
         specifier: ^8.4.35
         version: 8.4.47
@@ -547,9 +547,6 @@ packages:
 
   '@types/codemirror@5.60.8':
     resolution: {integrity: sha512-VjFgDF/eB+Aklcy15TtOTLQeMjTo07k7KAjql8OK5Dirr7a6sJY4T1uVBDuTVG9VEmn1uUsohOpYnVfgC6/jyw==}
-
-  '@types/estree@1.0.5':
-    resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
 
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
@@ -1218,8 +1215,8 @@ packages:
       encoding:
         optional: true
 
-  obsidian@1.7.2:
-    resolution: {integrity: sha512-k9hN9brdknJC+afKr5FQzDRuEFGDKbDjfCazJwpgibwCAoZNYHYV8p/s3mM8I6AsnKrPKNXf8xGuMZ4enWelZQ==}
+  obsidian@1.8.7:
+    resolution: {integrity: sha512-h4bWwNFAGRXlMlMAzdEiIM2ppTGlrh7uGOJS6w4gClrsjc+ei/3YAtU2VdFUlCiPuTHpY4aBpFJJW75S1Tl/JA==}
     peerDependencies:
       '@codemirror/state': ^6.0.0
       '@codemirror/view': ^6.0.0
@@ -2061,8 +2058,6 @@ snapshots:
     dependencies:
       '@types/tern': 0.23.9
 
-  '@types/estree@1.0.5': {}
-
   '@types/estree@1.0.6': {}
 
   '@types/estree@1.0.7': {}
@@ -2086,7 +2081,7 @@ snapshots:
 
   '@types/tern@0.23.9':
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.7
 
   '@typescript-eslint/eslint-plugin@8.33.0(@typescript-eslint/parser@8.33.0(eslint@9.27.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.27.0(jiti@2.4.2))(typescript@5.8.3)':
     dependencies:
@@ -2731,7 +2726,7 @@ snapshots:
     dependencies:
       whatwg-url: 5.0.0
 
-  obsidian@1.7.2(@codemirror/state@6.4.1)(@codemirror/view@6.26.0):
+  obsidian@1.8.7(@codemirror/state@6.4.1)(@codemirror/view@6.26.0):
     dependencies:
       '@codemirror/state': 6.4.1
       '@codemirror/view': 6.26.0
