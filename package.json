@@ -19,7 +19,7 @@
 	"license": "MIT",
 	"packageManager": "pnpm@10.11.0",
 	"dependencies": {
-		"dexie": "4.0.8",
+		"dexie": "4.0.11",
 		"openai": "^4.103.0"
 	},
 	"devDependencies": {

@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       dexie:
-        specifier: 4.0.8
-        version: 4.0.8
+        specifier: 4.0.11
+        version: 4.0.11
       openai:
         specifier: ^4.103.0
         version: 4.103.0
@@ -803,8 +803,8 @@ packages:
     resolution: {integrity: sha512-3UDv+G9CsCKO1WKMGw9fwq/SWJYbI0c5Y7LU1AXYoDdbhE2AHQ6N6Nb34sG8Fj7T5APy8qXDCKuuIHd1BR0tVA==}
     engines: {node: '>=8'}
 
-  dexie@4.0.8:
-    resolution: {integrity: sha512-1G6cJevS17KMDK847V3OHvK2zei899GwpDiqfEXHP1ASvme6eWJmAp9AU4s1son2TeGkWmC0g3y8ezOBPnalgQ==}
+  dexie@4.0.11:
+    resolution: {integrity: sha512-SOKO002EqlvBYYKQSew3iymBoN2EQ4BDw/3yprjh7kAfFzjBYkaMNa/pZvcA7HSWlcKSQb9XhPe3wKyQ0x4A8A==}
 
   enhanced-resolve@5.18.1:
     resolution: {integrity: sha512-ZSW3ma5GkcQBIpwZTSRAI8N71Uuwgs93IezB7mf7R60tC8ZbJideoDNKjHn2O9KIlx6rkGTTEk1xUCK2E1Y2Yg==}
@@ -2325,7 +2325,7 @@ snapshots:
 
   detect-libc@2.0.4: {}
 
-  dexie@4.0.8: {}
+  dexie@4.0.11: {}
 
   enhanced-resolve@5.18.1:
     dependencies:
