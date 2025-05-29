@@ -1,4 +1,23 @@
 
+<a name="1.2.0"></a>
+## [1.2.0](https://github.com/ofalvai/obsidian-llm-plugin/compare/1.1.0...1.2.0) (2025-05-29)
+
+### Features
+
+* OpenAI-compatible LLM provider ([#100](https://github.com/ofalvai/obsidian-llm-plugin/issues/100)) ([71e9ea7](https://github.com/ofalvai/obsidian-llm-plugin/commit/71e9ea7cbecf4930020d096ad05bccad6de6e785))
+
+### Fixes
+
+* vectorstore tests ([1f7f987](https://github.com/ofalvai/obsidian-llm-plugin/commit/1f7f987a9a6c66f814bcd7f17c45f0f50dc2fef8))
+
+### Chore
+
+* Update changelog ([e391142](https://github.com/ofalvai/obsidian-llm-plugin/commit/e391142378223363307f042ed418f6dbac3c12cb))
+* Migrate to Tailwind 4 ([c978338](https://github.com/ofalvai/obsidian-llm-plugin/commit/c9783384515f0731e482cf3d4a85777b38eb32d2))
+* Update devDependencies ([f20414a](https://github.com/ofalvai/obsidian-llm-plugin/commit/f20414ad7141aa013254765f104dc317f2bcdbef))
+* Upgrade pnpm ([37ae718](https://github.com/ofalvai/obsidian-llm-plugin/commit/37ae7185aa14dbded58fca47f958fdfa879caab7))
+
+
 <a name="1.1.0"></a>
 ## [1.1.0](https://github.com/ofalvai/obsidian-llm-plugin/compare/1.0.2...1.1.0) (2025-05-25)
 
