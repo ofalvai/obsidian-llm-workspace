@@ -68,7 +68,7 @@ importers:
         version: 6.0.3(postcss-load-config@4.0.2(postcss@8.4.47))(postcss@8.4.47)(svelte@5.33.1)(typescript@5.8.3)
       tailwindcss:
         specifier: ^4.1.7
-        version: 4.1.7
+        version: 4.1.8
       tslib:
         specifier: 2.8.1
         version: 2.8.1
@@ -1529,9 +1529,6 @@ packages:
     resolution: {integrity: sha512-7znzaaQALL62NBzkdKV04tmYIVla8qjrW+k6GdgFZcKcj8XOb8iEjmfRPo40iaWZlKv3+uiuc0h4iaGgwoORtA==}
     engines: {node: '>=18'}
 
-  tailwindcss@4.1.7:
-    resolution: {integrity: sha512-kr1o/ErIdNhTz8uzAYL7TpaUuzKIE6QPQ4qmSdxnoX/lo+5wmUHQA6h3L5yIqEImSRnAAURDirLu/BgiXGPAhg==}
-
   tailwindcss@4.1.8:
     resolution: {integrity: sha512-kjeW8gjdxasbmFKpVGrGd5T4i40mV5J2Rasw48QARfYeQ8YS9x02ON9SFWax3Qf616rt4Cp3nVNIj6Hd1mP3og==}
 
@@ -2966,8 +2963,6 @@ snapshots:
       locate-character: 3.0.0
       magic-string: 0.30.17
       zimmerframe: 1.1.2
-
-  tailwindcss@4.1.7: {}
 
   tailwindcss@4.1.8: {}
 
