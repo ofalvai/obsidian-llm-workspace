@@ -8,7 +8,13 @@
 	import ObsidianMarkdown from "../obsidian/ObsidianMarkdown.svelte"
 	import Message from "./Message.svelte"
 	import SourceList from "./SourceList.svelte"
+	import TextSelectionActions from "./TextSelectionActions.svelte"
 	import UserInput from "./UserInput.svelte"
+	import { onMount } from "svelte"
+	import {
+		handleTextSelection,
+		type TextSelectionAction,
+	} from "src/llm-features/selection-actions"
 
 	let {
 		conversation,
@@ -18,6 +24,7 @@
 		onDebugClick,
 		onNewConversation,
 		onReload,
+		onAction,
 	}: {
 		conversation: Conversation | null
 		isOutdated: boolean
@@ -26,15 +33,51 @@
 		onDebugClick: (response: QueryResponse) => void
 		onNewConversation: () => void
 		onReload: () => void
+		onAction: (action: TextSelectionAction, text: string) => void
 	} = $props()
+
+	let conversationContainer: HTMLDivElement
+	let showSelectionActions = $state(false)
+	let selectedText = $state("")
+	let selectionPosition = $state({ x: 0, y: 0 })
 
 	const copyToClipboard = (text: string) => {
 		navigator.clipboard.writeText(text)
 		new Notice("Copied to clipboard", 1000)
 	}
+
+	const closeSelectionActions = () => {
+		showSelectionActions = false
+		window.getSelection()?.removeAllRanges()
+	}
+
+	const documentSelectionChange = () => {
+		// The `selectionchange` event is also triggered by input elements, which we want to ignore.
+		if (
+			document.activeElement instanceof HTMLInputElement ||
+			document.activeElement instanceof HTMLTextAreaElement
+		) {
+			return
+		}
+
+		handleTextSelection(
+			conversationContainer,
+			(text, position) => {
+				selectedText = text
+				selectionPosition = position
+				showSelectionActions = true
+			},
+			() => (showSelectionActions = false),
+		)
+	}
+
+	onMount(() => {
+		document.addEventListener("selectionchange", documentSelectionChange)
+		return () => document.removeEventListener("selectionchange", documentSelectionChange)
+	})
 </script>
 
-<div class="conversation-scroller relative grow pb-40">
+<div class="conversation-scroller relative grow pb-40" bind:this={conversationContainer}>
 	{#if conversation}
 		<div class="grow">
 			{#if conversation.initialUserQuery}
@@ -152,6 +195,24 @@
 		{onNewConversation}
 	/>
 </div>
+
+{#if showSelectionActions}
+	<TextSelectionActions
+		{selectedText}
+		position={selectionPosition}
+		onAction={(action, text) => {
+			closeSelectionActions()
+			onAction(action, text)
+			// We don't have a reference to the scrollable container, but we can scrollIntoView the bottom
+			// of the conversation container
+			conversationContainer.scrollIntoView({
+				block: "end",
+				behavior: "smooth",
+			})
+		}}
+		onClose={closeSelectionActions}
+	/>
+{/if}
 
 <style>
 	/* https://css-tricks.com/books/greatest-css-tricks/pin-scrolling-to-bottom/ */

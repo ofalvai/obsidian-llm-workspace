@@ -21,16 +21,15 @@
 	{:else if message.role === "assistant"}
 		<ObsidianIcon iconId="sparkles" size="s" className="mr-2 flex-none relative top-0.5" />
 	{/if}
-	<ObsidianMarkdown
-		source={message.content}
-		className={(message.role === "user" ? "text-accent font-medium" : "") + " grow select-text"}
-	/>
+	<div class={(message.role === "user" ? "text-accent font-medium" : "") + " grow select-text"}>
+		<ObsidianMarkdown source={message.content} />
+	</div>
 </div>
 <div class="flex w-full flex-row pl-5">
 	<div class="flex flex-grow flex-row flex-wrap gap-1">
 		{#each message.attachedContent as file (file.parent)}
 			<div
-				class="flex flex-row items-center rounded border border-solid border-border bg-primary px-1 py-0.5 text-sm"
+				class="border-border bg-primary flex flex-row items-center rounded border border-solid px-1 py-0.5 text-sm"
 			>
 				{path.basename(file.parent, path.extname(file.parent))}
 			</div>

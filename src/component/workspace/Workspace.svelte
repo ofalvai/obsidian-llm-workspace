@@ -32,6 +32,10 @@
 	import type { EmbeddedFileInfo } from "../types"
 	import IndexedFiles from "./IndexedFiles.svelte"
 	import Questions from "./Questions.svelte"
+	import {
+		type TextSelectionAction,
+		selectionActionToMessage,
+	} from "src/llm-features/selection-actions"
 
 	let {
 		workspaceFile,
@@ -267,6 +271,11 @@
 		}
 		conversation.submitMessage(message, nodes)
 	}
+
+	const onAction = (action: TextSelectionAction, selectedText: string) => {
+		const message = selectionActionToMessage(action, selectedText)
+		conversation.submitMessage(message, [])
+	}
 </script>
 
 <TailwindCss />
@@ -290,6 +299,7 @@
 			onDebugClick={(resp) => writeDebugInfo($appStore, resp)}
 			{onNewConversation}
 			{onReload}
+			{onAction}
 		>
 			<div slot="empty">
 				<Questions

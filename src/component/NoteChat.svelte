@@ -12,6 +12,10 @@
 	import ConfigValue from "./chat/ConfigValue.svelte"
 	import ConversationStyle from "./chat/ConversationStyle.svelte"
 	import QuestionAndAnswer from "./chat/QuestionAndAnswer.svelte"
+	import {
+		selectionActionToMessage,
+		type TextSelectionAction,
+	} from "src/llm-features/selection-actions"
 
 	let { file }: { file: TFile } = $props()
 
@@ -69,6 +73,10 @@
 		}
 		conversation.submitMessage(message, nodes)
 	}
+	const onAction = (action: TextSelectionAction, selectedText: string) => {
+		const message = selectionActionToMessage(action, selectedText)
+		conversation.submitMessage(message, [])
+	}
 </script>
 
 <TailwindCss />
@@ -81,6 +89,7 @@
 		onDebugClick={(resp) => writeDebugInfo($appStore, resp)}
 		onSourceClick={() => {}}
 		{onReload}
+		{onAction}
 	>
 		<div slot="empty">
 			<div class="font-medium">Chat configuration</div>
