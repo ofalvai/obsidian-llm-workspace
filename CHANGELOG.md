@@ -1,4 +1,17 @@
 
+<a name="1.3.0"></a>
+## [1.3.0](https://github.com/ofalvai/obsidian-llm-plugin/compare/1.2.0...1.3.0) (2025-06-15)
+
+### Features
+
+* Text selection actions ([0e30e40](https://github.com/ofalvai/obsidian-llm-plugin/commit/0e30e400f6318b0839a12f05d70a2846576d9b8c))
+
+### Chore
+
+* Update changelog ([3cac783](https://github.com/ofalvai/obsidian-llm-plugin/commit/3cac78381cd804c883f2c7b6c04b6cf48376b299))
+* tree-wide formatting ([7603009](https://github.com/ofalvai/obsidian-llm-plugin/commit/7603009b6a7285de203aff97fd820d205f321638))
+
+
 <a name="1.2.0"></a>
 ## [1.2.0](https://github.com/ofalvai/obsidian-llm-plugin/compare/1.1.0...1.2.0) (2025-05-29)
 
