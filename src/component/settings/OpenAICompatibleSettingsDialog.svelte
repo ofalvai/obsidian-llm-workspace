@@ -169,7 +169,10 @@
 			<li><code>/v1/chat/completions</code> - For chat completions</li>
 			<li><code>/v1/embeddings</code> - For embeddings</li>
 		</ul>
-		<p>The <code>/v1/chat/completions</code> endpoint must support <code>response_format: json_object</code> for some features to work.</p>
+		<p>
+			The <code>/v1/chat/completions</code> endpoint must support
+			<code>response_format: json_object</code> for some features to work.
+		</p>
 	</div>
 	{#if !feature}
 		<div class="mt-4 flex justify-end">

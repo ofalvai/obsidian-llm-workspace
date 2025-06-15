@@ -100,7 +100,7 @@
 			Test connection
 		{/if}
 	</button>
-	{#if localModels && localModels.length === 0 }
+	{#if localModels && localModels.length === 0}
 		<div class="my-4">
 			No models found. Make sure your Ollama instance has some models downloaded.
 		</div>
@@ -117,7 +117,7 @@
 	{/if}
 
 	{#if feature}
-		<label for="model" class="mb-2 mt-4 block font-medium">
+		<label for="model" class="mt-4 mb-2 block font-medium">
 			{#if feature === "questionAndAnswer"}
 				Model for conversations
 			{:else if feature === "noteContext"}
@@ -139,7 +139,7 @@
 						<!-- svelte-ignore a11y_click_events_have_key_events -->
 						<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 						<li
-							class="cursor-pointer select-text font-mono my-1"
+							class="my-1 cursor-pointer font-mono select-text"
 							onclick={() => (selectedModel = model)}
 						>
 							{model}

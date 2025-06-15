@@ -49,7 +49,7 @@
 <div>
 	<label for="key" class="mb-2 block font-medium">API key</label>
 	<input type="password" id="key" class="w-80" placeholder="API key" bind:value={apiKey} />
-	<button class="ml-4 mr-4" onclick={() => _testConnection()}>Test connection</button>
+	<button class="mr-4 ml-4" onclick={() => _testConnection()}>Test connection</button>
 	{#if connectionState === "success"}
 		<ObsidianIcon iconId="check" size="l" color="success" className="relative top-1" />
 	{:else if connectionState === "error"}
@@ -60,7 +60,7 @@
 		<Loading size="s" />
 	{/if}
 
-	<div class="text-sm mt-4">
+	<div class="mt-4 text-sm">
 		Create a key at <a href="https://platform.openai.com">platform.openai.com</a>.
 	</div>
 

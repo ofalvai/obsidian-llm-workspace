@@ -42,7 +42,7 @@
 <div class="flex flex-col">
 	<div class="flex flex-row">
 		<span
-			class="mr-1 mt-[1px] self-baseline"
+			class="mt-[1px] mr-1 self-baseline"
 			aria-label={label}
 			data-tooltip-position="top"
 			data-tooltip-delay="300"
@@ -72,7 +72,7 @@
 	</div>
 	<div
 		class={(isCollapsed ? "hidden" : "") +
-			" mb-4 ml-5 flex flex-col items-start gap-1 text-muted"}
+			" text-muted mb-4 ml-5 flex flex-col items-start gap-1"}
 	>
 		{#if fileInfo.parent && !fileInfo.parent.isRoot()}
 			<div class="link-parent">

@@ -16,6 +16,6 @@
 	<div>
 		<ObsidianIcon {iconId} size="s" />
 	</div>
-	<div class="ml-1 mr-1 text-sm text-muted">{label}:</div>
+	<div class="text-muted mr-1 ml-1 text-sm">{label}:</div>
 	<div class="text-sm">{value}</div>
 </div>

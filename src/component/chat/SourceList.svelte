@@ -37,9 +37,9 @@
 	})
 </script>
 
-<div class="mt-2 rounded bg-primary-alt p-3">
+<div class="bg-primary-alt mt-2 rounded p-3">
 	<div class="font-medium">Sources:</div>
-	<ol class="mb-0 mt-2">
+	<ol class="mt-2 mb-0">
 		{#each sources as source}
 			<li class="mb-1">
 				<!-- svelte-ignore a11y_invalid_attribute -->
@@ -48,7 +48,7 @@
 					aria-label="Relevance score"
 					data-tooltip-delay="300"
 					data-tooltip-position="top"
-					class="ml-1 rounded-md bg-secondary px-1 py-0.5 font-mono text-xs"
+					class="bg-secondary ml-1 rounded-md px-1 py-0.5 font-mono text-xs"
 				>
 					{Math.round(source.similarity * 100)}%
 				</span>

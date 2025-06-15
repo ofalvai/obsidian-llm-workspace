@@ -117,7 +117,6 @@ export default class LlmPlugin extends Plugin {
 		const persistedSettings = await this.loadData()
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, persistedSettings)
 
-		
 		// Migrate old settings to new ones
 		if (!persistedSettings) {
 			settingsStore.set(this.settings)

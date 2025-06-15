@@ -75,17 +75,17 @@
 	}
 </script>
 
-<form class="fixed bottom-11 left-4 right-4" onsubmit={_onSubmit}>
+<form class="fixed right-4 bottom-11 left-4" onsubmit={_onSubmit}>
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div class="relative">
 		<!-- Top toolbar -->
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<div
-			class="absolute start-0 top-0 flex w-full flex-row flex-wrap gap-1 pl-2 pr-2 pt-2"
+			class="absolute start-0 top-0 flex w-full flex-row flex-wrap gap-1 pt-2 pr-2 pl-2"
 			onclick={() => textarea.focus()}
 		>
 			<button
-				class="flex! h-fit! rounded! border! border-solid! border-border! bg-primary! p-0! px-1! py-0.5! text-xs! !shadow-none hover:shadow-none"
+				class="border-border! bg-primary! flex! h-fit! rounded! border! border-solid! p-0! px-1! py-0.5! text-xs! !shadow-none hover:shadow-none"
 				aria-label="Insert prompt"
 				onclick={(e) => {
 					e.preventDefault()
@@ -99,13 +99,13 @@
 					e.preventDefault()
 					onFileAttach(textarea.selectionEnd, false)
 				}}
-				class="flex! h-fit! rounded! border! border-solid! border-border! bg-primary! p-0! px-1! py-0.5! text-xs! !shadow-none hover:shadow-none"
+				class="border-border! bg-primary! flex! h-fit! rounded! border! border-solid! p-0! px-1! py-0.5! text-xs! !shadow-none hover:shadow-none"
 			>
 				Add context...
 			</button>
 			{#each attachedFiles as file (file.basename)}
 				<div
-					class="flex max-w-40 flex-row items-center rounded border! border-solid! border-border! bg-primary! px-1 py-0.5"
+					class="border-border! bg-primary! flex max-w-40 flex-row items-center rounded border! border-solid! px-1 py-0.5"
 				>
 					<div class="line-clamp-1 text-xs">
 						{file.basename}
@@ -121,7 +121,7 @@
 		</div>
 		<!-- svelte-ignore a11y_autofocus -->
 		<textarea
-			class="text-normal w-full resize-y bg-secondary pb-8! pt-9!"
+			class="text-normal bg-secondary w-full resize-y pt-9! pb-8!"
 			autofocus
 			bind:this={textarea}
 			bind:value={query}
@@ -158,7 +158,7 @@
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<div
 			onclick={() => textarea.focus()}
-			class="absolute bottom-0 end-0 flex w-full flex-row justify-end gap-1 pb-2 pl-2 pr-2"
+			class="absolute end-0 bottom-0 flex w-full flex-row justify-end gap-1 pr-2 pb-2 pl-2"
 		>
 			{#if isConversationActive}
 				<button

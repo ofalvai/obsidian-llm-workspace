@@ -13,8 +13,8 @@
 </script>
 
 <div class="my-4 flex flex-col items-center">
-	<div class="mb-1 text-sm text-muted">Conversation style</div>
-	<div class="flex flex-row gap-x-1 rounded bg-secondary p-1">
+	<div class="text-muted mb-1 text-sm">Conversation style</div>
+	<div class="bg-secondary flex flex-row gap-x-1 rounded p-1">
 		{#each values as tempValue}
 			<button
 				class={"capitalize !shadow-none " +

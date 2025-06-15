@@ -156,7 +156,7 @@
 </div>
 
 {#if networkLoading}
-	<div class="text-sm text-muted">
+	<div class="text-muted text-sm">
 		Loading <span class="relative top-1"><Loading size="s" /></span>
 	</div>
 {/if}
@@ -165,7 +165,7 @@
 	{#if enabled}
 		{#if $derivedData?.summary}
 			<div class="text-sm font-medium">Summary</div>
-			<p class="mt-1 select-text text-sm">{$derivedData.summary}</p>
+			<p class="mt-1 text-sm select-text">{$derivedData.summary}</p>
 		{/if}
 
 		{#if keyTopics && keyTopics.length > 0}
@@ -200,6 +200,6 @@
 			plugin settings.
 		</p>
 	{:else}
-		<p class="w-full text-center text-sm text-muted">No file is open</p>
+		<p class="text-muted w-full text-center text-sm">No file is open</p>
 	{/if}
 {/await}
