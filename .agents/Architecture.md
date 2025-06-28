@@ -16,7 +16,7 @@
 - Uses Vitest as the testing framework with TypeScript support
 
 ### Package Management
-- Uses `pnpm` as the package manager (version 9.6.0)
+- Uses `pnpm` as the package manager (remember when trying to run `npm` commands!)
 - `pnpm install` - Install dependencies
 
 ## Architecture Overview
