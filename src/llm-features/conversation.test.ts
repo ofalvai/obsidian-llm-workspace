@@ -43,7 +43,8 @@ describe("conversationStore", () => {
 
 	describe("resetConversation", () => {
 		it("should reset the conversation to null", () => {
-			const store = conversationStore(mockQueryEngine, mockChatClient, mockCompletionOptions)
+			const store = conversationStore()
+			store.configure(mockQueryEngine, mockChatClient, mockCompletionOptions)
 
 			store.resetConversation()
 
@@ -66,7 +67,8 @@ describe("conversationStore", () => {
 
 			vi.mocked(mockQueryEngine.query).mockReturnValue(mockIterator)
 
-			const store = conversationStore(mockQueryEngine, mockChatClient, mockCompletionOptions)
+			const store = conversationStore()
+			store.configure(mockQueryEngine, mockChatClient, mockCompletionOptions)
 			const attachedContent: Node[] = []
 
 			await store.submitMessage("What is the answer?", attachedContent)
@@ -108,7 +110,8 @@ describe("conversationStore", () => {
 
 			vi.mocked(mockQueryEngine.query).mockReturnValue(mockIterator)
 
-			const store = conversationStore(mockQueryEngine, mockChatClient, mockCompletionOptions)
+			const store = conversationStore()
+			store.configure(mockQueryEngine, mockChatClient, mockCompletionOptions)
 
 			await store.submitMessage("What is the answer?", [])
 
@@ -126,7 +129,8 @@ describe("conversationStore", () => {
 
 			vi.mocked(mockQueryEngine.query).mockReturnValue(mockIterator)
 
-			const store = conversationStore(mockQueryEngine, mockChatClient, mockCompletionOptions)
+			const store = conversationStore()
+			store.configure(mockQueryEngine, mockChatClient, mockCompletionOptions)
 
 			await store.submitMessage("What is the answer?", [])
 
@@ -146,7 +150,8 @@ describe("conversationStore", () => {
 
 			vi.mocked(mockQueryEngine.query).mockReturnValue(mockIterator)
 
-			const store = conversationStore(mockQueryEngine, mockChatClient, mockCompletionOptions)
+			const store = conversationStore()
+			store.configure(mockQueryEngine, mockChatClient, mockCompletionOptions)
 
 			await store.submitMessage("What is the answer?", [])
 
@@ -166,7 +171,8 @@ describe("conversationStore", () => {
 			}
 
 			// Set up initial conversation
-			const store = conversationStore(mockQueryEngine, mockChatClient, mockCompletionOptions)
+			const store = conversationStore()
+			store.configure(mockQueryEngine, mockChatClient, mockCompletionOptions)
 			const mockInitialIterator = (async function* () {
 				yield initialQueryResponse
 			})()
@@ -244,7 +250,8 @@ describe("conversationStore", () => {
 				userPrompt: "What is the answer?",
 			}
 
-			const store = conversationStore(mockQueryEngine, mockChatClient, mockCompletionOptions)
+			const store = conversationStore()
+			store.configure(mockQueryEngine, mockChatClient, mockCompletionOptions)
 			const mockInitialIterator = (async function* () {
 				yield initialQueryResponse
 			})()
@@ -284,7 +291,8 @@ describe("conversationStore", () => {
 				userPrompt: "What is the answer?",
 			}
 
-			const store = conversationStore(mockQueryEngine, mockChatClient, mockCompletionOptions)
+			const store = conversationStore()
+			store.configure(mockQueryEngine, mockChatClient, mockCompletionOptions)
 			const mockInitialIterator = (async function* () {
 				yield initialQueryResponse
 			})()
@@ -312,7 +320,8 @@ describe("conversationStore", () => {
 
 	describe("store subscription", () => {
 		it("should allow subscribing to conversation updates", () => {
-			const store = conversationStore(mockQueryEngine, mockChatClient, mockCompletionOptions)
+			const store = conversationStore()
+			store.configure(mockQueryEngine, mockChatClient, mockCompletionOptions)
 			const mockSubscriber = vi.fn()
 
 			const unsubscribe = store.subscribe(mockSubscriber)

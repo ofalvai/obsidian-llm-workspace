@@ -10,21 +10,40 @@ import type { Node } from "src/rag/node"
 import { logger } from "src/utils/logger"
 
 export type ConversationStore = Readable<Conversation | null> & {
+	// configure() must be called before any other method. This is a separate call in order to
+	// avoid invalidating and re-creating the entire store when the configuration changes.
+	// This allows the conversation data to persist across configuration changes.
+	configure(
+		queryEngine: QueryEngine,
+		chatClient: StreamingChatCompletionClient,
+		completionOptions: CompletionOptions,
+	): void
 	submitMessage: (newMessage: string, attachedContent: Node[]) => Promise<void>
 	resetConversation: () => void
 }
 
-export const conversationStore = (
-	queryEngine: QueryEngine,
-	chatClient: StreamingChatCompletionClient,
-	completionOptions: CompletionOptions,
-): ConversationStore => {
+export const conversationStore = (): ConversationStore => {
 	const store = writable<Conversation | null>(null)
 
 	const resetConversation = () => store.set(null)
 
+	let activeQueryEngine: QueryEngine | undefined
+	let activeChatClient: StreamingChatCompletionClient | undefined
+	let activeCompletionOptions: CompletionOptions | undefined
+
+	const configure = (queryEngine: QueryEngine, chatClient: StreamingChatCompletionClient, completionOptions: CompletionOptions) => {
+		activeQueryEngine = queryEngine
+		activeChatClient = chatClient
+		activeCompletionOptions = completionOptions
+	}
+
 	const submitMessage = async (newMessage: string, attachedContent: Node[]) => {
 		let conversation = get(store)
+
+		if (!activeQueryEngine || !activeChatClient || !activeCompletionOptions) {
+			logger.error("Conversation store is not configured with a query engine or chat client.")
+			return
+		}
 
 		if (!conversation || !conversation.queryResponse) {
 			conversation = {
@@ -36,7 +55,7 @@ export const conversationStore = (
 			}
 			store.set(conversation)
 			try {
-				for await (const update of queryEngine.query(newMessage, attachedContent)) {
+				for await (const update of activeQueryEngine.query(newMessage, attachedContent)) {
 					conversation.queryResponse = update
 					conversation.isLoading = true
 					store.set(conversation)
@@ -66,22 +85,25 @@ export const conversationStore = (
 				{
 					role: "system",
 					content: conversation.queryResponse.systemPrompt,
-					attachedContent: []
+					attachedContent: [],
 				},
 				{
 					role: "user",
 					content: conversation.queryResponse.userPrompt,
-					attachedContent: []
+					attachedContent: [],
 				},
 				{
 					role: "assistant",
 					content: conversation.queryResponse.text,
-					attachedContent: []
+					attachedContent: [],
 				},
 				...conversation.additionalMessages,
 			]
 			try {
-				const stream = chatClient.createStreamingChatCompletion(messagesSoFar, completionOptions)
+				const stream = activeChatClient.createStreamingChatCompletion(
+					messagesSoFar,
+					activeCompletionOptions,
+				)
 				for await (const event of stream) {
 					switch (event.type) {
 						case "start":
@@ -89,7 +111,7 @@ export const conversationStore = (
 							conversation.additionalMessages.push({
 								role: "assistant",
 								content: "",
-								attachedContent: []
+								attachedContent: [],
 							})
 							break
 						case "delta":
@@ -116,6 +138,7 @@ export const conversationStore = (
 
 	return {
 		subscribe: store.subscribe,
+		configure,
 		submitMessage,
 		resetConversation,
 	}

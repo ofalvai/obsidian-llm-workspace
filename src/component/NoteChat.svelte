@@ -1,7 +1,11 @@
 <script lang="ts">
 	import type { TFile } from "obsidian"
-	import { llmClient } from "src/llm-features/llm-client"
 	import { conversationStore } from "src/llm-features/conversation"
+	import { createLlmClient, globalLlmClient } from "src/llm-features/llm-client"
+	import {
+		selectionActionToMessage,
+		type TextSelectionAction,
+	} from "src/llm-features/selection-actions"
 	import type { CompletionOptions } from "src/rag/llm/common"
 	import { SingleNoteQueryEngine, type QueryEngine } from "src/rag/query-engine"
 	import { DumbResponseSynthesizer, type ResponseSynthesizer } from "src/rag/synthesizer"
@@ -12,10 +16,6 @@
 	import ConfigValue from "./chat/ConfigValue.svelte"
 	import ConversationStyle from "./chat/ConversationStyle.svelte"
 	import QuestionAndAnswer from "./chat/QuestionAndAnswer.svelte"
-	import {
-		selectionActionToMessage,
-		type TextSelectionAction,
-	} from "src/llm-features/selection-actions"
 
 	let { file }: { file: TFile } = $props()
 
@@ -33,19 +33,21 @@
 		})
 		return () => $appStore.vault.offref(ref)
 	})
+
 	const completionOptions: CompletionOptions = $state({
 		temperature: "balanced",
 		maxTokens: 1024,
 	})
+	let llmClient = $state($globalLlmClient)
 	let synthesizer: ResponseSynthesizer = $derived(
-		new DumbResponseSynthesizer($llmClient, completionOptions, $settingsStore.systemPrompt),
+		new DumbResponseSynthesizer(llmClient, completionOptions, $settingsStore.systemPrompt),
 	)
 	let queryEngine: QueryEngine = $derived(
 		new SingleNoteQueryEngine(synthesizer, $noteContent, file.path),
 	)
-	let conversation: ReturnType<typeof conversationStore> = $derived(
-		conversationStore(queryEngine, $llmClient, completionOptions),
-	)
+	let conversation = conversationStore()
+	$effect(() => conversation.configure(queryEngine, llmClient, completionOptions))
+
 	const onNewConversation = () => {
 		onReload()
 		conversation.resetConversation()
@@ -89,6 +91,9 @@
 		onDebugClick={(resp) => writeDebugInfo($appStore, resp)}
 		onSourceClick={() => {}}
 		{onReload}
+		onModelChange={(config) => {
+			llmClient = createLlmClient(config, $settingsStore.providerSettings)
+		}}
 		{onAction}
 	>
 		<div slot="empty">
@@ -98,7 +103,7 @@
 				label="Conversation grounded in"
 				value={file.basename}
 			/>
-			<ConfigValue iconId="bot" label="LLM" value={$llmClient.displayName} />
+			<ConfigValue iconId="bot" label="LLM" value={llmClient.displayName} />
 			<ConversationStyle
 				temperature={completionOptions.temperature}
 				onChange={(t) => (completionOptions.temperature = t)}

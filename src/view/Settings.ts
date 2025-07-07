@@ -1,10 +1,5 @@
 import { App, Modal, Notice, PluginSettingTab, Setting } from "obsidian"
-import AnthropicSettingsDialog from "src/component/settings/AnthropicSettingsDialog.svelte"
 import EmbeddingChangeDialog from "src/component/settings/EmbeddingChangeDialog.svelte"
-import OllamaSettingsDialog from "src/component/settings/OllamaSettingsDialog.svelte"
-import OpenAiSettingsDialog from "src/component/settings/OpenAISettingsDialog.svelte"
-import OpenAICompatibleSettingsDialog from "src/component/settings/OpenAICompatibleSettingsDialog.svelte"
-import type { DialogProps } from "src/component/settings/types"
 import type { Provider } from "src/config/providers"
 import {
 	EMBEDDING_MODEL_CONFIGS,
@@ -16,17 +11,17 @@ import type LlmPlugin from "src/main"
 import { VectorStoreIndex } from "src/rag/vectorstore"
 import { Pruner } from "src/storage/pruner"
 import { logger } from "src/utils/logger"
+import {
+	PROVIDERS_WITH_CUSTOM_SETTINGS,
+	PROVIDER_COMPONENT_MAP,
+	dropdownValueToModelConfig,
+	modelConfigToDropdownOptions,
+	modelConfigToDropdownValue,
+} from "src/utils/model-selector"
 import { pluginStore } from "src/utils/obsidian"
-import { mount, unmount, type Component } from "svelte"
+import { mount, unmount } from "svelte"
 
-const PROVIDER_COMPONENT_MAP: Map<Provider, Component<DialogProps>> = new Map([
-	["Ollama", OllamaSettingsDialog],
-	["OpenAI", OpenAiSettingsDialog],
-	["Anthropic", AnthropicSettingsDialog],
-	["OpenAI-compatible", OpenAICompatibleSettingsDialog],
-])
 
-const PROVIDERS_WITH_CUSTOM_SETTINGS = new Set<Provider>(["Ollama", "OpenAI-compatible"])
 
 export class LlmSettingTab extends PluginSettingTab {
 	plugin: LlmPlugin
@@ -364,34 +359,3 @@ export class LlmSettingTab extends PluginSettingTab {
 	}
 }
 
-// key: unique ID
-// value: display label
-function modelConfigToDropdownOptions(configs: ModelConfiguration[]): Record<string, string> {
-	const selectableModels = configs.reduce(
-		(acc: { [key: string]: string }, config: ModelConfiguration) => {
-			acc[config.model] = config.model
-			return acc
-		},
-		{},
-	)
-
-	for (const provider of PROVIDERS_WITH_CUSTOM_SETTINGS.keys()) {
-		selectableModels[provider] = provider
-	}
-	return selectableModels
-}
-
-function dropdownValueToModelConfig(
-	configs: ModelConfiguration[],
-	key: string,
-): ModelConfiguration | null {
-	return configs.find((model) => model.model === key) || null
-}
-
-function modelConfigToDropdownValue(config: ModelConfiguration): string {
-	if (PROVIDERS_WITH_CUSTOM_SETTINGS.has(config.provider)) {
-		return config.provider
-	} else {
-		return config.model
-	}
-}

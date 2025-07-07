@@ -1,28 +1,28 @@
 <script lang="ts">
 	import type { TFile } from "obsidian"
 	import { Notice } from "obsidian"
+	import type { ModelConfiguration } from "src/config/settings"
 	import { appStore, settingsStore } from "src/utils/obsidian"
 	import { showSelectVaultFileModal } from "src/view/SelectVaultFileModal"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
+	import ModelSelector from "./ModelSelector.svelte"
 
 	let {
 		disabled,
 		isConversationActive,
 		onSubmit,
 		onNewConversation,
+		onModelChange,
 	}: {
 		disabled: boolean
 		isConversationActive: boolean
 		onSubmit: (input: string, attachedFiles: TFile[]) => void
 		onNewConversation: () => void
+		onModelChange: (config: ModelConfiguration) => void
 	} = $props()
-
-	const rowCountDefault = 1
-	const rowCountExpanded = 5
 
 	let textarea: HTMLTextAreaElement
 	let query = $state("")
-	let rowCount = $state(rowCountDefault)
 	let attachedFiles: TFile[] = $state([])
 
 	const _onSubmit = (e: SubmitEvent) => {
@@ -32,7 +32,6 @@
 		}
 		onSubmit(query, attachedFiles)
 		query = ""
-		rowCount = rowCountDefault
 		attachedFiles = []
 	}
 	const _onNewConversation = () => {
@@ -62,7 +61,6 @@
 		const onSelect = async (file: TFile) => {
 			const prompt = await $appStore.vault.cachedRead(file)
 			query = query + " " + prompt
-			rowCount = rowCountExpanded
 			textarea.focus()
 		}
 
@@ -121,11 +119,10 @@
 		</div>
 		<!-- svelte-ignore a11y_autofocus -->
 		<textarea
-			class="text-normal bg-secondary w-full resize-y pt-9! pb-8!"
+			class="text-normal bg-secondary field-sizing-content w-full pt-9! pb-10!"
 			autofocus
 			bind:this={textarea}
 			bind:value={query}
-			rows={rowCount}
 			onkeydown={(event) => {
 				if (event.key === "Enter" && !event.shiftKey) {
 					event.preventDefault()
@@ -155,28 +152,32 @@
 			placeholder={isConversationActive ? "Continue conversation..." : "Start a question..."}
 		></textarea>
 		<!-- Bottom toolbar -->
-		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<div
-			onclick={() => textarea.focus()}
-			class="absolute end-0 bottom-0 flex w-full flex-row justify-end gap-1 pr-2 pb-2 pl-2"
+			class="absolute end-0 bottom-0 flex w-full flex-row justify-between gap-1 pr-2 pb-2 pl-2"
 		>
-			{#if isConversationActive}
+			<ModelSelector
+				initialValue={$settingsStore.questionAndAnswerModel}
+				onChange={onModelChange}
+			/>
+			<div class="flex flex-row">
+				{#if isConversationActive}
+					<button
+						class="clickable-icon"
+						onclick={_onNewConversation}
+						aria-label="New conversation"
+					>
+						<ObsidianIcon iconId="list-restart" />
+					</button>
+				{/if}
 				<button
 					class="clickable-icon"
-					onclick={_onNewConversation}
-					aria-label="New conversation"
+					disabled={disabled || query.trim() == ""}
+					type="submit"
+					aria-label="Send message"
 				>
-					<ObsidianIcon iconId="list-restart" />
+					<ObsidianIcon iconId="send" />
 				</button>
-			{/if}
-			<button
-				class={"clickable-icon"}
-				disabled={disabled || query.trim() == ""}
-				type="submit"
-				aria-label="Send message"
-			>
-				<ObsidianIcon iconId="send" />
-			</button>
+			</div>
 		</div>
 	</div>
 </form>

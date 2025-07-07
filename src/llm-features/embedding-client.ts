@@ -2,10 +2,10 @@ import { OllamaEmbeddingClient } from "src/rag/llm/ollama/embedding-client"
 import { derived } from "svelte/store"
 import { OpenAIEmbeddingClient } from "../rag/llm/openai"
 import { settingsStore } from "../utils/obsidian"
-import { llmClient } from "./llm-client"
+import { globalLlmClient } from "./llm-client"
 
 export const embeddingClient = derived(
-	[settingsStore, llmClient],
+	[settingsStore, globalLlmClient],
 	([$settingsStore, $llmClient]) => {
 		const modelConfig = $settingsStore.embeddingModel
 		const provider = modelConfig.provider

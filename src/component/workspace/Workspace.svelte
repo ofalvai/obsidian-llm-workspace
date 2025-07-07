@@ -3,7 +3,11 @@
 	import { Notice, TFile } from "obsidian"
 	import { conversationStore } from "src/llm-features/conversation"
 	import { embeddingClient } from "src/llm-features/embedding-client"
-	import { llmClient } from "src/llm-features/llm-client"
+	import { createLlmClient, globalLlmClient } from "src/llm-features/llm-client"
+	import {
+		selectionActionToMessage,
+		type TextSelectionAction,
+	} from "src/llm-features/selection-actions"
 	import {
 		workspaceQuestions,
 		type WorkspaceQuestion,
@@ -28,14 +32,11 @@
 	import TailwindCss from "../TailwindCSS.svelte"
 	import ConfigValue from "../chat/ConfigValue.svelte"
 	import ConversationStyle from "../chat/ConversationStyle.svelte"
+	import ModelSelector from "../chat/ModelSelector.svelte"
 	import QuestionAndAnswer from "../chat/QuestionAndAnswer.svelte"
 	import type { EmbeddedFileInfo } from "../types"
 	import IndexedFiles from "./IndexedFiles.svelte"
 	import Questions from "./Questions.svelte"
-	import {
-		type TextSelectionAction,
-		selectionActionToMessage,
-	} from "src/llm-features/selection-actions"
 
 	let {
 		workspaceFile,
@@ -79,9 +80,10 @@
 			limit: $settingsStore.retrievedNodeCount,
 		}),
 	)
+	let llmClient = $state($globalLlmClient)
 	let synthesizer: ResponseSynthesizer = $derived(
 		new DumbResponseSynthesizer(
-			$llmClient,
+			llmClient,
 			completionOptions,
 			$settingsStore.systemPrompt,
 			workspaceContext,
@@ -90,7 +92,8 @@
 	let queryEngine: QueryEngine = $derived(
 		new RetrieverQueryEngine(retriever, synthesizer, workspaceFile.path),
 	)
-	let conversation = $derived(conversationStore(queryEngine, $llmClient, completionOptions))
+	let conversation = conversationStore()
+	$effect(() => conversation.configure(queryEngine, llmClient, completionOptions))
 
 	let links = liveQuery(async () => {
 		const workspace = await db.workspace
@@ -157,7 +160,7 @@
 	const buildQuestions = async () => {
 		isLoadingQuestions = true
 		try {
-			const questions = await workspaceQuestions($llmClient, $appStore.vault, $links)
+			const questions = await workspaceQuestions($globalLlmClient, $appStore.vault, $links)
 			await db.workspace.update(workspaceFile.path, { derivedQuestions: questions })
 		} catch (e) {
 			console.error("Failed to build questions", e)
@@ -299,6 +302,9 @@
 			onDebugClick={(resp) => writeDebugInfo($appStore, resp)}
 			{onNewConversation}
 			{onReload}
+			onModelChange={(config) => {
+				llmClient = createLlmClient(config, $settingsStore.providerSettings)
+			}}
 			{onAction}
 		>
 			<div slot="empty">
@@ -310,7 +316,17 @@
 				/>
 				<div>
 					<div class="font-medium">Chat configuration</div>
-					<ConfigValue iconId="bot" label="LLM" value={$llmClient.displayName} />
+					<ConfigValue iconId="bot" label="LLM" value={llmClient.displayName} />
+					<div class="mb-2 flex items-center">
+						<span class="mr-2 text-sm font-medium">Model:</span>
+						<ModelSelector
+							initialValue={$settingsStore.questionAndAnswerModel}
+							onChange={(config) => {
+								llmClient = createLlmClient(config, $settingsStore.providerSettings)
+								conversation.resetConversation()
+							}}
+						/>
+					</div>
 					<ConfigValue
 						iconId="separator-horizontal"
 						label="Chunk size"

@@ -1,7 +1,13 @@
 <script lang="ts">
 	import { Notice, TFile } from "obsidian"
+	import type { ModelConfiguration } from "src/config/settings"
+	import {
+		handleTextSelection,
+		type TextSelectionAction,
+	} from "src/llm-features/selection-actions"
 	import type { Conversation } from "src/rag/conversation"
 	import type { QueryResponse } from "src/rag/synthesizer"
+	import { onMount } from "svelte"
 	import ErrorComponent from "../ErrorComponent.svelte"
 	import Loading from "../obsidian/Loading.svelte"
 	import ObsidianIcon from "../obsidian/ObsidianIcon.svelte"
@@ -10,11 +16,6 @@
 	import SourceList from "./SourceList.svelte"
 	import TextSelectionActions from "./TextSelectionActions.svelte"
 	import UserInput from "./UserInput.svelte"
-	import { onMount } from "svelte"
-	import {
-		handleTextSelection,
-		type TextSelectionAction,
-	} from "src/llm-features/selection-actions"
 
 	let {
 		conversation,
@@ -24,6 +25,7 @@
 		onDebugClick,
 		onNewConversation,
 		onReload,
+		onModelChange,
 		onAction,
 	}: {
 		conversation: Conversation | null
@@ -33,6 +35,7 @@
 		onDebugClick: (response: QueryResponse) => void
 		onNewConversation: () => void
 		onReload: () => void
+		onModelChange: (config: ModelConfiguration) => void
 		onAction: (action: TextSelectionAction, text: string) => void
 	} = $props()
 
@@ -193,6 +196,7 @@
 		isConversationActive={conversation != null}
 		onSubmit={onMessageSubmit}
 		{onNewConversation}
+		{onModelChange}
 	/>
 </div>
 
