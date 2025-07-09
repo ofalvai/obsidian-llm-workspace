@@ -17,7 +17,7 @@
 	"keywords": [],
 	"author": "",
 	"license": "MIT",
-	"packageManager": "pnpm@10.11.0",
+	"packageManager": "pnpm@10.13.1",
 	"dependencies": {
 		"dexie": "4.0.8",
 		"openai": "^4.103.0"
