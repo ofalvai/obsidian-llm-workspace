@@ -28,7 +28,7 @@
 		"@tsconfig/svelte": "^5.0.2",
 		"@types/node": "^20.17.52",
 		"@vitest/ui": "^3.1.4",
-		"esbuild": "0.25.5",
+		"esbuild": "0.28.1",
 		"esbuild-svelte": "^0.9.3",
 		"eslint": "^9.27.0",
 		"eslint-plugin-svelte": "^3.9.0",
